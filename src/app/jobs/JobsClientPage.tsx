@@ -47,6 +47,7 @@ import JobsExecutiveCockpit from "./JobsExecutiveCockpit";
 import { isCompleted, getCurrentStepDef, getSteps } from "@/app/lib/job-workflow";
 import {
   evaluateAccountingAmountReconciliation,
+  evaluatePaymentTasksLinkState,
   parseAccountingTaxDocuments,
 } from "@/app/lib/accounting-reconciliation";
 import { formatDateForInput, formatThaiDate } from "@/utils/thai-date";
@@ -117,6 +118,23 @@ function getJobReconciliation(job: Job) {
     accountingVerifiedBeforeVat: job.accountingVerifiedBeforeVat,
     accountingClosedAt: job.accountingClosedAt,
     quotation: job.quotation,
+  });
+}
+
+function getJobPaymentLink(job: Job) {
+  return evaluatePaymentTasksLinkState({
+    paymentTasks: job.paymentTasks,
+    paymentMethod: job.paymentMethod,
+    creditTerms: job.creditTerms,
+  });
+}
+
+function isJobClosedCompleted(job: Job) {
+  const recon = getJobReconciliation(job);
+  const paymentLink = getJobPaymentLink(job);
+  return isCompleted(job.jobType, job.currentStep, job.flowVariant, job.stepLogs, {
+    hasAccountingAmountMismatch: recon.hasMismatch,
+    hasUnsettledCreditOrInstallment: paymentLink.hasUnsettledCreditOrInstallment,
   });
 }
 
@@ -1582,12 +1600,7 @@ export default function JobsClientPage({
 
   const pendingActionCount = useMemo(() => {
     return jobs.filter((j) => {
-      if (
-        isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
-          hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-        })
-      )
-        return false;
+      if (isJobClosedCompleted(j)) return false;
       const stepDef = getCurrentStepDef(
         j.jobType,
         j.currentStep,
@@ -1599,11 +1612,7 @@ export default function JobsClientPage({
   }, [jobs, normalizedDept]);
 
   const completedOverallCount = useMemo(() => {
-    return jobs.filter((j) =>
-      isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
-        hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-      })
-    ).length;
+    return jobs.filter((j) => isJobClosedCompleted(j)).length;
   }, [jobs]);
 
   const inProgressCount = useMemo(() => {
@@ -1684,15 +1693,7 @@ export default function JobsClientPage({
         j.flowVariant,
         j.stepLogs
       );
-      const isDone = isCompleted(
-        j.jobType,
-        j.currentStep,
-        j.flowVariant,
-        j.stepLogs,
-        {
-          hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-        }
-      );
+      const isDone = isJobClosedCompleted(j);
 
       return {
         "เลขที่งาน (Job No.)": j.jobNumber,
@@ -1987,23 +1988,13 @@ export default function JobsClientPage({
         const y = (now.getFullYear() + 543) % 100;
         if (j.month !== m || j.yearBe !== y) return false;
       } else if (statusTab === "in_progress") {
-        if (
-          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
-            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-          })
-        )
-          return false;
+        if (isJobClosedCompleted(j)) return false;
       } else if (statusTab === "with_po") {
         if (!j.poNumber) return false;
       } else if (statusTab === "without_po") {
         if (j.poNumber) return false;
       } else if (statusTab === "pending_action") {
-        if (
-          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
-            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-          })
-        )
-          return false;
+        if (isJobClosedCompleted(j)) return false;
         const stepDef = getCurrentStepDef(
           j.jobType,
           j.currentStep,
@@ -2015,12 +2006,7 @@ export default function JobsClientPage({
         )
           return false;
       } else if (statusTab === "waiting_other") {
-        if (
-          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
-            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-          })
-        )
-          return false;
+        if (isJobClosedCompleted(j)) return false;
         const stepDef = getCurrentStepDef(
           j.jobType,
           j.currentStep,
@@ -2032,12 +2018,7 @@ export default function JobsClientPage({
         )
           return false;
       } else if (statusTab === "completed") {
-        if (
-          !isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
-            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-          })
-        )
-          return false;
+        if (!isJobClosedCompleted(j)) return false;
       }
 
       if (filterCo && normalizeCompanyCode(j.companyCode) !== filterCo) return false;
@@ -2046,12 +2027,7 @@ export default function JobsClientPage({
         if (!isSamePersonName(j.sellerName, filterEmployee)) return false;
       }
       if (filterDeptStatus) {
-        if (
-          isCompleted(j.jobType, j.currentStep, j.flowVariant, j.stepLogs, {
-            hasAccountingAmountMismatch: getJobReconciliation(j).hasMismatch,
-          })
-        )
-          return false;
+        if (isJobClosedCompleted(j)) return false;
         const stepDef = getCurrentStepDef(
           j.jobType,
           j.currentStep,
@@ -2751,15 +2727,16 @@ export default function JobsClientPage({
               Number(job.quotation?.totalAmountBeforeVat) ||
               0;
             const recon = getJobReconciliation(job);
-            const isDone = isCompleted(
+            const paymentLink = getJobPaymentLink(job);
+            const isWorkflowStepsDone = isCompleted(
               job.jobType,
               job.currentStep,
               job.flowVariant,
-              job.stepLogs,
-              {
-                hasAccountingAmountMismatch: recon.hasMismatch,
-              }
+              job.stepLogs
             );
+            const isDone = isJobClosedCompleted(job);
+            const isWaitingCreditPaymentClose =
+              !isDone && isWorkflowStepsDone && paymentLink.hasUnsettledCreditOrInstallment;
             const stepDef = getCurrentStepDef(
               job.jobType,
               job.currentStep,
@@ -2845,6 +2822,8 @@ export default function JobsClientPage({
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : recon.hasMismatch
                             ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : isWaitingCreditPaymentClose
+                            ? "bg-amber-50 text-amber-800 border border-amber-200"
                             : "bg-blue-50 text-blue-700 border border-blue-200"
                           }`}
                       >
@@ -2855,6 +2834,8 @@ export default function JobsClientPage({
                           </>
                         ) : recon.hasMismatch ? (
                           <span>ยอดไม่ตรงบัญชี</span>
+                        ) : isWaitingCreditPaymentClose ? (
+                          <span>รอรับชำระครบ ({paymentLink.settledTasks}/{paymentLink.totalTasks})</span>
                         ) : (
                           <span>{stepDef?.label || job.currentStep}</span>
                         )}
@@ -2977,15 +2958,16 @@ export default function JobsClientPage({
                     Number(job.quotation?.totalAmountBeforeVat) ||
                     0;
                   const recon = getJobReconciliation(job);
-                  const isDone = isCompleted(
+                  const paymentLink = getJobPaymentLink(job);
+                  const isWorkflowStepsDone = isCompleted(
                     job.jobType,
                     job.currentStep,
                     job.flowVariant,
-                    job.stepLogs,
-                    {
-                      hasAccountingAmountMismatch: recon.hasMismatch,
-                    }
+                    job.stepLogs
                   );
+                  const isDone = isJobClosedCompleted(job);
+                  const isWaitingCreditPaymentClose =
+                    !isDone && isWorkflowStepsDone && paymentLink.hasUnsettledCreditOrInstallment;
                   const stepDef = getCurrentStepDef(
                     job.jobType,
                     job.currentStep,
@@ -3018,11 +3000,16 @@ export default function JobsClientPage({
 
                         <td className="py-3.5 px-4 whitespace-nowrap">
                           <span
-                            title={recon.mismatchMessage || undefined}
+                            title={
+                              recon.mismatchMessage ||
+                              (isWaitingCreditPaymentClose ? paymentLink.closeBlockReason || undefined : undefined)
+                            }
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shadow-2xs ${isDone
                                 ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                                 : recon.hasMismatch
                                 ? "bg-rose-50 border-rose-200 text-rose-700"
+                                : isWaitingCreditPaymentClose
+                                ? "bg-amber-50 border-amber-200 text-amber-800"
                                 : "bg-blue-50 border-blue-200 text-blue-700"
                               }`}
                           >
@@ -3035,6 +3022,13 @@ export default function JobsClientPage({
                               <>
                                 <AlertCircle size={12} />
                                 <span>ปิดไม่ได้ (ยอดไม่ตรงบัญชี)</span>
+                              </>
+                            ) : isWaitingCreditPaymentClose ? (
+                              <>
+                                <AlertCircle size={12} />
+                                <span>
+                                  ปิดไม่ได้ (รอรับชำระครบ {paymentLink.settledTasks}/{paymentLink.totalTasks})
+                                </span>
                               </>
                             ) : (
                               <span>{stepDef?.label || job.currentStep}</span>

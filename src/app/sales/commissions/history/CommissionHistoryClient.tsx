@@ -12,8 +12,18 @@ import {
   Clock,
   Coins,
   Banknote,
+  Users,
 } from 'lucide-react';
-import { COMMISSION_STATUS_LABELS, CommissionStatus } from '@/app/lib/salesCommission';
+import {
+  allocateCommissionAmountsBySplits,
+  COMMISSION_STATUS_LABELS,
+  CommissionRecipientOption,
+  CommissionSplitItem,
+  CommissionStatus,
+  formatCommissionSplitsSummary,
+  resolveEffectiveCommissionSplits,
+  roundCurrency2,
+} from '@/app/lib/salesCommission';
 import SearchableSelect from '@/app/components/SearchableSelect';
 import CommissionNavHeader from '../components/CommissionNavHeader';
 import {
@@ -31,7 +41,9 @@ export type CommissionHistoryRow = {
   companyCode: string;
   customerName: string;
   productSold: string | null;
+  salespersonId?: string | null;
   salespersonName: string;
+  splits?: CommissionSplitItem[];
   requestedByName: string;
   requestedAt: string;
   taxInvoiceNumbers: string | null;
@@ -54,12 +66,35 @@ export type CommissionHistoryRow = {
   payoutRecordedByName: string | null;
 };
 
+type PersonCommissionSummary = {
+  key: string;
+  employeeId: string | null;
+  recipientName: string;
+  recipientRole: string | null;
+  jobCount: number;
+  inReviewCount: number;
+  approvedPendingPayout: number;
+  paidAmount: number;
+  totalConfirmedAmount: number;
+};
+
+function getRowEffectiveSplits(r: CommissionHistoryRow): CommissionSplitItem[] {
+  return resolveEffectiveCommissionSplits({
+    salespersonId: r.salespersonId,
+    salespersonName: r.salespersonName,
+    commissionAmount: r.commissionAmount,
+    splits: r.splits,
+  });
+}
+
 export default function CommissionHistoryClient({
   initialItems,
   pendingApprovalCount = 0,
+  recipientOptions = [],
 }: {
   initialItems: CommissionHistoryRow[];
   pendingApprovalCount?: number;
+  recipientOptions?: CommissionRecipientOption[];
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -72,6 +107,9 @@ export default function CommissionHistoryClient({
     const s = new Set<string>();
     for (const r of initialItems) {
       if (r.salespersonName) s.add(r.salespersonName);
+      for (const split of getRowEffectiveSplits(r)) {
+        if (split.recipientName) s.add(split.recipientName);
+      }
     }
     return Array.from(s).sort((a, b) => a.localeCompare(b, 'th'));
   }, [initialItems]);
@@ -84,7 +122,14 @@ export default function CommissionHistoryClient({
     return initialItems.filter((r) => {
       if (statusFilter !== 'ALL' && r.status !== statusFilter) return false;
       if (companyFilter !== 'ALL' && r.companyCode !== companyFilter) return false;
-      if (salespersonFilter !== 'ALL' && r.salespersonName !== salespersonFilter) return false;
+
+      const effectiveSplits = getRowEffectiveSplits(r);
+      if (salespersonFilter !== 'ALL') {
+        const matchesRecipient =
+          r.salespersonName === salespersonFilter ||
+          effectiveSplits.some((s) => s.recipientName === salespersonFilter);
+        if (!matchesRecipient) return false;
+      }
 
       const reqMs = new Date(r.requestedAt).getTime();
       if (fromMs !== null && Number.isFinite(fromMs) && reqMs < fromMs) return false;
@@ -96,6 +141,7 @@ export default function CommissionHistoryClient({
           r.jobNumber,
           r.customerName,
           r.salespersonName,
+          ...effectiveSplits.map((s) => `${s.recipientName} ${s.employeeId || ''}`),
           r.taxInvoiceNumbers || '',
           r.receiptNumbers || '',
           r.payoutRefNo || '',
@@ -108,6 +154,79 @@ export default function CommissionHistoryClient({
     });
   }, [initialItems, search, statusFilter, companyFilter, salespersonFilter, dateFrom, dateTo]);
 
+  const perPersonSummary = useMemo<PersonCommissionSummary[]>(() => {
+    const map = new Map<string, PersonCommissionSummary>();
+
+    for (const r of filtered) {
+      const effectiveSplits = getRowEffectiveSplits(r);
+      const paidAllocations =
+        r.status === 'PAID'
+          ? allocateCommissionAmountsBySplits(
+              r.payoutAmount ?? r.commissionAmount ?? 0,
+              effectiveSplits
+            )
+          : null;
+
+      effectiveSplits.forEach((s, idx) => {
+        if (salespersonFilter !== 'ALL' && s.recipientName !== salespersonFilter) {
+          return;
+        }
+        const key = s.userId ? `uid:${s.userId}` : `name:${s.recipientName.trim().toLowerCase()}`;
+        let entry = map.get(key);
+        if (!entry) {
+          entry = {
+            key,
+            employeeId: s.employeeId ?? null,
+            recipientName: s.recipientName,
+            recipientRole: s.recipientRole ?? null,
+            jobCount: 0,
+            inReviewCount: 0,
+            approvedPendingPayout: 0,
+            paidAmount: 0,
+            totalConfirmedAmount: 0,
+          };
+          map.set(key, entry);
+        }
+        if (!entry.employeeId && s.employeeId) entry.employeeId = s.employeeId;
+        if (!entry.recipientRole && s.recipientRole) entry.recipientRole = s.recipientRole;
+
+        entry.jobCount += 1;
+        if (
+          r.status === 'SUBMITTED' ||
+          r.status === 'PENDING_PROFIT_REVIEW' ||
+          r.status === 'PENDING_APPROVAL'
+        ) {
+          entry.inReviewCount += 1;
+        } else if (r.status === 'APPROVED') {
+          const share =
+            s.allocatedAmount !== null && s.allocatedAmount !== undefined
+              ? s.allocatedAmount
+              : roundCurrency2(((r.commissionAmount || 0) * s.splitPct) / 100);
+          entry.approvedPendingPayout = roundCurrency2(entry.approvedPendingPayout + share);
+          entry.totalConfirmedAmount = roundCurrency2(entry.totalConfirmedAmount + share);
+        } else if (r.status === 'PAID') {
+          const paidShare =
+            paidAllocations?.[idx]?.allocatedAmount ??
+            roundCurrency2((((r.payoutAmount ?? r.commissionAmount ?? 0) * s.splitPct) / 100));
+          const approvedShare =
+            s.allocatedAmount !== null && s.allocatedAmount !== undefined
+              ? s.allocatedAmount
+              : paidShare;
+          entry.paidAmount = roundCurrency2(entry.paidAmount + paidShare);
+          entry.totalConfirmedAmount = roundCurrency2(entry.totalConfirmedAmount + approvedShare);
+        }
+      });
+    }
+
+    return Array.from(map.values()).sort((a, b) => {
+      if (b.totalConfirmedAmount !== a.totalConfirmedAmount) {
+        return b.totalConfirmedAmount - a.totalConfirmedAmount;
+      }
+      if (b.jobCount !== a.jobCount) return b.jobCount - a.jobCount;
+      return a.recipientName.localeCompare(b.recipientName, 'th');
+    });
+  }, [filtered, salespersonFilter]);
+
   const summary = useMemo(() => {
     let totalSales = 0;
     let totalApprovedOrPaidCommission = 0;
@@ -116,12 +235,55 @@ export default function CommissionHistoryClient({
 
     for (const r of filtered) {
       totalSales += r.salesAmountExVat || 0;
-      if (r.status === 'APPROVED') {
-        totalApprovedOrPaidCommission += r.commissionAmount || 0;
-        pendingPayoutAmount += r.commissionAmount || 0;
-      } else if (r.status === 'PAID') {
-        totalApprovedOrPaidCommission += r.commissionAmount || 0;
-        totalPaidAmount += r.payoutAmount ?? (r.commissionAmount || 0);
+      if (salespersonFilter !== 'ALL') {
+        const effectiveSplits = getRowEffectiveSplits(r);
+        const matchingSplits = effectiveSplits.filter((s) => s.recipientName === salespersonFilter);
+        const paidAllocations =
+          r.status === 'PAID'
+            ? allocateCommissionAmountsBySplits(
+                r.payoutAmount ?? r.commissionAmount ?? 0,
+                effectiveSplits
+              )
+            : null;
+        if (r.status === 'APPROVED') {
+          for (const s of matchingSplits) {
+            const share =
+              s.allocatedAmount !== null && s.allocatedAmount !== undefined
+                ? s.allocatedAmount
+                : roundCurrency2(((r.commissionAmount || 0) * s.splitPct) / 100);
+            totalApprovedOrPaidCommission = roundCurrency2(totalApprovedOrPaidCommission + share);
+            pendingPayoutAmount = roundCurrency2(pendingPayoutAmount + share);
+          }
+        } else if (r.status === 'PAID') {
+          effectiveSplits.forEach((s, idx) => {
+            if (s.recipientName !== salespersonFilter) return;
+            const paidShare =
+              paidAllocations?.[idx]?.allocatedAmount ??
+              roundCurrency2(((r.payoutAmount ?? r.commissionAmount ?? 0) * s.splitPct) / 100);
+            const approvedShare =
+              s.allocatedAmount !== null && s.allocatedAmount !== undefined
+                ? s.allocatedAmount
+                : paidShare;
+            totalApprovedOrPaidCommission = roundCurrency2(
+              totalApprovedOrPaidCommission + approvedShare
+            );
+            totalPaidAmount = roundCurrency2(totalPaidAmount + paidShare);
+          });
+        }
+      } else {
+        if (r.status === 'APPROVED') {
+          totalApprovedOrPaidCommission = roundCurrency2(
+            totalApprovedOrPaidCommission + (r.commissionAmount || 0)
+          );
+          pendingPayoutAmount = roundCurrency2(pendingPayoutAmount + (r.commissionAmount || 0));
+        } else if (r.status === 'PAID') {
+          totalApprovedOrPaidCommission = roundCurrency2(
+            totalApprovedOrPaidCommission + (r.commissionAmount || 0)
+          );
+          totalPaidAmount = roundCurrency2(
+            totalPaidAmount + (r.payoutAmount ?? (r.commissionAmount || 0))
+          );
+        }
       }
     }
     return {
@@ -131,52 +293,124 @@ export default function CommissionHistoryClient({
       totalPaidAmount,
       pendingPayoutAmount,
     };
-  }, [filtered]);
+  }, [filtered, salespersonFilter]);
 
-  const buildExportRows = () =>
-    filtered.map((r) => ({
-      'เลขที่คำขอ': r.requestNo,
-      'วันที่ยื่นคำขอ': formatThaiDate(r.requestedAt),
-      'บริษัท': r.companyCode,
-      'เลขที่ Job': r.jobNumber,
-      'ลูกค้า': r.customerName,
-      'สินค้าที่ขาย': r.productSold || '-',
-      'เลขที่ใบกำกับภาษี': r.taxInvoiceNumbers || '-',
-      'วันที่ใบกำกับภาษี': formatThaiDate(r.taxInvoiceDate),
-      'เลขที่ใบเสร็จรับเงิน': r.receiptNumbers || '-',
-      'สถานะปิด Job': r.jobClosedStatus,
-      'พนักงานขาย': r.salespersonName,
-      'ยอดขายไม่รวม VAT (บาท)': r.salesAmountExVat,
-      'ต้นทุน (บาท)': r.costAmount ?? '',
-      '% กำไรที่ยืนยัน': r.confirmedProfitPct ?? '',
-      '% ค่าคอมมิชชั่น': r.commissionRatePct ?? '',
-      'ยอดค่าคอมมิชชั่น (บาท)': r.commissionAmount ?? '',
-      'สถานะคำขอ': COMMISSION_STATUS_LABELS[r.status as CommissionStatus] || r.status,
-      'ผู้อนุมัติ': r.approvedByName || '-',
-      'เหตุผลไม่อนุมัติ': r.rejectedReason || '-',
-      'วันที่จ่ายเงิน': formatThaiDate(r.payoutDate),
-      'ยอดเงินที่จ่าย (บาท)': r.payoutAmount ?? '',
-      'เลขที่อ้างอิงการจ่าย': r.payoutRefNo || '-',
-      'ผู้บันทึกการจ่าย': r.payoutRecordedByName || '-',
+  const buildRequestExportRows = () =>
+    filtered.map((r) => {
+      const effectiveSplits = getRowEffectiveSplits(r);
+      return {
+        'เลขที่คำขอ': r.requestNo,
+        'วันที่ยื่นคำขอ': formatThaiDate(r.requestedAt),
+        'บริษัท': r.companyCode,
+        'เลขที่ Job': r.jobNumber,
+        'ลูกค้า': r.customerName,
+        'สินค้าที่ขาย': r.productSold || '-',
+        'เลขที่ใบกำกับภาษี': r.taxInvoiceNumbers || '-',
+        'วันที่ใบกำกับภาษี': formatThaiDate(r.taxInvoiceDate),
+        'เลขที่ใบเสร็จรับเงิน': r.receiptNumbers || '-',
+        'สถานะปิด Job': r.jobClosedStatus,
+        'เจ้าของงานหลัก': r.salespersonName,
+        'สัดส่วนแบ่งค่าคอมฯ': formatCommissionSplitsSummary(effectiveSplits),
+        'ยอดขายไม่รวม VAT (บาท)': r.salesAmountExVat,
+        'ต้นทุน (บาท)': r.costAmount ?? '',
+        '% กำไรที่ยืนยัน': r.confirmedProfitPct ?? '',
+        '% ค่าคอมมิชชั่น': r.commissionRatePct ?? '',
+        'ยอดค่าคอมมิชชั่นรวม (บาท)': r.commissionAmount ?? '',
+        'สถานะคำขอ': COMMISSION_STATUS_LABELS[r.status as CommissionStatus] || r.status,
+        'ผู้อนุมัติ': r.approvedByName || '-',
+        'เหตุผลไม่อนุมัติ': r.rejectedReason || '-',
+        'วันที่จ่ายเงิน': formatThaiDate(r.payoutDate),
+        'ยอดเงินที่จ่ายรวม (บาท)': r.payoutAmount ?? '',
+        'เลขที่อ้างอิงการจ่าย': r.payoutRefNo || '-',
+        'ผู้บันทึกการจ่าย': r.payoutRecordedByName || '-',
+      };
+    });
+
+  const buildPersonSummaryExportRows = () =>
+    perPersonSummary.map((p) => ({
+      'รหัสพนักงาน': p.employeeId || '-',
+      'ชื่อผู้รับค่าคอมฯ': p.recipientName,
+      'แผนก/ตำแหน่ง': p.recipientRole || '-',
+      'จำนวนงานทั้งหมด': p.jobCount,
+      'รอตรวจกำไร/รออนุมัติ (งาน)': p.inReviewCount,
+      'อนุมัติรอจ่าย (บาท)': p.approvedPendingPayout,
+      'จ่ายแล้ว (บาท)': p.paidAmount,
+      'รวมยอดที่อนุมัติ/จ่าย (บาท)': p.totalConfirmedAmount,
     }));
 
+  const buildSplitDetailExportRows = () => {
+    const rows: Array<Record<string, string | number>> = [];
+    for (const r of filtered) {
+      const effectiveSplits = getRowEffectiveSplits(r);
+      const paidAllocations =
+        r.status === 'PAID'
+          ? allocateCommissionAmountsBySplits(
+              r.payoutAmount ?? r.commissionAmount ?? 0,
+              effectiveSplits
+            )
+          : null;
+
+      effectiveSplits.forEach((s, idx) => {
+        if (salespersonFilter !== 'ALL' && s.recipientName !== salespersonFilter) {
+          return;
+        }
+        const paidShare =
+          r.status === 'PAID'
+            ? (paidAllocations?.[idx]?.allocatedAmount ??
+              roundCurrency2(((r.payoutAmount ?? r.commissionAmount ?? 0) * s.splitPct) / 100))
+            : '';
+        rows.push({
+          'เลขที่คำขอ': r.requestNo,
+          'วันที่ยื่นคำขอ': formatThaiDate(r.requestedAt),
+          'บริษัท': r.companyCode,
+          'เลขที่ Job': r.jobNumber,
+          'ลูกค้า': r.customerName,
+          'รหัสพนักงาน': s.employeeId || '-',
+          'ชื่อผู้รับค่าคอมฯ': s.recipientName,
+          'บทบาทในงาน': s.isOwner ? 'เจ้าของงาน' : 'ผู้ร่วมแบ่ง',
+          'แผนก/ตำแหน่ง': s.recipientRole || '-',
+          'สัดส่วน (%)': s.splitPct,
+          'ค่าคอมฯ รวมของคำขอ (บาท)': r.commissionAmount ?? '',
+          'ส่วนแบ่งค่าคอมฯ ที่ได้รับ (บาท)': s.allocatedAmount ?? '',
+          'ส่วนแบ่งยอดที่จ่าย (บาท)': paidShare,
+          'สถานะคำขอ': COMMISSION_STATUS_LABELS[r.status as CommissionStatus] || r.status,
+          'วันที่จ่ายเงิน': formatThaiDate(r.payoutDate),
+          'เลขที่อ้างอิงการจ่าย': r.payoutRefNo || '-',
+        });
+      });
+    }
+    return rows;
+  };
+
   const handleExportExcel = () => {
-    const exportRows = buildExportRows();
-    const ws = XLSX.utils.json_to_sheet(exportRows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'CommissionHistory');
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(buildPersonSummaryExportRows()),
+      'สรุปยอดรายบุคคล'
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(buildSplitDetailExportRows()),
+      'รายละเอียดส่วนแบ่งรายคน'
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(buildRequestExportRows()),
+      'CommissionHistory'
+    );
     XLSX.writeFile(wb, `commission_history_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const handleExportCsv = () => {
-    const exportRows = buildExportRows();
+    const exportRows = buildSplitDetailExportRows();
     const ws = XLSX.utils.json_to_sheet(exportRows);
     const csvContent = '\uFEFF' + XLSX.utils.sheet_to_csv(ws);
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `commission_history_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `commission_splits_${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -250,7 +484,9 @@ export default function CommissionHistoryClient({
               </div>
             </div>
             <div className="pt-2.5 mt-3 border-t border-teal-100/80 text-[11px] text-teal-700/80 font-medium">
-              รอโอนจ่ายค่าคอมมิชชั่น
+              {salespersonFilter !== 'ALL'
+                ? `เฉพาะส่วนแบ่งของ ${salespersonFilter}`
+                : 'รอโอนจ่ายค่าคอมมิชชั่น'}
             </div>
           </div>
 
@@ -270,7 +506,9 @@ export default function CommissionHistoryClient({
               </div>
             </div>
             <div className="pt-2.5 mt-3 border-t border-green-100/80 text-[11px] text-green-700/80 font-medium">
-              บันทึกการโอนจ่ายเรียบร้อย
+              {salespersonFilter !== 'ALL'
+                ? `ยอดจ่ายส่วนแบ่งของ ${salespersonFilter}`
+                : 'บันทึกการโอนจ่ายเรียบร้อย'}
             </div>
           </div>
         </div>
@@ -309,11 +547,24 @@ export default function CommissionHistoryClient({
                 compact
                 value={salespersonFilter}
                 onChange={(val) => setSalespersonFilter(val || 'ALL')}
-                placeholder="พิมพ์หาชื่อพนักงานขาย..."
+                placeholder="พิมพ์ชื่อ / ชื่อเล่นพนักงาน..."
                 emptyText="ไม่พบพนักงานขาย"
                 options={[
                   { value: 'ALL', label: 'พนักงานขายทุกคน' },
-                  ...salespersonOptions.map((name) => ({ value: name, label: name })),
+                  ...salespersonOptions.map((name) => {
+                    const matched = recipientOptions.find(
+                      (u) => u.fullName.trim().toLowerCase() === name.trim().toLowerCase()
+                    );
+                    return {
+                      value: name,
+                      label: matched?.nickname ? `${name} (${matched.nickname})` : name,
+                      searchText: matched
+                        ? [matched.nickname, matched.fullName, matched.employeeId]
+                            .filter(Boolean)
+                            .join(' ')
+                        : name,
+                    };
+                  }),
                 ]}
               />
             </div>
@@ -380,6 +631,101 @@ export default function CommissionHistoryClient({
           </div>
         </div>
 
+        {/* Per-Person Commission Payout Summary */}
+        {perPersonSummary.length > 0 && (
+          <div className="bg-white rounded-2xl border border-indigo-200/80 shadow-xs overflow-hidden">
+            <div className="px-4 py-3 bg-indigo-50/60 border-b border-indigo-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                  <Users size={15} />
+                </span>
+                <div>
+                  <h2 className="text-xs font-black text-indigo-950">
+                    สรุปยอดค่าคอมมิชชั่นแยกตามรายชื่อพนักงาน ({perPersonSummary.length} คน)
+                  </h2>
+                  <p className="text-[11px] text-indigo-700/80">
+                    รวมส่วนแบ่งตาม % ของแต่ละคำขอ — คลิกที่รายชื่อเพื่อกรองเฉพาะงานของคนนั้น
+                  </p>
+                </div>
+              </div>
+              {salespersonFilter !== 'ALL' && (
+                <button
+                  type="button"
+                  onClick={() => setSalespersonFilter('ALL')}
+                  className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white border border-indigo-200 text-[11px] font-bold text-indigo-700 hover:bg-indigo-50 transition-colors"
+                >
+                  แสดงทุกคน
+                </button>
+              )}
+            </div>
+
+            <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
+              <table className="w-full text-left border-collapse min-w-[760px]">
+                <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase">
+                  <tr>
+                    <th className="py-2.5 px-4">พนักงาน / รหัส</th>
+                    <th className="py-2.5 px-3 text-right">จำนวนงาน</th>
+                    <th className="py-2.5 px-3 text-right">รอดำเนินการ</th>
+                    <th className="py-2.5 px-3 text-right">อนุมัติรอจ่าย (บาท)</th>
+                    <th className="py-2.5 px-3 text-right">จ่ายแล้ว (บาท)</th>
+                    <th className="py-2.5 px-4 text-right">รวมอนุมัติ / จ่าย (บาท)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs">
+                  {perPersonSummary.map((p) => {
+                    const isSelected = salespersonFilter === p.recipientName;
+                    return (
+                      <tr
+                        key={p.key}
+                        onClick={() =>
+                          setSalespersonFilter(isSelected ? 'ALL' : p.recipientName)
+                        }
+                        className={`cursor-pointer transition-colors ${
+                          isSelected ? 'bg-indigo-50/70' : 'hover:bg-slate-50'
+                        }`}
+                      >
+                        <td className="py-2.5 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900">{p.recipientName}</span>
+                            {p.employeeId && (
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
+                                {p.employeeId}
+                              </span>
+                            )}
+                            {isSelected && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-600 text-white">
+                                กำลังกรอง
+                              </span>
+                            )}
+                          </div>
+                          {p.recipientRole && (
+                            <div className="text-[11px] text-slate-500">{p.recipientRole}</div>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-semibold text-slate-700 tabular-nums">
+                          {p.jobCount} งาน
+                        </td>
+                        <td className="py-2.5 px-3 text-right text-amber-700 font-semibold tabular-nums">
+                          {p.inReviewCount > 0 ? `${p.inReviewCount} งาน` : '-'}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-teal-700 tabular-nums">
+                          {p.approvedPendingPayout > 0 ? formatThb(p.approvedPendingPayout) : '-'}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-bold text-green-700 tabular-nums">
+                          {p.paidAmount > 0 ? formatThb(p.paidAmount) : '-'}
+                        </td>
+                        <td className="py-2.5 px-4 text-right font-black text-slate-900 tabular-nums">
+                          {formatThb(p.totalConfirmedAmount)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* History Table */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
@@ -405,7 +751,14 @@ export default function CommissionHistoryClient({
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((r) => (
+                  filtered.map((r) => {
+                    const effectiveSplits = getRowEffectiveSplits(r);
+                    const hasMultiSplit = effectiveSplits.length > 1;
+                    const focusedSplit =
+                      salespersonFilter !== 'ALL'
+                        ? effectiveSplits.find((s) => s.recipientName === salespersonFilter)
+                        : null;
+                    return (
                     <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3.5 px-3 align-middle tabular-nums whitespace-nowrap">
                         <div className="flex items-center gap-1.5 flex-nowrap">
@@ -433,13 +786,32 @@ export default function CommissionHistoryClient({
                         </div>
                       </td>
 
-                      <td className="py-3.5 px-3 align-middle max-w-[140px]">
+                      <td className="py-3.5 px-3 align-middle max-w-[200px]">
                         <div
                           className="font-medium text-slate-700 truncate"
-                          title={r.salespersonName}
+                          title={
+                            hasMultiSplit
+                              ? formatCommissionSplitsSummary(effectiveSplits)
+                              : r.salespersonName
+                          }
                         >
                           {r.salespersonName}
                         </div>
+                        {hasMultiSplit && (
+                          <div className="mt-1 space-y-0.5">
+                            {effectiveSplits.map((s, idx) => (
+                              <div
+                                key={`${idx}-${s.userId || s.recipientName}`}
+                                className="flex items-center justify-between gap-1.5 text-[10px] text-indigo-700 bg-indigo-50/70 px-1.5 py-0.5 rounded border border-indigo-100"
+                              >
+                                <span className="truncate font-semibold">{s.recipientName}</span>
+                                <span className="shrink-0 font-black tabular-nums">
+                                  {s.splitPct}%
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </td>
 
                       <td className="py-3.5 px-3 align-middle text-right font-bold text-slate-900 tabular-nums whitespace-nowrap">
@@ -459,6 +831,26 @@ export default function CommissionHistoryClient({
                             <div className="text-[10px] text-slate-500">
                               {formatRatePct(r.commissionRatePct)}
                             </div>
+                            {hasMultiSplit && focusedSplit && focusedSplit.allocatedAmount !== null && (
+                              <div className="text-[10px] font-bold text-indigo-700 mt-0.5">
+                                ส่วนที่กรอง ({focusedSplit.splitPct}%):{' '}
+                                {formatThb(focusedSplit.allocatedAmount)}
+                              </div>
+                            )}
+                            {hasMultiSplit && !focusedSplit && (
+                              <div className="mt-1 space-y-0.5 text-[10px] text-slate-500">
+                                {effectiveSplits.map((s, idx) => (
+                                  <div key={`${idx}-${s.userId || s.recipientName}`}>
+                                    {s.recipientName.split(' ')[0]}:{' '}
+                                    <span className="font-bold text-slate-700">
+                                      {s.allocatedAmount !== null
+                                        ? formatThb(s.allocatedAmount)
+                                        : '-'}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <span className="text-slate-400">-</span>
@@ -486,7 +878,8 @@ export default function CommissionHistoryClient({
                         </Link>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>

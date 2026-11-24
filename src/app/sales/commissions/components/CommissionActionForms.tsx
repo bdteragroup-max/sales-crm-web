@@ -1,19 +1,27 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Calculator, CheckCircle2, XCircle, Banknote, Loader2, AlertTriangle } from 'lucide-react';
+import { Calculator, CheckCircle2, XCircle, Banknote, Loader2, AlertTriangle, Users } from 'lucide-react';
 import {
   calculateCommissionFromProfit,
+  CommissionRecipientOption,
+  CommissionSplitInput,
+  CommissionSplitItem,
   deriveCostFromProfitPct,
   deriveProfitPctFromCost,
+  normalizeAndValidateCommissionSplits,
+  resolveEffectiveCommissionSplits,
 } from '@/app/lib/salesCommission';
 import { formatRatePct, formatThb } from './CommissionUiHelpers';
+import CommissionSplitEditor from './CommissionSplitEditor';
 
 export type CommissionRequestActionTarget = {
   id: string;
   requestNo: string;
   jobNumber: string;
   customerName: string;
+  salespersonId?: string | null;
+  salespersonName?: string;
   salesAmountExVat: number;
   costAmount: number | null;
   sourceProfitPct: number | null;
@@ -23,6 +31,7 @@ export type CommissionRequestActionTarget = {
   commissionAmount: number | null;
   hasGoodsReturn: boolean;
   status: string;
+  splits?: CommissionSplitItem[];
 };
 
 export function ProfitVerificationForm({
@@ -323,6 +332,8 @@ export function ApprovalDecisionForm({
         </div>
       </div>
 
+      <SplitBreakdownPreview item={item} />
+
       {!canApprove && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs font-bold text-amber-800">
           กรุณายืนยันตัวเลขกำไรใน Step 4 ก่อน จึงจะกดอนุมัติได้ (หรือสามารถกดปฏิเสธพร้อมระบุเหตุผล)
@@ -489,6 +500,8 @@ export function PayoutRecordForm({
         />
       </div>
 
+      <SplitBreakdownPreview item={item} />
+
       {error && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs font-bold text-red-700">
           {error}
@@ -512,6 +525,197 @@ export function PayoutRecordForm({
         >
           {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Banknote size={14} />}
           บันทึกจ่ายเงินแล้ว
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function SplitBreakdownPreview({ item }: { item: CommissionRequestActionTarget }) {
+  const splits = resolveEffectiveCommissionSplits({
+    salespersonId: item.salespersonId,
+    salespersonName: item.salespersonName || '-',
+    commissionAmount: item.commissionAmount,
+    splits: item.splits,
+  });
+
+  if (splits.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-3 space-y-2 text-xs">
+      <div className="flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1.5 font-bold text-indigo-900">
+          <Users size={13} className="text-indigo-600" />
+          สัดส่วนผู้รับค่าคอมมิชชั่น ({splits.length} คน)
+        </span>
+        {splits.length > 1 && (
+          <span className="text-[10px] font-semibold text-indigo-600">
+            รวม 100% ของคำขอ
+          </span>
+        )}
+      </div>
+
+      <div className="space-y-1.5">
+        {splits.map((s, idx) => (
+          <div
+            key={`${idx}-${s.userId || s.recipientName}`}
+            className="flex items-center justify-between gap-2 bg-white/90 border border-indigo-100 rounded-lg px-2.5 py-1.5"
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-bold text-slate-800 truncate">{s.recipientName}</span>
+                <span
+                  className={`px-1.5 py-0.2 rounded text-[10px] font-bold border ${
+                    s.isOwner
+                      ? 'bg-red-50 text-[#ff2301] border-red-200'
+                      : 'bg-slate-50 text-slate-500 border-slate-200'
+                  }`}
+                >
+                  {s.isOwner ? 'เจ้าของงาน' : 'ผู้ร่วมแบ่ง'}
+                </span>
+              </div>
+              {(s.employeeId || s.recipientRole) && (
+                <div className="text-[10px] text-slate-400">
+                  {[s.employeeId, s.recipientRole].filter(Boolean).join(' • ')}
+                </div>
+              )}
+            </div>
+
+            <div className="text-right tabular-nums shrink-0">
+              <div className="font-black text-indigo-700">{s.splitPct.toFixed(2)}%</div>
+              <div className="text-[11px] font-bold text-emerald-700">
+                {s.allocatedAmount !== null && s.allocatedAmount !== undefined
+                  ? `${formatThb(s.allocatedAmount)} ฿`
+                  : 'รอตรวจกำไร'}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function SplitEditForm({
+  item,
+  recipientOptions,
+  onCompleted,
+  onCancel,
+}: {
+  item: CommissionRequestActionTarget;
+  recipientOptions: CommissionRecipientOption[];
+  onCompleted: () => void | Promise<void>;
+  onCancel?: () => void;
+}) {
+  const initialSplits: CommissionSplitInput[] = resolveEffectiveCommissionSplits({
+    salespersonId: item.salespersonId,
+    salespersonName: item.salespersonName || 'เจ้าของงาน',
+    commissionAmount: item.commissionAmount,
+    splits: item.splits,
+  }).map((s) => ({
+    userId: s.userId,
+    employeeId: s.employeeId,
+    recipientName: s.recipientName,
+    recipientRole: s.recipientRole,
+    splitPct: s.splitPct,
+    isOwner: s.isOwner,
+  }));
+
+  const [splits, setSplits] = useState<CommissionSplitInput[]>(initialSplits);
+  const [reason, setReason] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const canEdit = item.status !== 'APPROVED' && item.status !== 'PAID';
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!canEdit) {
+      setError('ไม่สามารถปรับสัดส่วนของคำขอที่อนุมัติหรือจ่ายเงินแล้วได้');
+      return;
+    }
+
+    const validated = normalizeAndValidateCommissionSplits(splits, item.commissionAmount);
+    if ('error' in validated) {
+      setError(validated.error);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/sales/commissions/${item.id}/splits`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          splits: validated.splits,
+          reason: reason.trim() || undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'บันทึกสัดส่วนการแบ่งค่าคอมมิชชั่นไม่สำเร็จ');
+      }
+      await onCompleted();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSave} className="space-y-4">
+      <CommissionSplitEditor
+        splits={splits}
+        onChange={setSplits}
+        recipientOptions={recipientOptions}
+        totalCommissionAmount={item.commissionAmount}
+        defaultOwner={{
+          userId: item.salespersonId,
+          recipientName: item.salespersonName || 'เจ้าของงาน',
+        }}
+        disabled={!canEdit || isSaving}
+      />
+
+      <div>
+        <label className="block text-xs font-bold text-slate-700 mb-1">
+          เหตุผล / หมายเหตุการแก้ไขสัดส่วน (ถ้ามี)
+        </label>
+        <input
+          type="text"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          disabled={!canEdit || isSaving}
+          placeholder="เช่น แบ่งทีมผู้ประสานงานโครงการ หรือปรับตามข้อตกลงฝ่ายขาย"
+          className="w-full h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        />
+      </div>
+
+      {error && (
+        <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs font-bold text-red-700">
+          {error}
+        </div>
+      )}
+
+      <div className={onCancel ? 'grid grid-cols-2 gap-3 pt-1' : 'pt-1'}>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSaving}
+            className="h-10 px-4 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            ยกเลิก
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={!canEdit || isSaving}
+          className="inline-flex items-center justify-center gap-1.5 w-full h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-colors"
+        >
+          {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
+          บันทึกสัดส่วนแบ่งค่าคอมฯ
         </button>
       </div>
     </form>

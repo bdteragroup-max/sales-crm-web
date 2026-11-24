@@ -2,6 +2,7 @@ import React from 'react';
 import { redirect, notFound } from 'next/navigation';
 import prisma from '@/app/lib/db';
 import {
+  fetchCommissionRecipientOptions,
   fetchCommissionRequestDetailAdmin,
   getCommissionActor,
 } from '@/app/lib/salesCommissionServer';
@@ -19,11 +20,12 @@ export default async function CommissionDetailPage(props: {
   }
 
   const { id } = await props.params;
-  const [record, pendingApprovalCount] = await Promise.all([
+  const [record, pendingApprovalCount, recipientOptions] = await Promise.all([
     fetchCommissionRequestDetailAdmin(id),
     prisma.salesCommissionRequest.count({
       where: { status: { in: ['SUBMITTED', 'PENDING_PROFIT_REVIEW', 'PENDING_APPROVAL'] } },
     }),
+    fetchCommissionRecipientOptions(),
   ]);
 
   if (!record) {
@@ -34,6 +36,7 @@ export default async function CommissionDetailPage(props: {
     <CommissionDetailClient
       initialRecord={JSON.parse(JSON.stringify(record))}
       pendingApprovalCount={pendingApprovalCount}
+      recipientOptions={JSON.parse(JSON.stringify(recipientOptions))}
     />
   );
 }

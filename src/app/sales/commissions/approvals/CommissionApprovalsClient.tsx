@@ -12,11 +12,14 @@ import {
   RefreshCw,
   X,
   Loader2,
+  Users,
 } from 'lucide-react';
 import {
   calculateCommissionFromProfit,
+  CommissionRecipientOption,
   deriveCostFromProfitPct,
   deriveProfitPctFromCost,
+  resolveEffectiveCommissionSplits,
 } from '@/app/lib/salesCommission';
 import CommissionNavHeader from '../components/CommissionNavHeader';
 import {
@@ -30,6 +33,7 @@ import {
   ApprovalDecisionForm,
   CommissionRequestActionTarget,
   PayoutRecordForm,
+  SplitEditForm,
 } from '../components/CommissionActionForms';
 
 export type CommissionApprovalRow = CommissionRequestActionTarget & {
@@ -49,6 +53,7 @@ export type CommissionApprovalRow = CommissionRequestActionTarget & {
 type ActiveModalState =
   | { type: 'decision'; item: CommissionApprovalRow }
   | { type: 'payout'; item: CommissionApprovalRow }
+  | { type: 'splits'; item: CommissionApprovalRow }
   | null;
 
 type InlineProfitDraft = {
@@ -73,8 +78,10 @@ function getSavedInlineValues(row: CommissionApprovalRow) {
 
 export default function CommissionApprovalsClient({
   initialItems,
+  recipientOptions = [],
 }: {
   initialItems: CommissionApprovalRow[];
+  recipientOptions?: CommissionRecipientOption[];
 }) {
   const [items, setItems] = useState<CommissionApprovalRow[]>(initialItems);
   const [statusTab, setStatusTab] = useState<string>('ACTIONABLE');
@@ -253,6 +260,9 @@ export default function CommissionApprovalsClient({
 
       const updatedRow: CommissionApprovalRow = {
         ...row,
+        salespersonId: data.request.salespersonId ?? row.salespersonId,
+        salespersonName: data.request.salespersonName ?? row.salespersonName,
+        splits: data.request.splits ?? row.splits,
         costAmount: data.request.costAmount ?? null,
         sourceProfitPct: data.request.sourceProfitPct ?? row.sourceProfitPct,
         confirmedProfitPct: data.request.confirmedProfitPct ?? null,
@@ -335,11 +345,18 @@ export default function CommissionApprovalsClient({
       }
 
       if (q) {
+        const effectiveSplits = resolveEffectiveCommissionSplits({
+          salespersonId: r.salespersonId,
+          salespersonName: r.salespersonName,
+          commissionAmount: r.commissionAmount,
+          splits: r.splits,
+        });
         const hay = [
           r.requestNo,
           r.jobNumber,
           r.customerName,
           r.salespersonName,
+          ...effectiveSplits.map((s) => `${s.recipientName} ${s.employeeId || ''}`),
           r.taxInvoiceNumbers || '',
           r.receiptNumbers || '',
         ]
@@ -430,6 +447,9 @@ export default function CommissionApprovalsClient({
       const updatedById = new Map<string, Partial<CommissionApprovalRow>>();
       for (const reqRow of data.requests) {
         updatedById.set(reqRow.id, {
+          salespersonId: reqRow.salespersonId,
+          salespersonName: reqRow.salespersonName,
+          splits: reqRow.splits,
           costAmount: reqRow.costAmount ?? null,
           sourceProfitPct: reqRow.sourceProfitPct ?? null,
           confirmedProfitPct: reqRow.confirmedProfitPct ?? null,
@@ -717,21 +737,58 @@ export default function CommissionApprovalsClient({
                         )}
                       </td>
 
-                      <td className="py-3.5 px-3 align-middle max-w-[140px]">
-                        <div
-                          className="font-semibold text-slate-800 truncate"
-                          title={row.salespersonName}
-                        >
-                          {row.salespersonName}
-                        </div>
-                        <div
-                          className="text-[11px] text-slate-400 truncate mt-0.5"
-                          title={`ยื่นโดย: ${row.requestedByName}`}
-                        >
-                          {row.requestedByName === row.salespersonName
-                            ? 'ยื่นโดยผู้ขาย'
-                            : `ยื่นแทน: ${row.requestedByName}`}
-                        </div>
+                      <td className="py-3.5 px-3 align-middle max-w-[190px]">
+                        {(() => {
+                          const effectiveSplits = resolveEffectiveCommissionSplits({
+                            salespersonId: row.salespersonId,
+                            salespersonName: row.salespersonName,
+                            commissionAmount: row.commissionAmount,
+                            splits: row.splits,
+                          });
+                          const hasMultiSplit = effectiveSplits.length > 1;
+                          return (
+                            <>
+                              <div
+                                className="font-semibold text-slate-800 truncate"
+                                title={
+                                  hasMultiSplit
+                                    ? effectiveSplits
+                                        .map((s) => `${s.recipientName} ${s.splitPct}%`)
+                                        .join(' • ')
+                                    : row.salespersonName
+                                }
+                              >
+                                {row.salespersonName}
+                              </div>
+                              {hasMultiSplit ? (
+                                <div className="mt-1 space-y-0.5">
+                                  {effectiveSplits.map((s, idx) => (
+                                    <div
+                                      key={`${idx}-${s.userId || s.recipientName}`}
+                                      className="flex items-center justify-between gap-1 text-[10px] text-indigo-700 bg-indigo-50/70 px-1.5 py-0.5 rounded border border-indigo-100"
+                                    >
+                                      <span className="truncate font-semibold">
+                                        {s.recipientName}
+                                      </span>
+                                      <span className="shrink-0 font-black tabular-nums">
+                                        {s.splitPct}%
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div
+                                  className="text-[11px] text-slate-400 truncate mt-0.5"
+                                  title={`ยื่นโดย: ${row.requestedByName}`}
+                                >
+                                  {row.requestedByName === row.salespersonName
+                                    ? 'ยื่นโดยผู้ขาย'
+                                    : `ยื่นแทน: ${row.requestedByName}`}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </td>
 
                       <td className="py-3.5 px-3 align-middle text-right font-bold text-slate-900 tabular-nums whitespace-nowrap">
@@ -839,23 +896,47 @@ export default function CommissionApprovalsClient({
 
                       <td className="py-3.5 px-3 align-middle text-right tabular-nums whitespace-nowrap">
                         {displayAmount !== null ? (
-                          <div>
-                            <div
-                              className={`font-black ${
-                                hasUnsavedChanges ? 'text-indigo-700' : 'text-emerald-700'
-                              }`}
-                            >
-                              {formatThb(displayAmount)}
-                            </div>
-                            <div className="text-[10px] text-slate-500">
-                              ({formatRatePct(displayRatePct)})
-                            </div>
-                            {hasUnsavedChanges && (
-                              <div className="text-[10px] font-semibold text-amber-600 mt-0.5">
-                                พรีวิว • กดบันทึก
+                          (() => {
+                            const effectiveSplits = resolveEffectiveCommissionSplits({
+                              salespersonId: row.salespersonId,
+                              salespersonName: row.salespersonName,
+                              commissionAmount: displayAmount,
+                              splits: row.splits,
+                            });
+                            return (
+                              <div>
+                                <div
+                                  className={`font-black ${
+                                    hasUnsavedChanges ? 'text-indigo-700' : 'text-emerald-700'
+                                  }`}
+                                >
+                                  {formatThb(displayAmount)}
+                                </div>
+                                <div className="text-[10px] text-slate-500">
+                                  ({formatRatePct(displayRatePct)})
+                                </div>
+                                {effectiveSplits.length > 1 && (
+                                  <div className="mt-1 space-y-0.5 text-[10px] text-slate-500">
+                                    {effectiveSplits.map((s, idx) => (
+                                      <div key={`${idx}-${s.userId || s.recipientName}`}>
+                                        {s.recipientName.split(' ')[0]}:{' '}
+                                        <span className="font-bold text-slate-700">
+                                          {s.allocatedAmount !== null
+                                            ? formatThb(s.allocatedAmount)
+                                            : '-'}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                {hasUnsavedChanges && (
+                                  <div className="text-[10px] font-semibold text-amber-600 mt-0.5">
+                                    พรีวิว • กดบันทึก
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
+                            );
+                          })()
                         ) : (
                           <span className="text-slate-400">-</span>
                         )}
@@ -882,6 +963,17 @@ export default function CommissionApprovalsClient({
 
                       <td className="py-3.5 px-3 align-middle text-right whitespace-nowrap">
                         <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap">
+                          {isEditableProfit && (
+                            <button
+                              type="button"
+                              onClick={() => setActiveModal({ type: 'splits', item: row })}
+                              title="ปรับสัดส่วนแบ่งค่าคอมมิชชั่น (%)"
+                              className="inline-flex items-center justify-center gap-1 h-8 px-2.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold border border-indigo-200 whitespace-nowrap transition-colors"
+                            >
+                              <Users size={12} /> แบ่ง %
+                            </button>
+                          )}
+
                           {(row.status === 'PENDING_PROFIT_REVIEW' ||
                             row.status === 'PENDING_APPROVAL' ||
                             row.status === 'SUBMITTED' ||
@@ -928,13 +1020,19 @@ export default function CommissionApprovalsClient({
       {/* Inline Action Modal */}
       {activeModal && (
         <div className="fixed inset-0 z-[150] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-xl overflow-hidden">
+          <div
+            className={`bg-white rounded-2xl shadow-xl border border-slate-200 w-full overflow-hidden ${
+              activeModal.type === 'splits' ? 'max-w-2xl' : 'max-w-xl'
+            }`}
+          >
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-slate-900">
                   {activeModal.type === 'decision'
                     ? 'Step 5: พิจารณาอนุมัติคำขอค่าคอมมิชชั่น'
-                    : 'Step 6: บันทึกการจ่ายค่าคอมมิชชั่น'}
+                    : activeModal.type === 'payout'
+                    ? 'Step 6: บันทึกการจ่ายค่าคอมมิชชั่น'
+                    : 'Step 4: ปรับสัดส่วนแบ่งค่าคอมมิชชั่น (%)'}
                 </h3>
                 <div className="text-xs text-slate-500 mt-0.5">
                   {activeModal.item.requestNo} • {activeModal.item.jobNumber} •{' '}
@@ -952,6 +1050,17 @@ export default function CommissionApprovalsClient({
             </div>
 
             <div className="p-6 max-h-[75vh] overflow-y-auto">
+              {activeModal.type === 'splits' && (
+                <SplitEditForm
+                  item={activeModal.item}
+                  recipientOptions={recipientOptions}
+                  onCancel={() => setActiveModal(null)}
+                  onCompleted={async () => {
+                    setActiveModal(null);
+                    await reloadItems();
+                  }}
+                />
+              )}
               {activeModal.type === 'decision' && (
                 <ApprovalDecisionForm
                   item={activeModal.item}

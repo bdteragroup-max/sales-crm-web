@@ -196,3 +196,223 @@ export function evaluateAccountingAmountReconciliation(params: {
     mismatchMessage,
   };
 }
+
+export type AccountingStepLogLike = {
+  id?: string;
+  step?: string | null;
+  completedBy?: string | null;
+  completedAt?: Date | string | null;
+  note?: string | null;
+};
+
+/**
+ * Returns the latest completed (non-rejected) `accounting` step log, if any.
+ */
+export function findCompletedAccountingStepLog<T extends AccountingStepLogLike>(
+  stepLogs?: T[] | null
+): T | null {
+  if (!Array.isArray(stepLogs) || stepLogs.length === 0) return null;
+  const matches = stepLogs.filter(
+    (log) =>
+      log?.step === 'accounting' &&
+      !(typeof log?.note === 'string' && log.note.startsWith('ตีกลับ'))
+  );
+  if (matches.length === 0) return null;
+  return matches[matches.length - 1];
+}
+
+export type PaymentTaskLinkLike = {
+  id?: string;
+  status?: string | null;
+  installmentAmount?: number | null;
+  paidAmount?: number | null;
+  installmentNo?: number | null;
+  installmentTotal?: number | null;
+  creditType?: string | null;
+  invoiceNumber?: string | null;
+  invoiceDate?: Date | string | null;
+};
+
+export type PaymentTasksLinkState = {
+  hasPaymentTasks: boolean;
+  totalTasks: number;
+  settledTasks: number;
+  depositTasks: number;
+  pendingTasks: number;
+  allTasksSettled: boolean;
+  hasUnsettledPaymentTasks: boolean;
+  isInstallmentJob: boolean;
+  isCreditJob: boolean;
+  isCreditOrInstallment: boolean;
+  hasUnsettledCreditOrInstallment: boolean;
+  canCloseAccounting: boolean;
+  totalScheduledAmount: number;
+  settledAmount: number;
+  linkedDocs: AccountingTaxDocument[];
+  closeBlockReason: string | null;
+};
+
+/**
+ * Extracts normalized tax invoice / receipt entries stored on PaymentTasks so they link cleanly with Accounting's document list.
+ */
+export function extractAccountingDocsFromPaymentTasks(
+  paymentTasks?: PaymentTaskLinkLike[] | null
+): AccountingTaxDocument[] {
+  if (!Array.isArray(paymentTasks) || paymentTasks.length === 0) return [];
+  const extracted: AccountingTaxDocument[] = [];
+  const seenNumbers = new Set<string>();
+
+  for (let i = 0; i < paymentTasks.length; i++) {
+    const pt = paymentTasks[i];
+    const rawNum = typeof pt?.invoiceNumber === 'string' ? pt.invoiceNumber.trim() : '';
+    if (!rawNum || rawNum === '-') continue;
+    const key = rawNum.toUpperCase();
+    if (seenNumbers.has(key)) continue;
+    seenNumbers.add(key);
+
+    const isReceipt = /^RE[-/]?\d/i.test(rawNum);
+    extracted.push({
+      id: `pt-doc-${pt.id || i}`,
+      docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE',
+      docNumber: rawNum,
+      docDate: normalizeAccountingDocDateString(pt.invoiceDate ?? null),
+      note: null,
+    });
+  }
+
+  return extracted;
+}
+
+/**
+ * Merges incoming tax documents (such as newly confirmed PaymentTask invoice numbers) into an existing list without creating duplicates or dropping filled entries.
+ */
+export function mergeAccountingTaxDocuments(
+  existingDocs: AccountingTaxDocument[],
+  incomingDocs: AccountingTaxDocument[]
+): AccountingTaxDocument[] {
+  const nonEmptyExisting = (existingDocs || []).filter(
+    (d) => typeof d.docNumber === 'string' && d.docNumber.trim() !== ''
+  );
+  const existingKeys = new Set(nonEmptyExisting.map((d) => d.docNumber.trim().toUpperCase()));
+  const merged = [...nonEmptyExisting];
+
+  for (const doc of incomingDocs || []) {
+    const num = typeof doc.docNumber === 'string' ? doc.docNumber.trim() : '';
+    if (!num) continue;
+    const key = num.toUpperCase();
+    if (existingKeys.has(key)) continue;
+    existingKeys.add(key);
+    merged.push({
+      ...doc,
+      docNumber: num,
+      docDate: normalizeAccountingDocDateString(doc.docDate ?? null),
+    });
+  }
+
+  return merged;
+}
+
+/**
+ * Single source of truth linking PaymentTasks (`งวดชำระเงิน & รอบส่งมอบ`) to Accounting verification close & Job completion:
+ * - Credit / Installment jobs, or any job with unsettled PaymentTasks, cannot close Accounting or mark the Job completed until all PaymentTasks reach `'ตรวจสอบและบันทึกแล้ว'`.
+ */
+export function evaluatePaymentTasksLinkState(params: {
+  paymentTasks?: PaymentTaskLinkLike[] | null;
+  paymentMethod?: string | null;
+  creditTerms?: string | null;
+}): PaymentTasksLinkState {
+  const tasks = Array.isArray(params.paymentTasks) ? params.paymentTasks : [];
+  const totalTasks = tasks.length;
+  const hasPaymentTasks = totalTasks > 0;
+  const settledTasks = tasks.filter((t) => t?.status === 'ตรวจสอบและบันทึกแล้ว').length;
+  const depositTasks = tasks.filter((t) => t?.status === 'ชำระมัดจำแล้ว').length;
+  const pendingTasks = totalTasks - settledTasks;
+  const allTasksSettled = hasPaymentTasks && settledTasks === totalTasks;
+  const hasUnsettledPaymentTasks = hasPaymentTasks && settledTasks < totalTasks;
+
+  const methodLower = String(params.paymentMethod || '').toLowerCase().trim();
+  const creditTermsLower = String(params.creditTerms || '').toLowerCase().trim();
+
+  const isInstallmentJob =
+    methodLower.includes('ผ่อน') ||
+    methodLower.includes('แบ่ง') ||
+    methodLower.includes('installment') ||
+    totalTasks > 1 ||
+    tasks.some(
+      (t) =>
+        (t.installmentTotal ?? 0) > 1 ||
+        t.creditType === 'DELIVERY' ||
+        t.creditType === 'DEPOSIT' ||
+        (t.installmentNo !== null &&
+          t.installmentNo !== undefined &&
+          t.installmentNo > 0 &&
+          Number(t.installmentAmount || 0) > 0)
+    );
+
+  const isCreditJob =
+    methodLower.includes('เครดิต') ||
+    methodLower.includes('credit') ||
+    creditTermsLower !== '' ||
+    tasks.some((t) => {
+      const ct = String(t.creditType || '').trim().toUpperCase();
+      return Boolean(ct && ct !== 'PROGRESS' && ct !== 'DELIVERY' && ct !== 'DEPOSIT' && ct !== 'CASH');
+    });
+
+  const isCreditOrInstallment = isInstallmentJob || isCreditJob;
+  const hasUnsettledCreditOrInstallment =
+    (isCreditOrInstallment && !allTasksSettled) || (depositTasks > 0 && hasUnsettledPaymentTasks);
+  const canCloseAccounting = !hasUnsettledPaymentTasks && !(isCreditOrInstallment && !allTasksSettled);
+
+  const totalScheduledAmount = roundMoney2(
+    tasks.reduce((sum, t) => sum + (Number(t.installmentAmount) || 0), 0)
+  );
+  const settledAmount = roundMoney2(
+    tasks.reduce((sum, t) => {
+      if (t?.status === 'ตรวจสอบและบันทึกแล้ว') {
+        const inst = Number(t.installmentAmount) || 0;
+        const paid = Number(t.paidAmount) || 0;
+        return sum + (inst > 0 ? inst : paid);
+      }
+      if (t?.status === 'ชำระมัดจำแล้ว') {
+        return sum + (Number(t.paidAmount) || 0);
+      }
+      return sum;
+    }, 0)
+  );
+
+  const linkedDocs = extractAccountingDocsFromPaymentTasks(tasks);
+
+  let closeBlockReason: string | null = null;
+  if (!canCloseAccounting) {
+    if (isInstallmentJob) {
+      closeBlockReason = `งานผ่อนชำระยังตรวจสอบการรับเงินไม่ครบทุกงวด (ครบแล้ว ${settledTasks}/${totalTasks} งวด) — ยังไม่สามารถปิดงานได้`;
+    } else if (isCreditJob) {
+      closeBlockReason = hasPaymentTasks
+        ? `งานเครดิตยังไม่ได้รับชำระเงินครบ (${settledTasks}/${totalTasks} รายการ) — ยังไม่สามารถปิดงานได้จนกว่าจะยืนยันรับเงินครบ`
+        : 'งานเครดิตยังไม่มีรายการตรวจสอบการรับเงิน — ยังไม่สามารถปิดงานได้';
+    } else if (depositTasks > 0) {
+      closeBlockReason = `ชำระมัดจำบางส่วนแล้ว (รอชำระส่วนที่เหลืออีก ${pendingTasks} รายการ) — ยังไม่สามารถปิดงานได้`;
+    } else {
+      closeBlockReason = `ยังมีรายการงวดชำระเงินรอตรวจสอบ ${pendingTasks} รายการ — กรุณายืนยันรับเงินใน Payment Tasks ก่อนปิดงาน`;
+    }
+  }
+
+  return {
+    hasPaymentTasks,
+    totalTasks,
+    settledTasks,
+    depositTasks,
+    pendingTasks,
+    allTasksSettled,
+    hasUnsettledPaymentTasks,
+    isInstallmentJob,
+    isCreditJob,
+    isCreditOrInstallment,
+    hasUnsettledCreditOrInstallment,
+    canCloseAccounting,
+    totalScheduledAmount,
+    settledAmount,
+    linkedDocs,
+    closeBlockReason,
+  };
+}

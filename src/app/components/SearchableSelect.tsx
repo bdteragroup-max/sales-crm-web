@@ -27,7 +27,7 @@ export default function SearchableSelect({
 }: {
   value: string
   onChange: (val: string) => void
-  options: { label: string; value: string }[]
+  options: { label: string; value: string; searchText?: string }[]
   placeholder: string
   disabled?: boolean
   className?: string
@@ -94,12 +94,17 @@ export default function SearchableSelect({
     }
   }, [isOpen, updateCoords])
 
+  const normalizedQuery = query.trim().toLowerCase()
   const filteredOptions =
-    query === ""
+    normalizedQuery === ""
       ? options
-      : options.filter((opt) => opt.label.toLowerCase().includes(query.toLowerCase()))
+      : options.filter(
+          (opt) =>
+            opt.label.toLowerCase().includes(normalizedQuery) ||
+            (opt.searchText ? opt.searchText.toLowerCase().includes(normalizedQuery) : false)
+        )
 
-  const exactMatch = options.some((opt) => opt.label.toLowerCase() === query.toLowerCase())
+  const exactMatch = options.some((opt) => opt.label.toLowerCase() === normalizedQuery)
 
   const baseInputClass = compact
     ? "w-full h-10 px-3 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff2301]/30 focus:border-[#ff2301] pr-8 text-slate-800 placeholder:text-slate-500 transition-all"

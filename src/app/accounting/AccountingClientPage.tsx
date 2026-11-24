@@ -58,8 +58,13 @@ import {
 } from "@/app/actions/accounting";
 import {
   AccountingDocType,
+  AccountingStepLogLike,
   AccountingTaxDocument,
   evaluateAccountingAmountReconciliation,
+  evaluatePaymentTasksLinkState,
+  extractAccountingDocsFromPaymentTasks,
+  findCompletedAccountingStepLog,
+  mergeAccountingTaxDocuments,
   parseAccountingTaxDocuments,
 } from "@/app/lib/accounting-reconciliation";
 import {
@@ -136,6 +141,7 @@ function JobDetailModal({
   const [acctDocs, setAcctDocs] = useState<AccountingTaxDocument[]>([]);
   const [acctVerificationNote, setAcctVerificationNote] = useState<string>('');
   const [isSavingVerification, setIsSavingVerification] = useState(false);
+  const [isEditingAcctVerification, setIsEditingAcctVerification] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState('');
 
@@ -217,6 +223,13 @@ function JobDetailModal({
           ...prev,
           paymentTasks: res.paymentTasks
         }));
+        const taskDocs = extractAccountingDocsFromPaymentTasks(res.paymentTasks);
+        if (taskDocs.length > 0) {
+          setAcctDocs((prev) => {
+            const merged = mergeAccountingTaxDocuments(prev, taskDocs);
+            return merged.length > 0 ? merged : prev;
+          });
+        }
         if (onTasksUpdated) {
           onTasksUpdated(jobId, res.paymentTasks);
         }
@@ -304,32 +317,13 @@ function JobDetailModal({
           );
           setAcctVerificationNote(fetchedJob.accountingVerificationNote || '');
           const savedDocs = parseAccountingTaxDocuments(fetchedJob.accountingTaxDocuments);
-          if (savedDocs.length > 0) {
-            setAcctDocs(savedDocs);
-          } else {
-            const seeded: AccountingTaxDocument[] = [];
-            const seen = new Set<string>();
-            for (const pt of res.paymentTasks || []) {
-              const rawNum = typeof pt.invoiceNumber === 'string' ? pt.invoiceNumber.trim() : '';
-              if (!rawNum || rawNum === '-') continue;
-              const key = rawNum.toUpperCase();
-              if (seen.has(key)) continue;
-              seen.add(key);
-              const isReceipt = /^RE[-/]?\d/i.test(rawNum);
-              seeded.push({
-                id: `seed-${pt.id || seeded.length}`,
-                docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE',
-                docNumber: rawNum,
-                docDate: pt.invoiceDate ? new Date(pt.invoiceDate).toISOString().slice(0, 10) : '',
-                note: null,
-              });
-            }
-            setAcctDocs(
-              seeded.length > 0
-                ? seeded
-                : [{ id: `doc-${Date.now()}`, docType: 'TAX_INVOICE', docNumber: '', docDate: '', note: null }]
-            );
-          }
+          const seededDocs = extractAccountingDocsFromPaymentTasks(res.paymentTasks);
+          const combinedDocs = mergeAccountingTaxDocuments(savedDocs, seededDocs);
+          setAcctDocs(
+            combinedDocs.length > 0
+              ? combinedDocs
+              : [{ id: `doc-${Date.now()}`, docType: 'TAX_INVOICE', docNumber: '', docDate: '', note: null }]
+          );
         }
         setLoading(false);
       })
@@ -387,8 +381,13 @@ function JobDetailModal({
             ...prev?.job,
             ...res.job,
           },
+          paymentTasks: res.paymentTasks || prev?.paymentTasks,
           stepLogs: res.stepLogs || prev?.stepLogs,
         }));
+        setIsEditingAcctVerification(false);
+        if (res.paymentTasks && onTasksUpdated) {
+          onTasksUpdated(jobId, res.paymentTasks);
+        }
         if (onAccountingVerified) {
           onAccountingVerified(jobId, res.job);
         }
@@ -858,20 +857,26 @@ function JobDetailModal({
 
           {/* Accounting Pre-VAT Amount Verification, Unlimited Tax Invoices/Receipts, and Close Accounting Step */}
           <section>
-            <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <FileCheck size={14} className="text-indigo-600" />
-                <span>ตรวจสอบยอดก่อน VAT &amp; บันทึกเลขที่ใบกำกับภาษี / ใบเสร็จ (ฝ่ายบัญชี)</span>
-              </h3>
-              {job.accountingClosedAt && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <CheckCircle2 size={12} />
-                  ยืนยันจบงานบัญชีแล้ว {job.accountingClosedBy ? `(${job.accountingClosedBy})` : ''}
-                </span>
-              )}
-            </div>
-
             {(() => {
+              const paymentLink = evaluatePaymentTasksLinkState({
+                paymentTasks,
+                paymentMethod: job.paymentMethod,
+                creditTerms: job.creditTerms,
+              });
+              const typedStepLogs = Array.isArray(data?.stepLogs)
+                ? (data.stepLogs as AccountingStepLogLike[])
+                : [];
+              const acctStepLog = findCompletedAccountingStepLog(typedStepLogs);
+              const isAccountingClosed =
+                paymentLink.canCloseAccounting && Boolean(job.accountingClosedAt || acctStepLog);
+              const closedByLabel = job.accountingClosedBy || acctStepLog?.completedBy || null;
+              const closedAtValue = job.accountingClosedAt || acctStepLog?.completedAt || null;
+              const savedAmountValue =
+                typeof job.accountingVerifiedBeforeVat === 'number' &&
+                Number.isFinite(job.accountingVerifiedBeforeVat)
+                  ? job.accountingVerifiedBeforeVat
+                  : null;
+              const savedTaxDocs = parseAccountingTaxDocuments(job.accountingTaxDocuments);
               const parsedDraftAmt = Number(acctVerifiedAmountInput);
               const draftReconciliation = evaluateAccountingAmountReconciliation({
                 accountingVerifiedBeforeVat:
@@ -881,9 +886,194 @@ function JobDetailModal({
                 accountingClosedAt: job.accountingClosedAt,
                 quotation,
               });
+              const savedHasMismatch =
+                savedAmountValue !== null &&
+                draftReconciliation.quotationBeforeVat !== null &&
+                Math.abs(savedAmountValue - draftReconciliation.quotationBeforeVat) > 0.01;
+              const hasDraftSavedOnly = !isAccountingClosed && savedAmountValue !== null;
+              const existingDocKeys = new Set(
+                acctDocs.map((d) => d.docNumber.trim().toUpperCase()).filter(Boolean)
+              );
+              const unlinkedTaskDocs = paymentLink.linkedDocs.filter(
+                (d) => !existingDocKeys.has(d.docNumber.trim().toUpperCase())
+              );
 
               return (
+                <>
+                  <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <FileCheck size={14} className="text-indigo-600" />
+                      <span>ตรวจสอบยอดก่อน VAT &amp; บันทึกเลขที่ใบกำกับภาษี / ใบเสร็จ (ฝ่ายบัญชี)</span>
+                    </h3>
+                    {isAccountingClosed ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle2 size={12} />
+                        ยืนยันจบงานบัญชีแล้ว {closedByLabel ? `(${closedByLabel})` : ''}
+                      </span>
+                    ) : !paymentLink.canCloseAccounting ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                        <Clock size={12} />
+                        {paymentLink.isInstallmentJob
+                          ? `ผ่อนชำระ ${paymentLink.settledTasks}/${paymentLink.totalTasks} งวด (ยังไม่ปิดงาน)`
+                          : paymentLink.isCreditJob
+                          ? `เครดิต ${paymentLink.settledTasks}/${paymentLink.totalTasks} รายการ (รอรับชำระ)`
+                          : `ค้างรับชำระ ${paymentLink.settledTasks}/${paymentLink.totalTasks} รายการ`}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {isAccountingClosed && !isEditingAcctVerification ? (
+                  <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 space-y-3 text-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                          <CheckCircle2 size={18} />
+                        </div>
+                        <div>
+                          <div className="font-bold text-emerald-900 text-sm">
+                            ยืนยันจบงานบัญชีเรียบร้อยแล้ว
+                          </div>
+                          <div className="text-[11px] text-emerald-700 mt-0.5">
+                            {closedByLabel ? `ผู้ยืนยัน: ${closedByLabel}` : 'ปิดขั้นตอนบัญชีแล้ว'}
+                            {closedAtValue ? ` • ${formatDate(closedAtValue)}` : ''}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingAcctVerification(true)}
+                        className="h-9 px-3.5 rounded-xl border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-800 text-xs font-bold inline-flex items-center justify-center gap-1.5 shrink-0 transition-colors"
+                      >
+                        <Pencil size={13} />
+                        <span>แก้ไขข้อมูลยอด / ใบกำกับภาษี</span>
+                      </button>
+                    </div>
+
+                    <div className="bg-white/85 rounded-xl border border-emerald-100 p-3 space-y-2">
+                      {savedAmountValue !== null ? (
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span className="text-slate-600">
+                            ยอดก่อน VAT (ฝ่ายบัญชี):{' '}
+                            <strong className="text-slate-900 tabular-nums">
+                              {formatCurrency(savedAmountValue)}
+                            </strong>
+                          </span>
+                          {draftReconciliation.quotationBeforeVat !== null && (
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                                savedHasMismatch
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              }`}
+                            >
+                              {savedHasMismatch
+                                ? 'ยอดไม่ตรงกับใบเสนอราคา'
+                                : 'ยอดตรงกับใบเสนอราคา'}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-slate-600">
+                          งานนี้ผ่านการปิดขั้นตอนบัญชีแล้ว (ไม่มีรายการยอดค้างตรวจสอบหรือส่วนต่างกับใบเสนอราคา)
+                        </div>
+                      )}
+
+                      {savedTaxDocs.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                          <span className="text-[11px] text-slate-500 font-semibold">เลขที่เอกสาร:</span>
+                          {savedTaxDocs.map((doc, idx) => (
+                            <span
+                              key={doc.id || idx}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 text-[11px] font-mono font-semibold"
+                            >
+                              <span>{doc.docNumber}</span>
+                              {doc.docDate && (
+                                <span className="text-slate-500 font-sans font-normal">
+                                  ({doc.docDate})
+                                </span>
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {job.accountingVerificationNote && (
+                        <div className="text-[11px] text-slate-600">
+                          หมายเหตุ: <span className="text-slate-800">{job.accountingVerificationNote}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-4 text-xs">
+                  {/* Live Link Banner to Payment Tasks */}
+                  <div
+                    className={`rounded-xl border p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
+                      paymentLink.canCloseAccounting
+                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                        : 'bg-amber-50 border-amber-200 text-amber-900'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      {paymentLink.canCloseAccounting ? (
+                        <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <div className="font-bold">
+                          เชื่อมโยงงวดชำระเงิน (Payment Tasks):{' '}
+                          {paymentLink.canCloseAccounting
+                            ? `ยืนยันรับเงินครบแล้ว (${paymentLink.settledTasks}/${paymentLink.totalTasks} รายการ)`
+                            : paymentLink.closeBlockReason}
+                        </div>
+                        {paymentLink.totalScheduledAmount > 0 && (
+                          <div className="text-[11px] opacity-90 mt-0.5 tabular-nums">
+                            ยอดรวมตามงวด: {formatCurrency(paymentLink.totalScheduledAmount)} • รับชำระแล้ว:{' '}
+                            {formatCurrency(paymentLink.settledAmount)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                      {!acctVerifiedAmountInput && paymentLink.totalScheduledAmount > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setAcctVerifiedAmountInput(String(paymentLink.totalScheduledAmount))}
+                          className="h-7 px-2.5 rounded-lg bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50 text-[11px] font-bold transition-colors"
+                        >
+                          ใช้ยอดรวมงวดชำระ
+                        </button>
+                      )}
+                      {unlinkedTaskDocs.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAcctDocs((prev) => mergeAccountingTaxDocuments(prev, unlinkedTaskDocs))
+                          }
+                          className="h-7 px-2.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 text-[11px] font-bold transition-colors"
+                        >
+                          ดึงเลขที่เอกสารจากงวดชำระ (+{unlinkedTaskDocs.length})
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {hasDraftSavedOnly && paymentLink.canCloseAccounting && (
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2.5 text-xs text-amber-900">
+                      <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <div className="font-bold">
+                          บันทึกร่างยอด/เอกสารไว้แล้ว — พร้อมกดปิดงานบัญชี
+                        </div>
+                        <div className="text-[11px] text-amber-800">
+                          งวดชำระเงินครบถ้วนแล้ว หากตรวจสอบยอดก่อน VAT และเลขที่เอกสารเรียบร้อย กรุณากดปุ่มสีเขียว &ldquo;ยืนยันยอด &amp; ปิดงานบัญชี&rdquo; ด้านล่างเพื่อจบงานฝั่งบัญชี
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {/* 3-Column Pre-VAT Amount Verification Box */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
@@ -1082,36 +1272,99 @@ function JobDetailModal({
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="space-y-2.5 pt-1">
                       <button
                         type="button"
-                        disabled={isSavingVerification}
-                        onClick={() => handleSaveVerification(false)}
-                        className="h-10 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
-                      >
-                        {isSavingVerification && <Loader2 size={14} className="animate-spin" />}
-                        <span>บันทึกยอด &amp; เอกสารไว้ก่อน</span>
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isSavingVerification}
+                        disabled={isSavingVerification || !paymentLink.canCloseAccounting}
                         onClick={() => handleSaveVerification(true)}
-                        className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                        title={!paymentLink.canCloseAccounting ? paymentLink.closeBlockReason || undefined : undefined}
+                        className={`w-full h-11 px-4 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-2 transition-colors disabled:opacity-60 ${
+                          paymentLink.canCloseAccounting
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                        }`}
                       >
                         {isSavingVerification ? (
-                          <Loader2 size={14} className="animate-spin" />
+                          <Loader2 size={15} className="animate-spin" />
                         ) : (
-                          <CheckCircle2 size={14} />
+                          <CheckCircle2 size={15} />
                         )}
                         <span>
-                          {job.accountingClosedAt
-                            ? 'อัปเดตยอด & ยืนยันจบงานบัญชี'
-                            : 'ยืนยันยอด & จบงานบัญชี'}
+                          {!paymentLink.canCloseAccounting
+                            ? 'ปิดงานบัญชีไม่ได้ (งวดชำระ/เครดิต ยังไม่ครบทุกงวด)'
+                            : isAccountingClosed
+                            ? 'บันทึกการแก้ไขยอด & เอกสารบัญชี'
+                            : 'ยืนยันยอด & ปิดงานบัญชี'}
                         </span>
                       </button>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-0.5">
+                        {!isAccountingClosed ? (
+                          <>
+                            <span className="text-[11px] text-slate-500">
+                              {paymentLink.canCloseAccounting
+                                ? 'ยังไม่พร้อมปิดงาน? บันทึกยอด/เลขที่เอกสารค้างไว้ก่อนได้'
+                                : 'สำหรับงานผ่อนชำระ / เครดิต สามารถบันทึกร่างยอดก่อน VAT & เลขที่ใบกำกับภาษีไว้ก่อนได้'}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={isSavingVerification}
+                              onClick={() => handleSaveVerification(false)}
+                              className={`h-9 px-3.5 rounded-lg text-[11px] font-bold inline-flex items-center justify-center gap-1.5 shrink-0 transition-colors disabled:opacity-50 ${
+                                paymentLink.canCloseAccounting
+                                  ? 'border border-slate-300 bg-white hover:bg-slate-100 text-slate-700'
+                                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs'
+                              }`}
+                            >
+                              {isSavingVerification && <Loader2 size={12} className="animate-spin" />}
+                              <span>บันทึกร่างไว้ก่อน (ยังไม่ปิดงานบัญชี)</span>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-[11px] text-slate-500">
+                              กำลังแก้ไขข้อมูลงานที่ปิดบัญชีแล้ว
+                            </span>
+                            <button
+                              type="button"
+                              disabled={isSavingVerification}
+                              onClick={() => {
+                                setAcctVerifiedAmountInput(
+                                  typeof job.accountingVerifiedBeforeVat === 'number'
+                                    ? String(job.accountingVerifiedBeforeVat)
+                                    : ''
+                                );
+                                const existingDocs = parseAccountingTaxDocuments(
+                                  job.accountingTaxDocuments
+                                );
+                                setAcctDocs(
+                                  existingDocs.length > 0
+                                    ? existingDocs
+                                    : [
+                                        {
+                                          id: `doc-${Date.now()}`,
+                                          docType: 'TAX_INVOICE',
+                                          docNumber: '',
+                                          docDate: '',
+                                          note: null,
+                                        },
+                                      ]
+                                );
+                                setAcctVerificationNote(job.accountingVerificationNote || '');
+                                setIsEditingAcctVerification(false);
+                              }}
+                              className="h-8 px-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-semibold inline-flex items-center justify-center gap-1.5 shrink-0 transition-colors disabled:opacity-50"
+                            >
+                              <span>ยกเลิกการแก้ไข</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
+                )}
+                </>
               );
             })()}
           </section>
@@ -1272,6 +1525,25 @@ function JobDetailModal({
                         paidDate: confirmPaymentModal.status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : pt.paidDate
                       } : pt)
                     }));
+                    const trimmedInv = invoiceNumber.trim();
+                    if (trimmedInv) {
+                      const docDateStr = normalizedInvoiceDate
+                        ? new Date(normalizedInvoiceDate).toISOString().slice(0, 10)
+                        : null;
+                      const isReceipt = /^RE[-/]?\d/i.test(trimmedInv);
+                      setAcctDocs((prev) => {
+                        const merged = mergeAccountingTaxDocuments(prev, [
+                          {
+                            id: `doc-${Date.now()}-pt`,
+                            docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE_RECEIPT',
+                            docNumber: trimmedInv,
+                            docDate: docDateStr,
+                            note: null,
+                          },
+                        ]);
+                        return merged.length > 0 ? merged : prev;
+                      });
+                    }
                     setConfirmPaymentModal(null);
                     setPaymentNote('');
                     setInvoiceNumber('');
@@ -2645,12 +2917,51 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                               <span>รอดำเนินการ {hasInstallments ? `(${settledCount}/${group.tasks.length})` : ''}</span>
                             </span>
                           )}
-                          {group.job?.accountingClosedAt && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                              <FileCheck className="w-2.5 h-2.5" />
-                              <span>จบงานบัญชีแล้ว</span>
-                            </span>
-                          )}
+                          {(() => {
+                            const rowPaymentLink = evaluatePaymentTasksLinkState({
+                              paymentTasks: group.tasks,
+                              paymentMethod: group.job?.paymentMethod,
+                              creditTerms: group.job?.creditTerms,
+                            });
+                            const rowStepLogs = Array.isArray(group.job?.stepLogs)
+                              ? (group.job.stepLogs as AccountingStepLogLike[])
+                              : [];
+                            const rowHasAcctLog = Boolean(findCompletedAccountingStepLog(rowStepLogs));
+                            const isRowAcctClosed =
+                              rowPaymentLink.canCloseAccounting &&
+                              Boolean(group.job?.accountingClosedAt || rowHasAcctLog);
+                            if (isRowAcctClosed) {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                  <FileCheck className="w-2.5 h-2.5" />
+                                  <span>จบงานบัญชีแล้ว</span>
+                                </span>
+                              );
+                            }
+                            if (
+                              group.job?.accountingVerifiedBeforeVat !== null &&
+                              group.job?.accountingVerifiedBeforeVat !== undefined
+                            ) {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                  <AlertTriangle className="w-2.5 h-2.5" />
+                                  <span>
+                                    {rowPaymentLink.canCloseAccounting
+                                      ? 'บันทึกร่าง (รอปิดงานบัญชี)'
+                                      : 'บันทึกร่าง (รอรับชำระครบ)'}
+                                  </span>
+                                </span>
+                              );
+                            }
+                            if (!rowPaymentLink.canCloseAccounting && rowPaymentLink.isCreditOrInstallment) {
+                              return (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                  <span>ยังไม่ปิดงานบัญชี (รอชำระครบ)</span>
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       </td>
 

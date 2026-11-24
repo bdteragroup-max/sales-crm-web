@@ -9,6 +9,11 @@ export const dynamic = 'force-dynamic';
 export default async function POListPage(props: { searchParams?: Promise<any> | any }) {
   const searchParams = props.searchParams ? await props.searchParams : {};
   const initialSearch = searchParams.search || '';
+  const rawStatus = typeof searchParams.status === 'string' ? searchParams.status.toUpperCase() : '';
+  const initialStatus: 'ALL' | 'PENDING' | 'RECEIVED' | 'CANCELLED' =
+    rawStatus === 'PENDING' || rawStatus === 'RECEIVED' || rawStatus === 'CANCELLED'
+      ? rawStatus
+      : 'ALL';
 
   const user = await getUser();
   if (!user) redirect('/');
@@ -84,6 +89,7 @@ export default async function POListPage(props: { searchParams?: Promise<any> | 
       <POListClient 
         initialPos={serializedPos} 
         initialSearch={initialSearch} 
+        initialStatus={initialStatus}
         currentUser={{ fullName: user.fullName, role: user.role, email: user.email }}
       />
     </div>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
+import { evaluatePaymentTasksLinkState } from "@/app/lib/accounting-reconciliation"
 import { confirmJobStep, rejectJobStep, getPOsByJobName } from "@/app/actions/jobs"
 import { XCircle, Edit2, AlertTriangle } from "lucide-react"
 import { Check, CheckCircle2, Loader2, Briefcase, Package, ShoppingCart, Factory, Wrench, FolderOpen, FileText, Truck, ListPlus, ShieldCheck } from "lucide-react"
@@ -96,10 +97,16 @@ export default function JobTimeline({
   }
   
   const actualCurrentKey = steps[currentIdx]?.key || currentStep;
-  const isFinished = currentIdx === steps.length - 1 && stepLogs.some((l) => l.step === actualCurrentKey)
+  const paymentLink = evaluatePaymentTasksLinkState({
+    paymentTasks,
+    paymentMethod,
+    creditTerms,
+  });
+  const allWorkflowStepsDone = currentIdx === steps.length - 1 && stepLogs.some((l) => l.step === actualCurrentKey);
+  const isFinished = allWorkflowStepsDone && !accountingMismatchMessage && !paymentLink.hasUnsettledCreditOrInstallment;
 
   // step ที่ active (รอ confirm อยู่)
-  const activeStep = isFinished ? null : steps[currentIdx]
+  const activeStep = allWorkflowStepsDone ? null : steps[currentIdx]
 
   function handleReject(targetStepKey: string) {
     if (!noteInput.trim()) {
@@ -243,12 +250,33 @@ export default function JobTimeline({
     const isProduction = roleLower.includes('production') || roleLower.includes('ผลิต') || deptLower.includes('production') || deptLower.includes('ผลิต')
     const isProject = roleLower.includes('project') || roleLower.includes('โปรเจค') || deptLower.includes('project') || deptLower.includes('โปรเจค')
     
-    const isDeliveryRole = roleLower.includes('delivery') || roleLower.includes('transport') || roleLower.includes('จัดส่ง') || roleLower.includes('ขนส่ง') || roleLower.includes('driver') || roleLower.includes('คนขับ')
-    const isStoreRole = roleLower.includes('store') || roleLower.includes('warehouse') || roleLower.includes('สโตร์') || roleLower.includes('คลัง')
-    
+    const isDeliveryRole =
+      roleLower.includes('delivery') ||
+      roleLower.includes('transport') ||
+      roleLower.includes('จัดส่ง') ||
+      roleLower.includes('ขนส่ง') ||
+      roleLower.includes('driver') ||
+      roleLower.includes('คนขับ') ||
+      deptLower.includes('delivery') ||
+      deptLower.includes('transport') ||
+      deptLower.includes('จัดส่ง') ||
+      deptLower.includes('ขนส่ง') ||
+      deptLower.includes('driver') ||
+      deptLower.includes('คนขับ')
+    const isStoreRole =
+      roleLower.includes('store') ||
+      roleLower.includes('warehouse') ||
+      roleLower.includes('สโตร์') ||
+      roleLower.includes('คลัง') ||
+      deptLower.includes('store') ||
+      deptLower.includes('warehouse') ||
+      deptLower.includes('สโตร์') ||
+      deptLower.includes('คลัง')
+
     if (isDeliveryRole) {
       depts.push("delivery")
-    } else if (isStoreRole || deptLower.includes('store') || deptLower.includes('สโตร์') || deptLower.includes('คลัง')) {
+    }
+    if (isStoreRole) {
       depts.push("store")
     }
     
@@ -274,6 +302,24 @@ export default function JobTimeline({
       return accountingMismatchMessage;
     }
 
+    if (
+      activeStep.key === 'accounting' &&
+      currentIdx === steps.length - 1 &&
+      paymentLink.hasUnsettledCreditOrInstallment
+    ) {
+      return paymentLink.closeBlockReason;
+    }
+
+    // ถ้าฝ่ายบัญชีกดยืนยันขั้นตอน "บัญชี" บน Timeline แล้ว ให้แผนกจัดส่งดำเนินการต่อได้ทันที
+    // (เช่น ลูกค้าเครดิต ผ่อนชำระ หรือรอวางบิลตามรอบที่บัญชีรับทราบแล้ว)
+    const accountingIdx = steps.findIndex((s) => s.key === 'accounting');
+    const hasAccountingConfirmed =
+      accountingIdx !== -1 &&
+      currentIdx > accountingIdx &&
+      stepLogs.some((l) => l.step === 'accounting');
+
+    if (hasAccountingConfirmed) return null;
+
     // Check if any payment task is incomplete
     const hasIncompletePayment = paymentTasks && paymentTasks.length > 0 
       ? paymentTasks.some((pt: any) => pt.status !== 'ตรวจสอบและบันทึกแล้ว')
@@ -296,7 +342,7 @@ export default function JobTimeline({
       (pt.installmentTotal && pt.installmentTotal > 1)
     );
 
-    const isInstallment = resolvedMethod.includes('ผ่อนชำระ') || resolvedMethod.includes('แบ่งชำระ') || resolvedMethod.includes('installment');
+    const isInstallment = resolvedMethod.includes('ผ่อน') || resolvedMethod.includes('แบ่ง') || resolvedMethod.includes('installment');
     const isCredit = resolvedMethod.includes('เครดิต') || resolvedMethod.includes('credit') || resolvedCreditTerms !== '' || Boolean(hasCreditTask);
     const isCOD = resolvedMethod.includes('เก็บเงินหน้างาน') || resolvedMethod.includes('หน้างาน') || resolvedMethod.includes('cod');
     
@@ -732,10 +778,35 @@ export default function JobTimeline({
       </div>
 
       {/* ไม่มีสิทธิ์ */}
-      {!isFinished && !canConfirm && activeStep && (
+      {!allWorkflowStepsDone && !canConfirm && activeStep && (
         <p className="mt-3 text-xs text-gray-400 italic">
           step นี้รอแผนก: {activeStep.department.join(", ")} ยืนยัน
         </p>
+      )}
+
+      {/* ดำเนินขั้นตอนครบแล้ว แต่ยังปิด Job ไม่ได้ (รอชำระเครดิต/ผ่อนชำระ หรือรอยอดตรงบัญชี) */}
+      {allWorkflowStepsDone && !isFinished && (
+        <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-900 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold">ดำเนินขั้นตอนหลักครบแล้ว — ยังไม่สามารถปิดงานได้</div>
+              <div className="text-[11px] text-amber-800 mt-0.5">
+                {paymentLink.hasUnsettledCreditOrInstallment
+                  ? paymentLink.closeBlockReason
+                  : accountingMismatchMessage}
+              </div>
+            </div>
+          </div>
+          {paymentLink.hasUnsettledCreditOrInstallment && jobNumber && (
+            <Link
+              href={`/accounting`}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-amber-800 text-[11px] font-bold hover:bg-amber-100/60 shrink-0"
+            >
+              ไปหน้ารับชำระ (บัญชี)
+            </Link>
+          )}
+        </div>
       )}
 
       {/* เสร็จแล้ว */}

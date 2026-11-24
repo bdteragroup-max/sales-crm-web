@@ -18,13 +18,20 @@ import {
   Coins,
   RotateCcw,
   X,
+  Users,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import {
   COMMISSION_STATUS_LABELS,
+  CommissionRecipientOption,
+  CommissionSplitInput,
   EvaluatedCrmCommissionRow,
+  normalizeAndValidateCommissionSplits,
 } from '@/app/lib/salesCommission';
 import SearchableSelect from '@/app/components/SearchableSelect';
 import CommissionNavHeader from './components/CommissionNavHeader';
+import CommissionSplitEditor from './components/CommissionSplitEditor';
 import {
   CommissionStatusBadge,
   CompanyCodeBadge,
@@ -42,6 +49,7 @@ type Props = {
   initialError?: string | null;
   isSuperAdmin: boolean;
   pendingApprovalCount?: number;
+  recipientOptions?: CommissionRecipientOption[];
 };
 
 const ALL_STATUS_OPTIONS: Array<{ value: string; label: string }> = [
@@ -63,6 +71,7 @@ export default function CommissionCrmListClient({
   initialError = null,
   isSuperAdmin,
   pendingApprovalCount = 0,
+  recipientOptions = [],
 }: Props) {
   const [rows, setRows] = useState<CrmListRow[]>(initialRows);
   const [fetchedAt, setFetchedAt] = useState<string>(initialFetchedAt);
@@ -82,6 +91,34 @@ export default function CommissionCrmListClient({
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [submitRemarks, setSubmitRemarks] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [splitMode, setSplitMode] = useState<'NONE' | 'SHARED' | 'PER_JOB'>('NONE');
+  const [sharedSplits, setSharedSplits] = useState<CommissionSplitInput[]>([]);
+  const [jobSplitsMap, setJobSplitsMap] = useState<Record<string, CommissionSplitInput[]>>({});
+  const [expandedSplitJobIds, setExpandedSplitJobIds] = useState<Set<string>>(new Set());
+  const [submitModalError, setSubmitModalError] = useState<string | null>(null);
+
+  const recipientUserById = useMemo(
+    () => new Map(recipientOptions.map((u) => [u.id, u])),
+    [recipientOptions]
+  );
+
+  const buildOwnerSplitForRow = (row: CrmListRow): CommissionSplitInput[] => {
+    const matched =
+      (row.salespersonId ? recipientUserById.get(row.salespersonId) : undefined) ||
+      recipientOptions.find(
+        (u) => u.fullName.trim().toLowerCase() === row.salespersonName.trim().toLowerCase()
+      );
+    return [
+      {
+        userId: matched?.id ?? row.salespersonId ?? null,
+        employeeId: matched?.employeeId ?? null,
+        recipientName: matched?.fullName ?? (row.salespersonName !== '-' ? row.salespersonName : ''),
+        recipientRole: matched ? matched.department || matched.role : null,
+        splitPct: 100,
+        isOwner: true,
+      },
+    ];
+  };
 
   const salespersonOptions = useMemo(() => {
     if (!isSuperAdmin) return [];
@@ -89,6 +126,11 @@ export default function CommissionCrmListClient({
     for (const r of rows) {
       if (r.salespersonName && r.salespersonName !== '-') {
         set.add(r.salespersonName);
+      }
+      for (const sp of r.existingRequest?.splits || []) {
+        if (sp.recipientName && sp.recipientName !== '-') {
+          set.add(sp.recipientName);
+        }
       }
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'th'));
@@ -109,8 +151,12 @@ export default function CommissionCrmListClient({
       } else if (statusFilter !== 'ALL' && r.derivedStatus !== statusFilter) {
         return false;
       }
-      if (isSuperAdmin && salespersonFilter !== 'ALL' && r.salespersonName !== salespersonFilter) {
-        return false;
+      if (isSuperAdmin && salespersonFilter !== 'ALL') {
+        const matchesPrimary = r.salespersonName === salespersonFilter;
+        const matchesSplit = (r.existingRequest?.splits || []).some(
+          (s) => s.recipientName === salespersonFilter
+        );
+        if (!matchesPrimary && !matchesSplit) return false;
       }
       if (q) {
         const hay = [
@@ -121,6 +167,7 @@ export default function CommissionCrmListClient({
           r.receiptNumbers,
           r.salespersonName,
           r.existingRequest?.requestNo || '',
+          ...(r.existingRequest?.splits || []).map((s) => s.recipientName),
         ]
           .join(' ')
           .toLowerCase();
@@ -158,6 +205,36 @@ export default function CommissionCrmListClient({
     () => selectedRows.reduce((s, r) => s + r.salesAmountExVat, 0),
     [selectedRows]
   );
+
+  const splitValidationError = useMemo(() => {
+    if (splitMode === 'SHARED') {
+      const res = normalizeAndValidateCommissionSplits(sharedSplits, null);
+      return 'error' in res ? res.error : null;
+    }
+    if (splitMode === 'PER_JOB') {
+      for (const row of selectedRows) {
+        const list = jobSplitsMap[row.jobId];
+        if (!list) continue;
+        const res = normalizeAndValidateCommissionSplits(list, null);
+        if ('error' in res) {
+          return `${row.jobNumber}: ${res.error}`;
+        }
+      }
+    }
+    return null;
+  }, [splitMode, sharedSplits, jobSplitsMap, selectedRows]);
+
+  const openSubmitModal = () => {
+    if (selectedRows.length === 0) return;
+    setSplitMode('NONE');
+    setSharedSplits(buildOwnerSplitForRow(selectedRows[0]));
+    setJobSplitsMap({});
+    setExpandedSplitJobIds(
+      selectedRows.length === 1 ? new Set([selectedRows[0].jobId]) : new Set()
+    );
+    setSubmitModalError(null);
+    setIsSubmitModalOpen(true);
+  };
 
   const handlePullFromCrm = async () => {
     setIsFetchingCrm(true);
@@ -214,16 +291,43 @@ export default function CommissionCrmListClient({
 
   const handleConfirmSubmit = async () => {
     if (selectedRows.length === 0 || isSubmitting) return;
+    if (splitValidationError) {
+      setSubmitModalError(splitValidationError);
+      return;
+    }
+
+    setSubmitModalError(null);
     setIsSubmitting(true);
     setActionBanner(null);
     try {
+      const payload: {
+        jobIds: string[];
+        remarks: string | null;
+        defaultSplits?: CommissionSplitInput[];
+        jobSplits?: Record<string, CommissionSplitInput[]>;
+      } = {
+        jobIds: selectedRows.map((r) => r.jobId),
+        remarks: submitRemarks.trim() || null,
+      };
+
+      if (splitMode === 'SHARED') {
+        payload.defaultSplits = sharedSplits;
+      } else if (splitMode === 'PER_JOB') {
+        const customEntries: Record<string, CommissionSplitInput[]> = {};
+        for (const r of selectedRows) {
+          if (jobSplitsMap[r.jobId] && jobSplitsMap[r.jobId].length > 0) {
+            customEntries[r.jobId] = jobSplitsMap[r.jobId];
+          }
+        }
+        if (Object.keys(customEntries).length > 0) {
+          payload.jobSplits = customEntries;
+        }
+      }
+
       const res = await fetch('/api/sales/commissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jobIds: selectedRows.map((r) => r.jobId),
-          remarks: submitRemarks.trim() || null,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.success) {
@@ -244,6 +348,7 @@ export default function CommissionCrmListClient({
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'ยื่นคำขอค่าคอมมิชชั่นไม่สำเร็จ';
+      setSubmitModalError(msg);
       setActionBanner({ type: 'error', message: msg });
     } finally {
       setIsSubmitting(false);
@@ -302,7 +407,7 @@ export default function CommissionCrmListClient({
 
             <button
               type="button"
-              onClick={() => setIsSubmitModalOpen(true)}
+              onClick={openSubmitModal}
               disabled={selectedRows.length === 0}
               className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-[#ff2301] hover:bg-red-600 text-white text-xs font-bold shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed tabular-nums"
             >
@@ -533,11 +638,24 @@ export default function CommissionCrmListClient({
                   compact
                   value={salespersonFilter}
                   onChange={(val) => setSalespersonFilter(val || 'ALL')}
-                  placeholder="พิมพ์หาชื่อพนักงานขาย..."
+                  placeholder="พิมพ์ชื่อ / ชื่อเล่นพนักงาน..."
                   emptyText="ไม่พบพนักงานขาย"
                   options={[
                     { value: 'ALL', label: 'พนักงานขายทุกคน' },
-                    ...salespersonOptions.map((name) => ({ value: name, label: name })),
+                    ...salespersonOptions.map((name) => {
+                      const matched = recipientOptions.find(
+                        (u) => u.fullName.trim().toLowerCase() === name.trim().toLowerCase()
+                      );
+                      return {
+                        value: name,
+                        label: matched?.nickname ? `${name} (${matched.nickname})` : name,
+                        searchText: matched
+                          ? [matched.nickname, matched.fullName, matched.employeeId]
+                              .filter(Boolean)
+                              .join(' ')
+                          : name,
+                      };
+                    }),
                   ]}
                 />
               </div>
@@ -601,7 +719,7 @@ export default function CommissionCrmListClient({
               </button>
               <button
                 type="button"
-                onClick={() => setIsSubmitModalOpen(true)}
+                onClick={openSubmitModal}
                 className="px-4 py-1.5 rounded-lg bg-[#ff2301] text-white text-xs font-bold hover:bg-red-600 shadow-xs"
               >
                 ตรวจสอบ & ยื่นคำขอ
@@ -772,33 +890,105 @@ export default function CommissionCrmListClient({
                         </td>
 
                         <td className="py-3.5 px-3 pl-3 align-middle">
-                          <div
-                            className="text-slate-700 font-medium truncate"
-                            title={row.salespersonName}
-                          >
-                            {row.salespersonName}
-                          </div>
+                          {(() => {
+                            const splits = row.existingRequest?.splits ?? [];
+                            const hasMultiSplit = splits.length > 1;
+                            const splitTooltip = hasMultiSplit
+                              ? splits
+                                  .map(
+                                    (s) =>
+                                      `${s.recipientName} ${s.splitPct}%${
+                                        s.allocatedAmount !== null && s.allocatedAmount !== undefined
+                                          ? ` (${formatThb(s.allocatedAmount)} ฿)`
+                                          : ''
+                                      }`
+                                  )
+                                  .join(' • ')
+                              : row.salespersonName;
+                            return (
+                              <div title={splitTooltip}>
+                                <div className="text-slate-700 font-medium truncate">
+                                  {row.salespersonName}
+                                </div>
+                                {hasMultiSplit && (
+                                  <div className="text-[10px] font-semibold text-indigo-700 truncate mt-0.5">
+                                    แบ่ง {splits.length} คน:{' '}
+                                    {splits
+                                      .map((s) => `${s.recipientName.split(' ')[0]} ${s.splitPct}%`)
+                                      .join(' / ')}
+                                  </div>
+                                )}
+                                {row.mySplit && (!row.isJobOwner || hasMultiSplit) && (
+                                  <div className="mt-0.5">
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                                      {row.isJobOwner ? 'ส่วนของฉัน' : 'ร่วมรับค่าคอมฯ'}{' '}
+                                      {row.mySplit.splitPct}%
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </td>
 
                         <td className="py-3.5 px-3 pr-4 align-middle text-right whitespace-nowrap tabular-nums">
-                          {isConfirmedAmount && row.commissionAmount !== null ? (
-                            <div>
-                              <div className="font-black text-emerald-700">
-                                {formatThb(row.commissionAmount)}
-                              </div>
-                              {row.commissionRatePct !== null && (
-                                <div className="text-[10px] text-slate-500">
-                                  {formatRatePct(row.commissionRatePct)}
+                          {(() => {
+                            const splits = row.existingRequest?.splits ?? [];
+                            const hasMultiSplit = splits.length > 1;
+                            if (isConfirmedAmount && row.commissionAmount !== null) {
+                              return (
+                                <div>
+                                  <div className="font-black text-emerald-700">
+                                    {formatThb(row.commissionAmount)}
+                                  </div>
+                                  {row.commissionRatePct !== null && (
+                                    <div className="text-[10px] text-slate-500">
+                                      {formatRatePct(row.commissionRatePct)}
+                                    </div>
+                                  )}
+                                  {hasMultiSplit &&
+                                    row.mySplit &&
+                                    row.mySplit.allocatedAmount !== null && (
+                                      <div className="text-[10px] font-bold text-indigo-700 mt-0.5">
+                                        ของฉัน: {formatThb(row.mySplit.allocatedAmount)}
+                                      </div>
+                                    )}
+                                  {hasMultiSplit && !row.mySplit && (
+                                    <div
+                                      className="text-[10px] font-semibold text-indigo-600 mt-0.5"
+                                      title={splits
+                                        .map(
+                                          (s) =>
+                                            `${s.recipientName} ${s.splitPct}%${
+                                              s.allocatedAmount != null
+                                                ? ` (${formatThb(s.allocatedAmount)})`
+                                                : ''
+                                            }`
+                                        )
+                                        .join(' • ')}
+                                    >
+                                      แบ่ง {splits.length} คน
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          ) : row.existingRequest ? (
-                            <span className="inline-flex text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                              รอตรวจกำไร
-                            </span>
-                          ) : (
-                            <span className="text-slate-300 font-medium">—</span>
-                          )}
+                              );
+                            }
+                            if (row.existingRequest) {
+                              return (
+                                <div className="inline-flex flex-col items-end gap-0.5">
+                                  <span className="inline-flex text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                                    รอตรวจกำไร
+                                  </span>
+                                  {hasMultiSplit && (
+                                    <span className="text-[10px] font-semibold text-indigo-600">
+                                      แบ่ง {splits.length} คน
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            }
+                            return <span className="text-slate-300 font-medium">—</span>;
+                          })()}
                         </td>
 
                         <td className="py-3.5 px-3 align-middle min-w-[195px]">
@@ -923,7 +1113,7 @@ export default function CommissionCrmListClient({
       {/* Step 3 Confirmation Modal */}
       {isSubmitModalOpen && (
         <div className="fixed inset-0 z-[150] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-2xl overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-3xl overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FileText size={18} className="text-[#ff2301]" />
@@ -941,35 +1131,169 @@ export default function CommissionCrmListClient({
               </button>
             </div>
 
-            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
               <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800 font-medium">
                 หลังส่งคำขอ ระบบจะบันทึกวันที่ยื่น เลขที่คำขอ และส่งต่อให้{' '}
-                <strong>SUPER_ADMIN</strong> ตรวจสอบต้นทุน/ยืนยัน % กำไร และคำนวณค่าคอมมิชชั่น
+                <strong>SUPER_ADMIN</strong> ตรวจสอบต้นทุน/ยืนยัน % กำไร และคำนวณค่าคอมมิชชั่นตามสัดส่วนแบ่ง
+              </div>
+
+              {/* Split Commission Mode Selector */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs font-black text-slate-900">
+                    <Users size={15} className="text-[#ff2301]" />
+                    <span>การแบ่งค่าคอมมิชชั่นให้ผู้ร่วมงาน (%)</span>
+                  </div>
+                  <div className="inline-flex flex-wrap p-1 rounded-xl bg-white border border-slate-200 gap-1">
+                    {[
+                      { key: 'NONE' as const, label: 'เจ้าของงานรับ 100%' },
+                      {
+                        key: 'SHARED' as const,
+                        label:
+                          selectedRows.length > 1
+                            ? 'แบ่ง % เหมือนกันทุกงาน'
+                            : 'แบ่งค่าคอมฯ กับผู้ร่วมงาน',
+                      },
+                      ...(selectedRows.length > 1
+                        ? [{ key: 'PER_JOB' as const, label: 'กำหนดแยกตามราย Job' }]
+                        : []),
+                    ].map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => {
+                          setSplitMode(opt.key);
+                          setSubmitModalError(null);
+                          if (opt.key === 'SHARED' && sharedSplits.length === 0 && selectedRows[0]) {
+                            setSharedSplits(buildOwnerSplitForRow(selectedRows[0]));
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors ${
+                          splitMode === opt.key
+                            ? 'bg-slate-900 text-white shadow-2xs'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {splitMode === 'SHARED' && (
+                  <div className="space-y-2 pt-1">
+                    {selectedRows.length > 1 && (
+                      <p className="text-[11px] text-slate-600 font-medium">
+                        รายชื่อและสัดส่วนด้านล่างนี้จะถูกนำไปใช้กับทั้ง{' '}
+                        <strong>{selectedRows.length} งาน</strong> ที่เลือกยื่นพร้อมกัน
+                      </p>
+                    )}
+                    <CommissionSplitEditor
+                      splits={sharedSplits}
+                      onChange={setSharedSplits}
+                      recipientOptions={recipientOptions}
+                      defaultOwner={
+                        selectedRows[0]
+                          ? {
+                              userId: selectedRows[0].salespersonId,
+                              recipientName: selectedRows[0].salespersonName,
+                            }
+                          : undefined
+                      }
+                      disabled={isSubmitting}
+                      compact
+                    />
+                  </div>
+                )}
+
+                {splitMode === 'PER_JOB' && (
+                  <p className="text-[11px] text-slate-600 font-medium">
+                    กดปุ่ม <strong>&ldquo;แบ่งค่าคอมฯ&rdquo;</strong> ในแต่ละรายการด้านล่างเพื่อระบุรายชื่อและสัดส่วน % เฉพาะงานนั้น (งานที่ไม่ได้แก้ไขจะรับ 100% ในชื่อเจ้าของงาน)
+                  </p>
+                )}
               </div>
 
               <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
-                {selectedRows.map((item) => (
-                  <div
-                    key={item.jobId}
-                    className="p-3.5 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs"
-                  >
-                    <div>
-                      <div className="font-bold text-slate-900">
-                        {item.jobNumber} • {item.customerName}
+                {selectedRows.map((item) => {
+                  const customSplits = jobSplitsMap[item.jobId];
+                  const isJobExpanded = expandedSplitJobIds.has(item.jobId);
+                  const currentJobSplits = customSplits || buildOwnerSplitForRow(item);
+
+                  return (
+                    <div key={item.jobId} className="p-3.5 bg-white space-y-2.5 text-xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                            <span>
+                              {item.jobNumber} • {item.customerName}
+                            </span>
+                            {splitMode === 'PER_JOB' && customSplits && customSplits.length > 1 && (
+                              <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold">
+                                แบ่ง {customSplits.length} คน
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-slate-500 mt-0.5">
+                            เจ้าของงาน: <strong className="text-slate-700">{item.salespersonName}</strong> | สินค้า:{' '}
+                            {item.productSold} | ใบกำกับ: {item.taxInvoiceNumbers}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
+                          <div className="text-right tabular-nums">
+                            <div className="font-black text-slate-900">
+                              {formatThb(item.salesAmountExVat)} บาท
+                            </div>
+                            <div className="text-[11px] text-slate-500">ยอดไม่รวม VAT</div>
+                          </div>
+
+                          {splitMode === 'PER_JOB' && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!jobSplitsMap[item.jobId]) {
+                                  setJobSplitsMap((prev) => ({
+                                    ...prev,
+                                    [item.jobId]: buildOwnerSplitForRow(item),
+                                  }));
+                                }
+                                setExpandedSplitJobIds((prev) => {
+                                  const next = new Set(prev);
+                                  if (next.has(item.jobId)) next.delete(item.jobId);
+                                  else next.add(item.jobId);
+                                  return next;
+                                });
+                              }}
+                              className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-bold text-slate-700 transition-colors"
+                            >
+                              <Users size={12} />
+                              <span>แบ่งค่าคอมฯ</span>
+                              {isJobExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-slate-500 mt-0.5">
-                        สินค้า: {item.productSold} | ใบกำกับ: {item.taxInvoiceNumbers} | ใบเสร็จ:{' '}
-                        {item.receiptNumbers}
-                      </div>
+
+                      {splitMode === 'PER_JOB' && isJobExpanded && (
+                        <div className="pt-2 border-t border-slate-100">
+                          <CommissionSplitEditor
+                            splits={currentJobSplits}
+                            onChange={(nextSplits) =>
+                              setJobSplitsMap((prev) => ({ ...prev, [item.jobId]: nextSplits }))
+                            }
+                            recipientOptions={recipientOptions}
+                            defaultOwner={{
+                              userId: item.salespersonId,
+                              recipientName: item.salespersonName,
+                            }}
+                            disabled={isSubmitting}
+                            compact
+                          />
+                        </div>
+                      )}
                     </div>
-                    <div className="text-right shrink-0 tabular-nums">
-                      <div className="font-black text-slate-900">
-                        {formatThb(item.salesAmountExVat)} บาท
-                      </div>
-                      <div className="text-[11px] text-slate-500">ยอดไม่รวม VAT</div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div>
@@ -984,6 +1308,12 @@ export default function CommissionCrmListClient({
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#ff2301]/30"
                 />
               </div>
+
+              {(submitModalError || splitValidationError) && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs font-bold text-red-700">
+                  {submitModalError || splitValidationError}
+                </div>
+              )}
             </div>
 
             <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 grid grid-cols-2 gap-3">
@@ -998,7 +1328,7 @@ export default function CommissionCrmListClient({
               <button
                 type="button"
                 onClick={handleConfirmSubmit}
-                disabled={isSubmitting || selectedRows.length === 0}
+                disabled={isSubmitting || selectedRows.length === 0 || Boolean(splitValidationError)}
                 className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-xl bg-[#ff2301] hover:bg-red-600 text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-colors"
               >
                 {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}

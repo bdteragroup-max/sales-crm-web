@@ -7,6 +7,7 @@ import { getNextPendingScheduleTask } from "@/app/lib/accounting-schedule";
 import {
   AccountingTaxDocument,
   evaluateAccountingAmountReconciliation,
+  evaluatePaymentTasksLinkState,
   parseAccountingTaxDocuments,
 } from "@/app/lib/accounting-reconciliation";
 import { getNextStep } from "@/app/lib/job-workflow";
@@ -87,9 +88,18 @@ export async function syncFinancialAdjustments(jobId: string) {
     const hasAnyPaid = updatedTasks.some(t => (t.paidAmount && t.paidAmount > 0) || t.status === 'ชำระมัดจำแล้ว' || t.status === 'ตรวจสอบและบันทึกแล้ว');
     const nextPendingTask = getNextPendingScheduleTask(updatedTasks, { requireDueDate: true });
 
+    const existingJobMeta = await prisma.job.findUnique({
+      where: { id: jobId },
+      select: { accountingClosedAt: true },
+    });
+
     const jobUpdateData: any = {
       paymentStatus: allCompleted ? 'paid' : (hasAnyPaid ? 'partial' : 'unpaid'),
     };
+    if (!allCompleted && existingJobMeta?.accountingClosedAt) {
+      jobUpdateData.accountingClosedAt = null;
+      jobUpdateData.accountingClosedBy = null;
+    }
     if (progressTasks.length > 1 || (depositTask && progressTasks.length > 0) || (hasStructuredSchedule && progressTasks.length === 1 && progressTasks[0]?.installmentAmount)) {
       jobUpdateData.paymentMethod = 'ผ่อนชำระ';
     }
@@ -562,6 +572,9 @@ export async function saveAccountingJobVerification(payload: {
           salespersonId: true,
         },
       },
+      paymentTasks: {
+        orderBy: [{ installmentNo: "asc" }, { dueDate: "asc" }, { createdAt: "asc" }],
+      },
       stepLogs: {
         orderBy: { completedAt: "asc" },
       },
@@ -570,6 +583,18 @@ export async function saveAccountingJobVerification(payload: {
 
   if (!existingJob) {
     throw new Error("ไม่พบข้อมูลงานในระบบ");
+  }
+
+  const paymentLink = evaluatePaymentTasksLinkState({
+    paymentTasks: existingJob.paymentTasks,
+    paymentMethod: existingJob.paymentMethod,
+    creditTerms: existingJob.creditTerms,
+  });
+
+  if (shouldCloseAccounting && !paymentLink.canCloseAccounting) {
+    throw new Error(
+      `${paymentLink.closeBlockReason || "ไม่สามารถปิดงานบัญชีได้ เนื่องจากงวดชำระเงินยังไม่ครบถ้วน"} — สามารถกด "บันทึกร่างไว้ก่อน" เพื่อเก็บยอดก่อน VAT และเลขที่เอกสารได้`
+    );
   }
 
   const reconciliation = evaluateAccountingAmountReconciliation({
@@ -612,6 +637,22 @@ export async function saveAccountingJobVerification(payload: {
       }
     }
 
+    // If a single PaymentTask has no invoiceNumber yet, sync the primary entered tax doc back to it before fetching updated job
+    if (
+      existingJob.paymentTasks.length === 1 &&
+      !existingJob.paymentTasks[0].invoiceNumber &&
+      normalizedDocs.length > 0
+    ) {
+      const primaryDoc = normalizedDocs[0];
+      await tx.paymentTask.update({
+        where: { id: existingJob.paymentTasks[0].id },
+        data: {
+          invoiceNumber: primaryDoc.docNumber,
+          ...(primaryDoc.docDate ? { invoiceDate: new Date(primaryDoc.docDate) } : {}),
+        },
+      });
+    }
+
     const saved = await tx.job.update({
       where: { id: existingJob.id },
       data: {
@@ -628,6 +669,9 @@ export async function saveAccountingJobVerification(payload: {
       },
       include: {
         quotation: true,
+        paymentTasks: {
+          orderBy: [{ installmentNo: "asc" }, { dueDate: "asc" }, { createdAt: "asc" }],
+        },
         stepLogs: { orderBy: { completedAt: "asc" } },
       },
     });
@@ -663,6 +707,7 @@ export async function saveAccountingJobVerification(payload: {
   return {
     success: true,
     job: updatedJob,
+    paymentTasks: updatedJob.paymentTasks,
     stepLogs: updatedStepLogs,
     taxDocuments: normalizedDocs,
     reconciliation,

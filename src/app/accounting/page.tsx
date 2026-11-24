@@ -55,6 +55,18 @@ export default async function AccountingPage() {
           accountingClosedAt: true,
           accountingClosedBy: true,
           accountingVerificationNote: true,
+          stepLogs: {
+            where: { step: 'accounting' },
+            orderBy: { completedAt: 'desc' },
+            take: 5,
+            select: {
+              id: true,
+              step: true,
+              completedAt: true,
+              completedBy: true,
+              note: true,
+            },
+          },
           month: true,
           yearBe: true,
           deliveryDate: true,

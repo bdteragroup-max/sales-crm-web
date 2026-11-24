@@ -2,6 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import {
   fetchAllCommissionRequestsAdmin,
+  fetchCommissionRecipientOptions,
   getCommissionActor,
 } from '@/app/lib/salesCommissionServer';
 import CommissionApprovalsClient from './CommissionApprovalsClient';
@@ -15,9 +16,15 @@ export default async function CommissionApprovalsPage() {
     redirect('/sales/commissions');
   }
 
-  const items = await fetchAllCommissionRequestsAdmin();
+  const [items, recipientOptions] = await Promise.all([
+    fetchAllCommissionRequestsAdmin(),
+    fetchCommissionRecipientOptions(),
+  ]);
 
   return (
-    <CommissionApprovalsClient initialItems={JSON.parse(JSON.stringify(items))} />
+    <CommissionApprovalsClient
+      initialItems={JSON.parse(JSON.stringify(items))}
+      recipientOptions={JSON.parse(JSON.stringify(recipientOptions))}
+    />
   );
 }

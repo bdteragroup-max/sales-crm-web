@@ -129,19 +129,23 @@ function getAccountingAuditInfo(po: any) {
   return { isModified: true, latestLog, editor };
 }
 
+type POStatusFilter = 'ALL' | 'PENDING' | 'RECEIVED' | 'CANCELLED';
+
 export default function POListClient({ 
   initialPos, 
   initialSearch = '',
+  initialStatus = 'ALL',
   currentUser
 }: { 
   initialPos: any[]; 
   initialSearch?: string;
+  initialStatus?: POStatusFilter;
   currentUser?: { fullName?: string | null; role?: string | null; email?: string | null };
 }) {
   const router = useRouter();
   const [posList, setPosList] = useState(initialPos);
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, PENDING, RECEIVED, CANCELLED
+  const [statusFilter, setStatusFilter] = useState<POStatusFilter>(initialStatus); // ALL, PENDING, RECEIVED, CANCELLED
   const [paymentFilter, setPaymentFilter] = useState('ALL'); // ALL, PAID, DEFERRED, PENDING, AWAITING_GR, OVERDUE
   const [companyFilter, setCompanyFilter] = useState('all'); // all, TE, TP, TG
   const [projectFilter, setProjectFilter] = useState('');
@@ -258,6 +262,11 @@ export default function POListClient({
     setCurrentPage(1);
   };
 
+  const handleStatusFilterChange = (nextStatus: POStatusFilter, toggleToAll = false) => {
+    setStatusFilter(prev => (toggleToAll && prev === nextStatus ? 'ALL' : nextStatus));
+    setCurrentPage(1);
+  };
+
   const resetAllFilters = () => {
     setSearchTerm('');
     setStatusFilter('ALL');
@@ -281,8 +290,8 @@ export default function POListClient({
     yearFilter !== ''
   );
 
-  // Filtered List
-  const filteredPos = useMemo(() => {
+  // Filtered List excluding statusFilter so status KPI cards retain accurate counts across current filters
+  const nonStatusFilteredPos = useMemo(() => {
     return posList.filter(po => {
       // 1. Search filter
       if (searchTerm.trim()) {
@@ -295,11 +304,6 @@ export default function POListClient({
         const matches = poNum.includes(q) || prNum.includes(q) || vendor.includes(q) || job.includes(q) || item.includes(q);
         if (!matches) return false;
       }
-
-      // 2. Status filter
-      if (statusFilter === 'RECEIVED' && po.receiveStatus !== 'Received') return false;
-      if (statusFilter === 'PENDING' && (po.receiveStatus === 'Received' || po.receiveStatus === 'Cancelled')) return false;
-      if (statusFilter === 'CANCELLED' && po.receiveStatus !== 'Cancelled') return false;
 
       // 2.1 Payment Status filter
       if (paymentFilter !== 'ALL') {
@@ -346,7 +350,18 @@ export default function POListClient({
 
       return true;
     });
-  }, [posList, searchTerm, statusFilter, paymentFilter, companyFilter, projectFilter, dateFilter, monthFilter, yearFilter]);
+  }, [posList, searchTerm, paymentFilter, companyFilter, projectFilter, dateFilter, monthFilter, yearFilter]);
+
+  // Filtered List (applying statusFilter on top of non-status filters)
+  const filteredPos = useMemo(() => {
+    if (statusFilter === 'ALL') return nonStatusFilteredPos;
+    return nonStatusFilteredPos.filter(po => {
+      if (statusFilter === 'RECEIVED') return po.receiveStatus === 'Received';
+      if (statusFilter === 'PENDING') return po.receiveStatus !== 'Received' && po.receiveStatus !== 'Cancelled';
+      if (statusFilter === 'CANCELLED') return po.receiveStatus === 'Cancelled';
+      return true;
+    });
+  }, [nonStatusFilteredPos, statusFilter]);
 
   // Sorted List
   const sortedPos = useMemo(() => {
@@ -378,13 +393,13 @@ export default function POListClient({
     return sortedPos.slice(start, start + pageSize);
   }, [sortedPos, currentPage, pageSize]);
 
-  // Quick KPI Counts (based on current non-status filters)
+  // Quick KPI Counts (amount reflects active filtered list; status counts stay visible across non-status filters)
   const kpiStats = useMemo(() => {
     const activeItems = filteredPos.filter(p => p.receiveStatus !== 'Cancelled');
     const totalAmount = activeItems.reduce((sum, p) => sum + (Number(p.totalAmount) || 0), 0);
-    const pendingCount = filteredPos.filter(p => p.receiveStatus !== 'Received' && p.receiveStatus !== 'Cancelled').length;
-    const receivedCount = filteredPos.filter(p => p.receiveStatus === 'Received').length;
-    const cancelledCount = filteredPos.filter(p => p.receiveStatus === 'Cancelled').length;
+    const pendingCount = nonStatusFilteredPos.filter(p => p.receiveStatus !== 'Received' && p.receiveStatus !== 'Cancelled').length;
+    const receivedCount = nonStatusFilteredPos.filter(p => p.receiveStatus === 'Received').length;
+    const cancelledCount = nonStatusFilteredPos.filter(p => p.receiveStatus === 'Cancelled').length;
     return {
       totalAmount,
       totalCount: filteredPos.length,
@@ -393,7 +408,7 @@ export default function POListClient({
       receivedCount,
       cancelledCount,
     };
-  }, [filteredPos]);
+  }, [filteredPos, nonStatusFilteredPos]);
 
   // Overall counts for tabs
   const tabCounts = useMemo(() => {
@@ -899,59 +914,105 @@ export default function POListClient({
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* Interactive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
-          <div className="flex items-center justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
+        <button
+          type="button"
+          onClick={() => handleStatusFilterChange('ALL')}
+          aria-pressed={statusFilter === 'ALL'}
+          className={`w-full text-left p-5 rounded-2xl border border-l-4 border-l-blue-600 transition-all cursor-pointer active:scale-[0.99] ${
+            statusFilter === 'ALL'
+              ? 'bg-white border-blue-200 ring-2 ring-blue-500/20 shadow-sm'
+              : 'bg-white border-gray-100 hover:border-blue-300 hover:shadow-md'
+          }`}
+        >
+          <span className="flex items-center justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
             <span>ยอดสั่งซื้อรวม (ตัวกรอง)</span>
             <span className="p-1 bg-blue-50 text-blue-700 rounded text-[10px] font-bold">Express Parity</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-2">
+          </span>
+          <span className="block text-2xl font-bold text-gray-900 mt-2">
             {kpiStats.totalAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB', maximumFractionDigits: 2 })}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            {kpiStats.activeCount} รายการ (ไม่รวมยกเลิก)
-          </p>
-        </div>
+          </span>
+          <span className="flex items-center justify-between gap-2 text-xs text-gray-500 mt-1">
+            <span>{kpiStats.activeCount} รายการ (ไม่รวมยกเลิก)</span>
+            {statusFilter !== 'ALL' && (
+              <span className="text-[10px] font-semibold text-blue-600">ดูทั้งหมด</span>
+            )}
+          </span>
+        </button>
 
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500">
-          <div className="flex items-center justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
-            <span>รอรับสินค้า</span>
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-2">
-            {kpiStats.pendingCount}
-          </p>
-          <p className="text-xs text-amber-600 font-medium mt-1">
-            รอดำเนินการรับเข้าสโตร์
-          </p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
-          <div className="flex items-center justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
-            <span>รับสินค้าแล้ว</span>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900 mt-2">
-            {kpiStats.receivedCount}
-          </p>
-          <p className="text-xs text-emerald-600 font-medium mt-1">
-            รับเข้าคลังเรียบร้อยแล้ว
-          </p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-rose-400">
-          <div className="flex items-center justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
-            <span>ยกเลิกแล้ว</span>
-            <span className="p-1 bg-rose-50 text-rose-600 rounded text-[10px] font-bold">ไม่คิดยอด</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-700 mt-2">
-            {kpiStats.cancelledCount}
-          </p>
-          <p className="text-xs text-gray-400 mt-1">
-            ยกเลิกใน Express หรือ CRM
-          </p>
-        </div>
+        {(
+          [
+            {
+              status: 'PENDING' as const,
+              title: 'รอรับสินค้า',
+              count: kpiStats.pendingCount,
+              subtitle: 'รอดำเนินการรับเข้าสโตร์',
+              subtitleClass: 'text-amber-600 font-medium',
+              countClass: 'text-gray-900',
+              borderLeftClass: 'border-l-amber-500',
+              activeClass: 'bg-amber-50/40 border-amber-300 ring-2 ring-amber-400/50 shadow-md',
+              idleClass: 'bg-white border-gray-100 shadow-sm hover:border-amber-300 hover:bg-amber-50/20 hover:shadow-md',
+              badgeClass: 'bg-amber-100 text-amber-800',
+              indicator: <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />,
+            },
+            {
+              status: 'RECEIVED' as const,
+              title: 'รับสินค้าแล้ว',
+              count: kpiStats.receivedCount,
+              subtitle: 'รับเข้าคลังเรียบร้อยแล้ว',
+              subtitleClass: 'text-emerald-600 font-medium',
+              countClass: 'text-gray-900',
+              borderLeftClass: 'border-l-emerald-500',
+              activeClass: 'bg-emerald-50/40 border-emerald-300 ring-2 ring-emerald-400/50 shadow-md',
+              idleClass: 'bg-white border-gray-100 shadow-sm hover:border-emerald-300 hover:bg-emerald-50/20 hover:shadow-md',
+              badgeClass: 'bg-emerald-100 text-emerald-800',
+              indicator: <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />,
+            },
+            {
+              status: 'CANCELLED' as const,
+              title: 'ยกเลิกแล้ว',
+              count: kpiStats.cancelledCount,
+              subtitle: 'ยกเลิกใน Express หรือ CRM',
+              subtitleClass: 'text-gray-400',
+              countClass: 'text-gray-700',
+              borderLeftClass: 'border-l-rose-400',
+              activeClass: 'bg-rose-50/40 border-rose-300 ring-2 ring-rose-400/50 shadow-md',
+              idleClass: 'bg-white border-gray-100 shadow-sm hover:border-rose-300 hover:bg-rose-50/20 hover:shadow-md',
+              badgeClass: 'bg-rose-100 text-rose-800',
+              indicator: <span className="p-1 bg-rose-50 text-rose-600 rounded text-[10px] font-bold">ไม่คิดยอด</span>,
+            },
+          ]
+        ).map((card) => {
+          const isActive = statusFilter === card.status;
+          return (
+            <button
+              key={card.status}
+              type="button"
+              onClick={() => handleStatusFilterChange(card.status, true)}
+              aria-pressed={isActive}
+              className={`w-full text-left p-5 rounded-2xl border border-l-4 ${card.borderLeftClass} transition-all cursor-pointer active:scale-[0.99] ${
+                isActive ? card.activeClass : card.idleClass
+              }`}
+            >
+              <span className="flex items-center justify-between text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                <span>{card.title}</span>
+                <span className="flex items-center gap-1.5">
+                  {isActive && (
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${card.badgeClass}`}>กำลังกรอง</span>
+                  )}
+                  {card.indicator}
+                </span>
+              </span>
+              <span className={`block text-2xl font-bold mt-2 ${card.countClass}`}>
+                {card.count}
+              </span>
+              <span className={`block text-xs mt-1 ${card.subtitleClass}`}>
+                {card.subtitle}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Main Table Container */}
@@ -963,7 +1024,8 @@ export default function POListClient({
             {/* Quick Status Tabs */}
             <div className="inline-flex p-1 bg-gray-100/80 rounded-xl gap-1 self-start">
               <button
-                onClick={() => { setStatusFilter('ALL'); setCurrentPage(1); }}
+                type="button"
+                onClick={() => handleStatusFilterChange('ALL')}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${statusFilter === 'ALL'
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -976,7 +1038,8 @@ export default function POListClient({
               </button>
 
               <button
-                onClick={() => { setStatusFilter('PENDING'); setCurrentPage(1); }}
+                type="button"
+                onClick={() => handleStatusFilterChange('PENDING')}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${statusFilter === 'PENDING'
                   ? 'bg-amber-500 text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -989,7 +1052,8 @@ export default function POListClient({
               </button>
 
               <button
-                onClick={() => { setStatusFilter('RECEIVED'); setCurrentPage(1); }}
+                type="button"
+                onClick={() => handleStatusFilterChange('RECEIVED')}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${statusFilter === 'RECEIVED'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -1002,7 +1066,8 @@ export default function POListClient({
               </button>
 
               <button
-                onClick={() => { setStatusFilter('CANCELLED'); setCurrentPage(1); }}
+                type="button"
+                onClick={() => handleStatusFilterChange('CANCELLED')}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1.5 ${statusFilter === 'CANCELLED'
                   ? 'bg-rose-600 text-white shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'

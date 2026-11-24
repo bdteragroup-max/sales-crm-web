@@ -29,7 +29,10 @@ import {
   isPlaceholderPaymentTask,
   isScheduleTaskSettled,
 } from "@/app/lib/accounting-schedule";
-import { evaluateAccountingAmountReconciliation } from "@/app/lib/accounting-reconciliation";
+import {
+  evaluateAccountingAmountReconciliation,
+  evaluatePaymentTasksLinkState,
+} from "@/app/lib/accounting-reconciliation";
 
 type DbTransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
@@ -889,6 +892,7 @@ export async function confirmJobStep(payload: {
   const job = await prisma.job.findUnique({
     where: { id: jobId },
     include: {
+      paymentTasks: true,
       quotation: {
         select: {
           totalAmountBeforeVat: true,
@@ -901,7 +905,7 @@ export async function confirmJobStep(payload: {
   })
   if (!job) throw new Error("Job not found")
 
-  // ตรวจสอบยอดก่อน VAT ว่าตรงกับทางบัญชีหรือยัง ก่อนปิดจบขั้นตอนสุดท้ายของ Job
+  // ตรวจสอบยอดก่อน VAT และสถานะงวดชำระเงิน (เครดิต/ผ่อนชำระ) ก่อนปิดจบขั้นตอนสุดท้ายของ Job
   const { getNextStep } = await import("@/app/lib/job-workflow")
   const resolvedVariant = variant ?? job.flowVariant ?? undefined
   const nextStep = getNextStep(job.jobType, stepKey, resolvedVariant)
@@ -909,6 +913,11 @@ export async function confirmJobStep(payload: {
     accountingVerifiedBeforeVat: job.accountingVerifiedBeforeVat,
     accountingClosedAt: job.accountingClosedAt,
     quotation: job.quotation,
+  })
+  const paymentLink = evaluatePaymentTasksLinkState({
+    paymentTasks: job.paymentTasks,
+    paymentMethod: job.paymentMethod,
+    creditTerms: job.creditTerms,
   })
   if (!nextStep && reconciliation.hasMismatch) {
     const fmt = (n: number) =>
@@ -919,6 +928,11 @@ export async function confirmJobStep(payload: {
       )} บาท ≠ ใบเสนอราคา: ${fmt(
         reconciliation.quotationBeforeVat ?? 0
       )} บาท) — กรุณาให้ฝ่ายขายแก้ไขยอดใบเสนอราคาให้ตรงกับบัญชีจึงจะปิดงานได้`
+    )
+  }
+  if (!nextStep && stepKey !== "delivery" && paymentLink.hasUnsettledCreditOrInstallment) {
+    throw new Error(
+      `ไม่สามารถปิดสถานะ Job ${job.jobNumber} ได้: ${paymentLink.closeBlockReason}`
     )
   }
 
@@ -1610,6 +1624,16 @@ export async function getJobProcurementDetails(jobId: string): Promise<JobProcur
       stepLogs: {
         select: { step: true, completedAt: true },
       },
+      paymentTasks: {
+        select: {
+          status: true,
+          creditType: true,
+          installmentAmount: true,
+          paidAmount: true,
+          installmentNo: true,
+          installmentTotal: true,
+        },
+      },
       documents: {
         where: {
           type: { startsWith: "PROCUREMENT_" },
@@ -1759,13 +1783,21 @@ export async function getJobProcurementDetails(jobId: string): Promise<JobProcur
     accountingClosedAt: job.accountingClosedAt,
     quotation: job.quotation,
   });
+  const paymentLink = evaluatePaymentTasksLinkState({
+    paymentTasks: job.paymentTasks,
+    paymentMethod: job.paymentMethod,
+    creditTerms: job.creditTerms,
+  });
 
   const jobDone = isCompleted(
     job.jobType,
     job.currentStep,
     job.flowVariant,
     job.stepLogs || [],
-    { hasAccountingAmountMismatch: reconciliation.hasMismatch }
+    {
+      hasAccountingAmountMismatch: reconciliation.hasMismatch,
+      hasUnsettledCreditOrInstallment: paymentLink.hasUnsettledCreditOrInstallment,
+    }
   );
 
   const nameWindowStartMs = earliestJobMs - 35 * DAY_MS;

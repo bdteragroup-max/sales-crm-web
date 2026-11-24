@@ -360,9 +360,13 @@ export function isCompleted(
   currentStep: string,
   variant: string | null | undefined,
   stepLogs: any[],
-  opts?: { hasAccountingAmountMismatch?: boolean }
+  opts?: {
+    hasAccountingAmountMismatch?: boolean;
+    hasUnsettledCreditOrInstallment?: boolean;
+  }
 ): boolean {
   if (opts?.hasAccountingAmountMismatch) return false
+  if (opts?.hasUnsettledCreditOrInstallment) return false
   const steps = getSteps(jobType, variant)
   return currentStep === steps[steps.length - 1]?.key && stepLogs.some((l: any) => l.step === currentStep)
 }

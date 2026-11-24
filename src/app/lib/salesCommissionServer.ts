@@ -4,10 +4,13 @@ import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import { getUser } from '@/app/lib/dal';
 import { stringToAdvisoryLockIds } from '@/app/lib/job-utils';
+import { buildThaiPersonNameVariants } from '@/app/lib/personName';
 import {
   canAccessCommissionRequestList,
+  CommissionRecipientOption,
   CrmJobSourceInput,
   doesJobBelongToSalesUser,
+  doesUserMatchSplit,
   EvaluatedCrmCommissionRow,
   evaluateJobForCommission,
   isCommissionSuperAdmin,
@@ -45,10 +48,34 @@ export async function getCommissionActor(): Promise<CommissionActor | null> {
 
   const department = user.employeeSale?.department || teraEmp?.departments?.name || null;
   const isSuperAdmin = isCommissionSuperAdmin(user.role);
-  const canAccessCrmList = canAccessCommissionRequestList({
+  const employeeSaleName = user.employeeSale?.fullName ?? null;
+  const teraEmployeeName = teraEmp?.name ?? null;
+
+  let canAccessCrmList = canAccessCommissionRequestList({
     role: user.role,
     department,
   });
+
+  // Also allow any non-sales employee who has been allocated a commission split to view their shares.
+  if (!canAccessCrmList) {
+    const nameVariants = buildThaiPersonNameVariants(
+      user.fullName,
+      employeeSaleName,
+      teraEmployeeName
+    );
+    const hasSplit = await prisma.salesCommissionSplit.findFirst({
+      where: {
+        OR: [
+          { userId: user.id },
+          ...(nameVariants.length > 0 ? [{ recipientName: { in: nameVariants } }] : []),
+        ],
+      },
+      select: { id: true },
+    });
+    if (hasSplit) {
+      canAccessCrmList = true;
+    }
+  }
 
   return {
     id: user.id,
@@ -57,8 +84,8 @@ export async function getCommissionActor(): Promise<CommissionActor | null> {
     employeeId: user.employeeId,
     isSuperAdmin,
     canAccessCrmList,
-    employeeSaleName: user.employeeSale?.fullName ?? null,
-    teraEmployeeName: teraEmp?.name ?? null,
+    employeeSaleName,
+    teraEmployeeName,
   };
 }
 
@@ -163,9 +190,120 @@ export const CRM_JOB_COMMISSION_SELECT = {
       payoutDate: true,
       payoutAmount: true,
       payoutRefNo: true,
+      splits: {
+        orderBy: { sortOrder: 'asc' as const },
+        select: {
+          id: true,
+          userId: true,
+          employeeId: true,
+          recipientName: true,
+          recipientRole: true,
+          splitPct: true,
+          allocatedAmount: true,
+          isOwner: true,
+          sortOrder: true,
+        },
+      },
     },
   },
 } satisfies Prisma.JobSelect;
+
+export async function fetchCommissionRecipientOptions(): Promise<CommissionRecipientOption[]> {
+  const [users, hrEmployees] = await Promise.all([
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        employeeId: true,
+        fullName: true,
+        role: true,
+        position: true,
+        employeeSale: { select: { department: true, nickname: true } },
+      },
+      orderBy: [{ fullName: 'asc' }],
+    }),
+    teraDb.employees
+      .findMany({
+        where: { is_active: true },
+        select: { emp_id: true, nickname: true, name: true },
+      })
+      .catch(() => []),
+  ]);
+
+  const hrNickByEmpId = new Map<string, string>();
+  const hrNickByName = new Map<string, string>();
+  for (const emp of hrEmployees) {
+    const nick = emp.nickname?.trim();
+    if (!nick) continue;
+    if (emp.emp_id) {
+      hrNickByEmpId.set(emp.emp_id.trim().toUpperCase(), nick);
+    }
+    if (emp.name) {
+      for (const variant of buildThaiPersonNameVariants(emp.name)) {
+        hrNickByName.set(variant.toLowerCase(), nick);
+      }
+    }
+  }
+
+  return users.map((u) => {
+    const empKey = u.employeeId?.trim().toUpperCase();
+    let nickname = u.employeeSale?.nickname?.trim() || null;
+    if (!nickname && empKey) {
+      nickname = hrNickByEmpId.get(empKey) || null;
+    }
+    if (!nickname && u.fullName) {
+      for (const variant of buildThaiPersonNameVariants(u.fullName)) {
+        const matched = hrNickByName.get(variant.toLowerCase());
+        if (matched) {
+          nickname = matched;
+          break;
+        }
+      }
+    }
+    return {
+      id: u.id,
+      employeeId: u.employeeId,
+      fullName: u.fullName,
+      nickname,
+      role: u.role,
+      department: u.employeeSale?.department || u.position || null,
+    };
+  });
+}
+
+export async function syncRequestSplitAllocations(
+  tx: DbTransactionClient,
+  requestId: string,
+  totalCommissionAmount: number | null,
+  preloadedSplits?: Array<{
+    id: string;
+    splitPct: number;
+    allocatedAmount: number | null;
+    sortOrder: number;
+  }>
+) {
+  const existingSplits = preloadedSplits
+    ? [...preloadedSplits].sort((a, b) => a.sortOrder - b.sortOrder)
+    : await tx.salesCommissionSplit.findMany({
+        where: { requestId },
+        orderBy: { sortOrder: 'asc' },
+        select: { id: true, splitPct: true, allocatedAmount: true, sortOrder: true },
+      });
+
+  if (existingSplits.length === 0) return;
+
+  const { allocateCommissionAmountsBySplits } = await import('@/app/lib/salesCommission');
+  const nextAllocations = allocateCommissionAmountsBySplits(totalCommissionAmount, existingSplits);
+
+  for (const split of nextAllocations) {
+    if (split.allocatedAmount !== existingSplits.find((s) => s.id === split.id)?.allocatedAmount) {
+      await tx.salesCommissionSplit.update({
+        where: { id: split.id },
+        data: { allocatedAmount: split.allocatedAmount },
+      });
+    }
+  }
+}
 
 export async function fetchCrmCommissionJobs(params: {
   actor: CommissionActor;
@@ -187,20 +325,28 @@ export async function fetchCrmCommissionJobs(params: {
   const fetchedAt = new Date().toISOString();
   const normalizedSearch = (search || '').trim().toLowerCase();
 
+  const actorUser = {
+    id: actor.id,
+    fullName: actor.fullName,
+    employeeSaleName: actor.employeeSaleName,
+    teraEmployeeName: actor.teraEmployeeName,
+  };
+
   const evaluated: Array<Omit<EvaluatedCrmCommissionRow, 'crmSnapshot'>> = [];
 
   for (const job of jobs) {
-    if (!actor.isSuperAdmin) {
-      const ownsJob = doesJobBelongToSalesUser(job, {
-        id: actor.id,
-        fullName: actor.fullName,
-        employeeSaleName: actor.employeeSaleName,
-        teraEmployeeName: actor.teraEmployeeName,
-      });
-      if (!ownsJob) continue;
+    const ownsJob = actor.isSuperAdmin || doesJobBelongToSalesUser(job, actorUser);
+    const row = evaluateJobForCommission(job as unknown as CrmJobSourceInput);
+    const activeSplits = row.existingRequest?.splits || [];
+    const viewerSplit = activeSplits.find((s) => doesUserMatchSplit(s, actorUser)) || null;
+
+    if (!actor.isSuperAdmin && !ownsJob && !viewerSplit) {
+      continue;
     }
 
-    const row = evaluateJobForCommission(job as unknown as CrmJobSourceInput);
+    row.isJobOwner = ownsJob;
+    row.mySplit = viewerSplit;
+
     const sanitized = sanitizeCrmCommissionRowForRole(row, actor.isSuperAdmin);
 
     if (companyFilter && companyFilter !== 'ALL' && sanitized.companyCode !== companyFilter) {
@@ -211,13 +357,10 @@ export async function fetchCrmCommissionJobs(params: {
       continue;
     }
 
-    if (
-      actor.isSuperAdmin &&
-      salespersonFilter &&
-      salespersonFilter !== 'ALL' &&
-      sanitized.salespersonName !== salespersonFilter
-    ) {
-      continue;
+    if (actor.isSuperAdmin && salespersonFilter && salespersonFilter !== 'ALL') {
+      const matchesOwner = sanitized.salespersonName === salespersonFilter;
+      const matchesSplit = activeSplits.some((s) => s.recipientName === salespersonFilter);
+      if (!matchesOwner && !matchesSplit) continue;
     }
 
     if (normalizedSearch) {
@@ -229,6 +372,7 @@ export async function fetchCrmCommissionJobs(params: {
         sanitized.receiptNumbers,
         sanitized.salespersonName,
         sanitized.existingRequest?.requestNo || '',
+        ...activeSplits.map((s) => s.recipientName),
       ]
         .join(' ')
         .toLowerCase();
@@ -243,7 +387,12 @@ export async function fetchCrmCommissionJobs(params: {
   return { rows: evaluated, fetchedAt };
 }
 
-export async function generateNextCommissionRequestNo(tx: DbTransactionClient): Promise<string> {
+export async function generateCommissionRequestNoRange(
+  tx: DbTransactionClient,
+  count: number
+): Promise<string[]> {
+  if (count <= 0) return [];
+
   const bangkokNow = new Date(
     new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' })
   );
@@ -252,19 +401,44 @@ export async function generateNextCommissionRequestNo(tx: DbTransactionClient): 
 
   const seq = await tx.commissionRunningNumber.upsert({
     where: { yearBe_month: { yearBe, month } },
-    create: { yearBe, month, lastNumber: 1 },
-    update: { lastNumber: { increment: 1 } },
+    create: { yearBe, month, lastNumber: count },
+    update: { lastNumber: { increment: count } },
   });
 
   const yy = String(yearBe).slice(-2);
   const mm = String(month).padStart(2, '0');
-  const num = String(seq.lastNumber).padStart(4, '0');
-  return `CM${yy}${mm}-${num}`;
+  const startNumber = seq.lastNumber - count + 1;
+
+  return Array.from({ length: count }, (_, idx) => {
+    const num = String(startNumber + idx).padStart(4, '0');
+    return `CM${yy}${mm}-${num}`;
+  });
+}
+
+export async function generateNextCommissionRequestNo(tx: DbTransactionClient): Promise<string> {
+  const [requestNo] = await generateCommissionRequestNoRange(tx, 1);
+  return requestNo;
+}
+
+export async function acquireCommissionJobLocks(tx: DbTransactionClient, jobIds: string[]) {
+  const uniqueIds = Array.from(new Set(jobIds.filter((id) => id.trim().length > 0)));
+  if (uniqueIds.length === 0) return;
+
+  // Sort lock keys deterministically across concurrent transactions to avoid deadlocks.
+  const sortedPairs = uniqueIds
+    .map((jobId) => stringToAdvisoryLockIds(`comm_req:${jobId}`))
+    .sort((a, b) => (a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1]));
+  const k1s = sortedPairs.map(([k1]) => k1);
+  const k2s = sortedPairs.map(([, k2]) => k2);
+
+  await tx.$executeRaw`
+    SELECT pg_advisory_xact_lock(k.k1, k.k2)
+    FROM unnest(${k1s}::int[], ${k2s}::int[]) AS k(k1, k2)
+  `;
 }
 
 export async function acquireCommissionJobLock(tx: DbTransactionClient, jobId: string) {
-  const [k1, k2] = stringToAdvisoryLockIds(`comm_req:${jobId}`);
-  await tx.$executeRaw`SELECT pg_advisory_xact_lock(${k1}::int, ${k2}::int)`;
+  await acquireCommissionJobLocks(tx, [jobId]);
 }
 
 export async function fetchAllCommissionRequestsAdmin(filters?: {
@@ -281,9 +455,6 @@ export async function fetchAllCommissionRequestsAdmin(filters?: {
   }
   if (filters?.companyCode && filters.companyCode !== 'ALL') {
     where.companyCode = filters.companyCode;
-  }
-  if (filters?.salespersonName && filters.salespersonName !== 'ALL') {
-    where.salespersonName = filters.salespersonName;
   }
   if (filters?.dateFrom || filters?.dateTo) {
     const requestedAtRange: Record<string, Date> = {};
@@ -304,6 +475,9 @@ export async function fetchAllCommissionRequestsAdmin(filters?: {
     where,
     orderBy: { requestedAt: 'desc' },
     include: {
+      splits: {
+        orderBy: { sortOrder: 'asc' },
+      },
       logs: {
         orderBy: { createdAt: 'desc' },
         take: 15,
@@ -311,24 +485,38 @@ export async function fetchAllCommissionRequestsAdmin(filters?: {
     },
   });
 
+  const targetSalesperson =
+    filters?.salespersonName && filters.salespersonName !== 'ALL'
+      ? filters.salespersonName
+      : null;
+
   const q = (filters?.search || '').trim().toLowerCase();
-  const filtered = q
-    ? items.filter((item) =>
-        [
-          item.requestNo,
-          item.jobNumber,
-          item.customerName,
-          item.productSold || '',
-          item.taxInvoiceNumbers || '',
-          item.receiptNumbers || '',
-          item.salespersonName,
-          item.payoutRefNo || '',
-        ]
-          .join(' ')
-          .toLowerCase()
-          .includes(q)
-      )
-    : items;
+  const filtered = items.filter((item) => {
+    if (targetSalesperson) {
+      const matchesPrimary = item.salespersonName === targetSalesperson;
+      const matchesSplit = item.splits.some((s) => s.recipientName === targetSalesperson);
+      if (!matchesPrimary && !matchesSplit) return false;
+    }
+
+    if (q) {
+      const haystack = [
+        item.requestNo,
+        item.jobNumber,
+        item.customerName,
+        item.productSold || '',
+        item.taxInvoiceNumbers || '',
+        item.receiptNumbers || '',
+        item.salespersonName,
+        item.payoutRefNo || '',
+        ...item.splits.map((s) => s.recipientName),
+      ]
+        .join(' ')
+        .toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+
+    return true;
+  });
 
   return filtered;
 }
@@ -337,6 +525,9 @@ export async function fetchCommissionRequestDetailAdmin(id: string) {
   const reqRecord = await prisma.salesCommissionRequest.findUnique({
     where: { id },
     include: {
+      splits: {
+        orderBy: { sortOrder: 'asc' },
+      },
       logs: {
         orderBy: { createdAt: 'desc' },
       },

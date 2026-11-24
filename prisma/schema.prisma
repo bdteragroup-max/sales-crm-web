@@ -82,6 +82,7 @@ model User {
   commissionProfitConfirmed   SalesCommissionRequest[]  @relation("CommissionProfitConfirmer")
   commissionApproved          SalesCommissionRequest[]  @relation("CommissionApprover")
   commissionPayoutRecorded    SalesCommissionRequest[]  @relation("CommissionPayoutRecorder")
+  commissionSplitsReceived    SalesCommissionSplit[]    @relation("CommissionSplitRecipient")
 }
 
 model MonthlyTarget {
@@ -4380,15 +4381,38 @@ model SalesCommissionRequest {
   salesperson           User?                @relation("CommissionSalesperson", fields: [salespersonId], references: [id], onDelete: SetNull)
   requestedBy           User                 @relation("CommissionRequester", fields: [requestedById], references: [id])
   profitConfirmedBy     User?                @relation("CommissionProfitConfirmer", fields: [profitConfirmedById], references: [id], onDelete: SetNull)
-  approvedBy            User?                @relation("CommissionApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  payoutRecordedBy      User?                @relation("CommissionPayoutRecorder", fields: [payoutRecordedById], references: [id], onDelete: SetNull)
+  approvedBy            User?                  @relation("CommissionApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  payoutRecordedBy      User?                  @relation("CommissionPayoutRecorder", fields: [payoutRecordedById], references: [id], onDelete: SetNull)
   logs                  SalesCommissionLog[]
+  splits                SalesCommissionSplit[]
 
   @@index([jobId], map: "idx_sales_comm_job_id")
   @@index([salespersonId], map: "idx_sales_comm_salesperson_id")
   @@index([status], map: "idx_sales_comm_status")
   @@index([requestedAt(sort: Desc)], map: "idx_sales_comm_requested_at")
   @@map("sales_commission_requests")
+}
+
+model SalesCommissionSplit {
+  id              String                 @id @default(cuid())
+  requestId       String                 @map("request_id")
+  userId          String?                @map("user_id")
+  employeeId      String?                @map("employee_id") @db.VarChar(40)
+  recipientName   String                 @map("recipient_name") @db.VarChar(200)
+  recipientRole   String?                @map("recipient_role") @db.VarChar(120)
+  splitPct        Float                  @map("split_pct")
+  allocatedAmount Float?                 @map("allocated_amount")
+  isOwner         Boolean                @default(false) @map("is_owner")
+  sortOrder       Int                    @default(0) @map("sort_order")
+  createdAt       DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  request         SalesCommissionRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user            User?                  @relation("CommissionSplitRecipient", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([requestId], map: "idx_sales_comm_split_request_id")
+  @@index([userId], map: "idx_sales_comm_split_user_id")
+  @@map("sales_commission_splits")
 }
 
 model SalesCommissionLog {

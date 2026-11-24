@@ -5,7 +5,10 @@ import {
   calculateCommissionFromProfit,
   resolveCostAndProfitInputs,
 } from '@/app/lib/salesCommission';
-import { getCommissionActor } from '@/app/lib/salesCommissionServer';
+import {
+  getCommissionActor,
+  syncRequestSplitAllocations,
+} from '@/app/lib/salesCommissionServer';
 
 export async function PATCH(
   request: NextRequest,
@@ -70,7 +73,7 @@ export async function PATCH(
       existing.sourceProfitPct !== null ? existing.sourceProfitPct : nextProfitPct;
 
     const updated = await prisma.$transaction(async (tx) => {
-      const saved = await tx.salesCommissionRequest.update({
+      await tx.salesCommissionRequest.update({
         where: { id },
         data: {
           costAmount: nextCostAmount,
@@ -85,6 +88,8 @@ export async function PATCH(
           status: nextStatus,
         },
       });
+
+      await syncRequestSplitAllocations(tx, id, calc.amount);
 
       await tx.salesCommissionLog.create({
         data: {
@@ -110,7 +115,12 @@ export async function PATCH(
         },
       });
 
-      return saved;
+      return tx.salesCommissionRequest.findUnique({
+        where: { id },
+        include: {
+          splits: { orderBy: { sortOrder: 'asc' } },
+        },
+      });
     });
 
     try {

@@ -12,7 +12,13 @@ import {
   DollarSign,
   Package,
   Clock,
+  Users,
 } from 'lucide-react';
+import {
+  CommissionRecipientOption,
+  CommissionSplitItem,
+  resolveEffectiveCommissionSplits,
+} from '@/app/lib/salesCommission';
 import CommissionNavHeader from '../components/CommissionNavHeader';
 import {
   CommissionStatusBadge,
@@ -26,6 +32,7 @@ import {
   ApprovalDecisionForm,
   PayoutRecordForm,
   ProfitVerificationForm,
+  SplitEditForm,
 } from '../components/CommissionActionForms';
 
 export type CommissionDetailRecord = {
@@ -37,7 +44,9 @@ export type CommissionDetailRecord = {
   customerName: string;
   productSold: string | null;
   jobType: string | null;
+  salespersonId?: string | null;
   salespersonName: string;
+  splits?: CommissionSplitItem[];
   requestedByName: string;
   requestedAt: string;
   taxInvoiceNumbers: string | null;
@@ -136,17 +145,21 @@ export type CommissionDetailRecord = {
 export default function CommissionDetailClient({
   initialRecord,
   pendingApprovalCount = 0,
+  recipientOptions = [],
 }: {
   initialRecord: CommissionDetailRecord;
   pendingApprovalCount?: number;
+  recipientOptions?: CommissionRecipientOption[];
 }) {
   const [record, setRecord] = useState<CommissionDetailRecord>(initialRecord);
+  const [isEditingSplits, setIsEditingSplits] = useState(false);
 
   const reloadDetail = async () => {
     const res = await fetch(`/api/sales/commissions/${record.id}`, { cache: 'no-store' });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.request) {
       setRecord(data.request);
+      setIsEditingSplits(false);
     }
   };
 
@@ -292,6 +305,90 @@ export default function CommissionDetailClient({
               <div className="text-[10px] text-slate-400 mt-1">สถานะงานใน CRM</div>
             </div>
           </div>
+
+          {/* Commission Splits Panel */}
+          {(() => {
+            const effectiveSplits = resolveEffectiveCommissionSplits({
+              salespersonId: record.salespersonId,
+              salespersonName: record.salespersonName,
+              commissionAmount: record.commissionAmount,
+              splits: record.splits,
+            });
+            return (
+              <div className="rounded-xl border border-indigo-200 bg-indigo-50/35 p-4 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs font-black text-indigo-950">
+                    <Users size={15} className="text-indigo-600" />
+                    <span>
+                      สัดส่วนผู้รับและแบ่งค่าคอมมิชชั่น ({effectiveSplits.length} คน)
+                    </span>
+                  </div>
+                  {canEditProfit && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingSplits((prev) => !prev)}
+                      className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-lg bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors self-start sm:self-auto"
+                    >
+                      <Users size={13} />
+                      {isEditingSplits ? 'ปิดหน้าต่างแก้ไขสัดส่วน' : 'ปรับสัดส่วน / ผู้ร่วมแบ่ง %'}
+                    </button>
+                  )}
+                </div>
+
+                {isEditingSplits && canEditProfit ? (
+                  <div className="bg-white rounded-xl border border-indigo-100 p-4">
+                    <SplitEditForm
+                      item={record}
+                      recipientOptions={recipientOptions}
+                      onCancel={() => setIsEditingSplits(false)}
+                      onCompleted={reloadDetail}
+                    />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
+                    {effectiveSplits.map((split, idx) => (
+                      <div
+                        key={`${idx}-${split.userId || split.recipientName}`}
+                        className="rounded-xl bg-white border border-indigo-100 p-3 flex items-center justify-between gap-3"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-bold text-slate-900 truncate">
+                              {split.recipientName}
+                            </span>
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${
+                                split.isOwner
+                                  ? 'bg-red-50 text-[#ff2301] border-red-200'
+                                  : 'bg-slate-50 text-slate-500 border-slate-200'
+                              }`}
+                            >
+                              {split.isOwner ? 'เจ้าของงาน' : 'ผู้ร่วมแบ่ง'}
+                            </span>
+                          </div>
+                          {(split.employeeId || split.recipientRole) && (
+                            <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                              {[split.employeeId, split.recipientRole].filter(Boolean).join(' • ')}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right tabular-nums shrink-0">
+                          <div className="font-black text-indigo-700">
+                            {split.splitPct.toFixed(2)}%
+                          </div>
+                          <div className="text-xs font-bold text-emerald-700 mt-0.5">
+                            {split.allocatedAmount !== null && split.allocatedAmount !== undefined
+                              ? `${formatThb(split.allocatedAmount)} บาท`
+                              : 'รอตรวจกำไร'}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Row 1: CRM Reference (Left 7 cols) & Workflow Actions (Right 5 cols) */}

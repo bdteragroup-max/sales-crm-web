@@ -5,6 +5,7 @@ import { extractCompanyCode } from '@/utils/company-utils';
 import {
   AccountingTaxDocument,
   evaluateAccountingAmountReconciliation,
+  evaluatePaymentTasksLinkState,
   parseAccountingTaxDocuments,
 } from '@/app/lib/accounting-reconciliation';
 
@@ -44,9 +45,252 @@ export const COMMISSION_HIGH_PROFIT_THRESHOLD_PCT = 20;
 export const COMMISSION_HIGH_TIER_RATE_PCT = 0.5;
 export const COMMISSION_LOW_TIER_BASE_RATE_PCT = 0.25;
 
+export type CommissionSplitItem = {
+  id?: string;
+  userId: string | null;
+  employeeId: string | null;
+  recipientName: string;
+  recipientRole: string | null;
+  splitPct: number;
+  allocatedAmount: number | null;
+  isOwner: boolean;
+  sortOrder: number;
+};
+
+export type CommissionSplitInput = {
+  userId?: string | null;
+  employeeId?: string | null;
+  recipientName?: string | null;
+  recipientRole?: string | null;
+  splitPct: number | string;
+  isOwner?: boolean;
+};
+
+export type CommissionRecipientOption = {
+  id: string;
+  employeeId: string;
+  fullName: string;
+  nickname?: string | null;
+  role: string;
+  department: string | null;
+};
+
 export function roundCurrency2(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+export function roundSplitPct2(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+/**
+ * Allocates `totalCommissionAmount` proportionally across split recipients with exact 2-decimal reconciliation
+ * on the final entry so the sum of `allocatedAmount` strictly equals `totalCommissionAmount`.
+ */
+export function allocateCommissionAmountsBySplits<T extends { splitPct: number }>(
+  totalCommissionAmount: number | null | undefined,
+  splits: T[]
+): Array<T & { allocatedAmount: number | null }> {
+  if (
+    totalCommissionAmount === null ||
+    totalCommissionAmount === undefined ||
+    !Number.isFinite(totalCommissionAmount)
+  ) {
+    return splits.map((s) => ({ ...s, allocatedAmount: null }));
+  }
+
+  const totalRounded = Math.max(0, roundCurrency2(totalCommissionAmount));
+  if (splits.length === 0) return [];
+  if (splits.length === 1) {
+    return [{ ...splits[0], allocatedAmount: totalRounded }];
+  }
+
+  let runningSum = 0;
+  return splits.map((split, idx) => {
+    if (idx === splits.length - 1) {
+      const remainder = Math.max(0, roundCurrency2(totalRounded - runningSum));
+      return { ...split, allocatedAmount: remainder };
+    }
+    const share = roundCurrency2(totalRounded * (split.splitPct / 100));
+    runningSum = roundCurrency2(runningSum + share);
+    return { ...split, allocatedAmount: share };
+  });
+}
+
+export function normalizeAndValidateCommissionSplits(
+  rawSplits: CommissionSplitInput[],
+  totalCommissionAmount?: number | null
+): { splits: CommissionSplitItem[] } | { error: string } {
+  if (!Array.isArray(rawSplits) || rawSplits.length === 0) {
+    return { error: 'กรุณาระบุผู้รับค่าคอมมิชชั่นอย่างน้อย 1 รายชื่อ' };
+  }
+  if (rawSplits.length > 20) {
+    return { error: 'จำกัดจำนวนผู้ร่วมรับค่าคอมมิชชั่นไม่เกิน 20 รายชื่อต่อ 1 Job' };
+  }
+
+  const normalized: CommissionSplitItem[] = [];
+  const seenKeys = new Set<string>();
+  let totalPct = 0;
+
+  for (let i = 0; i < rawSplits.length; i++) {
+    const raw = rawSplits[i];
+    const recipientName = (raw?.recipientName || '').trim();
+    if (!recipientName) {
+      return { error: `กรุณาระบุชื่อผู้รับค่าคอมมิชชั่นในลำดับที่ ${i + 1}` };
+    }
+
+    const parsedPct = Number(raw?.splitPct);
+    if (!Number.isFinite(parsedPct) || parsedPct <= 0 || parsedPct > 100) {
+      return { error: `สัดส่วน % ของ "${recipientName}" ต้องมากกว่า 0 และไม่เกิน 100%` };
+    }
+
+    const splitPct = roundSplitPct2(parsedPct);
+    if (splitPct <= 0) {
+      return { error: `สัดส่วน % ของ "${recipientName}" ต้องมากกว่า 0%` };
+    }
+
+    const userId = typeof raw?.userId === 'string' && raw.userId.trim() ? raw.userId.trim() : null;
+    const dedupeKey = userId ? `uid:${userId}` : `name:${recipientName.toLowerCase()}`;
+    if (seenKeys.has(dedupeKey)) {
+      return { error: `พบรายชื่อผู้รับซ้ำกัน: ${recipientName}` };
+    }
+    seenKeys.add(dedupeKey);
+
+    totalPct = roundSplitPct2(totalPct + splitPct);
+    normalized.push({
+      userId,
+      employeeId:
+        typeof raw?.employeeId === 'string' && raw.employeeId.trim()
+          ? raw.employeeId.trim()
+          : null,
+      recipientName,
+      recipientRole:
+        typeof raw?.recipientRole === 'string' && raw.recipientRole.trim()
+          ? raw.recipientRole.trim()
+          : null,
+      splitPct,
+      allocatedAmount: null,
+      isOwner: Boolean(raw?.isOwner),
+      sortOrder: i,
+    });
+  }
+
+  if (Math.abs(totalPct - 100) > 0.01) {
+    return {
+      error: `ผลรวมสัดส่วนการแบ่งต้องเท่ากับ 100% (ปัจจุบันรวมได้ ${totalPct.toFixed(2)}%)`,
+    };
+  }
+
+  // Reconcile tiny floating/rounding epsilon on last entry so stored percentages sum strictly to 100%
+  if (normalized.length > 0 && Math.abs(totalPct - 100) > 0) {
+    const sumWithoutLast = normalized
+      .slice(0, -1)
+      .reduce((sum, s) => roundSplitPct2(sum + s.splitPct), 0);
+    normalized[normalized.length - 1].splitPct = roundSplitPct2(100 - sumWithoutLast);
+  }
+
+  if (!normalized.some((s) => s.isOwner) && normalized.length > 0) {
+    normalized[0].isOwner = true;
+  }
+
+  return {
+    splits: allocateCommissionAmountsBySplits(totalCommissionAmount, normalized),
+  };
+}
+
+export function resolveEffectiveCommissionSplits(request: {
+  salespersonId?: string | null;
+  salespersonName: string;
+  commissionAmount?: number | null;
+  splits?: Array<{
+    id?: string;
+    userId?: string | null;
+    employeeId?: string | null;
+    recipientName: string;
+    recipientRole?: string | null;
+    splitPct: number;
+    allocatedAmount?: number | null;
+    isOwner?: boolean;
+    sortOrder?: number;
+  }> | null;
+}): CommissionSplitItem[] {
+  const rawList = Array.isArray(request.splits) ? request.splits : [];
+  if (rawList.length > 0) {
+    const sorted = [...rawList]
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((s, idx) => ({
+        id: s.id,
+        userId: s.userId ?? null,
+        employeeId: s.employeeId ?? null,
+        recipientName: s.recipientName,
+        recipientRole: s.recipientRole ?? null,
+        splitPct: Number(s.splitPct) || 0,
+        allocatedAmount:
+          s.allocatedAmount !== undefined && s.allocatedAmount !== null
+            ? Number(s.allocatedAmount)
+            : null,
+        isOwner: Boolean(s.isOwner),
+        sortOrder: s.sortOrder ?? idx,
+      }));
+
+    if (
+      request.commissionAmount !== null &&
+      request.commissionAmount !== undefined &&
+      sorted.some((s) => s.allocatedAmount === null)
+    ) {
+      return allocateCommissionAmountsBySplits(request.commissionAmount, sorted);
+    }
+    return sorted;
+  }
+
+  return [
+    {
+      userId: request.salespersonId ?? null,
+      employeeId: null,
+      recipientName: request.salespersonName || '-',
+      recipientRole: null,
+      splitPct: 100,
+      allocatedAmount:
+        request.commissionAmount !== null && request.commissionAmount !== undefined
+          ? roundCurrency2(request.commissionAmount)
+          : null,
+      isOwner: true,
+      sortOrder: 0,
+    },
+  ];
+}
+
+export function doesUserMatchSplit(
+  split: { userId?: string | null; recipientName?: string | null },
+  user: {
+    id: string;
+    fullName?: string | null;
+    employeeSaleName?: string | null;
+    teraEmployeeName?: string | null;
+  }
+): boolean {
+  if (split.userId && split.userId === user.id) return true;
+  if (!split.recipientName) return false;
+  const userVariants = new Set(
+    buildThaiPersonNameVariants(
+      user.fullName,
+      user.employeeSaleName,
+      user.teraEmployeeName
+    ).map((n) => n.toLowerCase())
+  );
+  if (userVariants.size === 0) return false;
+  return buildThaiPersonNameVariants(split.recipientName).some((v) =>
+    userVariants.has(v.toLowerCase())
+  );
+}
+
+export function formatCommissionSplitsSummary(splits: CommissionSplitItem[]): string {
+  if (!splits || splits.length === 0) return '-';
+  return splits
+    .map((s) => `${s.recipientName} (${Number(s.splitPct.toFixed(2))}%)`)
+    .join(' • ');
 }
 
 export function roundRate6(value: number): number {
@@ -311,6 +555,17 @@ export type CrmJobSourceInput = {
     payoutDate: Date | string | null;
     payoutAmount: number | null;
     payoutRefNo: string | null;
+    splits?: Array<{
+      id: string;
+      userId: string | null;
+      employeeId: string | null;
+      recipientName: string;
+      recipientRole: string | null;
+      splitPct: number;
+      allocatedAmount: number | null;
+      isOwner: boolean;
+      sortOrder: number;
+    }>;
   }>;
 };
 
@@ -350,12 +605,15 @@ export type EvaluatedCrmCommissionRow = {
     payoutDate: string | null;
     payoutAmount: number | null;
     payoutRefNo: string | null;
+    splits: CommissionSplitItem[];
   } | null;
   latestRejectedRequest: {
     id: string;
     requestNo: string;
     rejectedReason: string | null;
   } | null;
+  mySplit?: CommissionSplitItem | null;
+  isJobOwner?: boolean;
   sourceProfitPct: number | null;
   confirmedProfitPct: number | null;
   commissionRatePct: number | null;
@@ -578,8 +836,12 @@ export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCo
   }
 
   const tasks = job.paymentTasks || [];
-  const settledTaskCount = tasks.filter((t) => t.status === 'ตรวจสอบและบันทึกแล้ว').length;
-  const isPayment100Pct = tasks.length > 0 && settledTaskCount === tasks.length;
+  const paymentLink = evaluatePaymentTasksLinkState({
+    paymentTasks: tasks,
+    paymentMethod: job.paymentMethod,
+  });
+  const settledTaskCount = paymentLink.settledTasks;
+  const isPayment100Pct = paymentLink.allTasksSettled;
 
   let paidAmountRecorded = 0;
   if (isPayment100Pct) {
@@ -613,15 +875,22 @@ export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCo
     job.currentStep,
     job.flowVariant,
     job.stepLogs || [],
-    { hasAccountingAmountMismatch: reconciliation.hasMismatch }
+    {
+      hasAccountingAmountMismatch: reconciliation.hasMismatch,
+      hasUnsettledCreditOrInstallment: paymentLink.hasUnsettledCreditOrInstallment,
+    }
   );
-  const isAccountingDone = workflowHasAccountingStep
-    ? accountingLogs.length > 0 || Boolean(job.accountingClosedAt)
-    : isWorkflowDone || accountingLogs.length > 0 || Boolean(job.accountingClosedAt);
+  const isAccountingDone = !paymentLink.hasUnsettledPaymentTasks && (
+    workflowHasAccountingStep
+      ? accountingLogs.length > 0 || Boolean(job.accountingClosedAt)
+      : isWorkflowDone || accountingLogs.length > 0 || Boolean(job.accountingClosedAt)
+  );
   const isJobClosed = isWorkflowDone;
 
   const jobClosedStatus = reconciliation.hasMismatch
     ? 'ปิด Job ไม่ได้ (รอยอดตรงบัญชี)'
+    : paymentLink.hasUnsettledCreditOrInstallment
+    ? 'ปิด Job ไม่ได้ (งานเครดิต/ผ่อนชำระ รอชำระครบ)'
     : isJobClosed
     ? 'ปิด Job แล้ว'
     : 'ยังไม่ปิด Job';
@@ -689,6 +958,16 @@ export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCo
     job.quotation?.quotationNumber
   );
 
+  const salespersonId = job.quotation?.salespersonId || job.quotation?.salesperson?.id || null;
+  const activeSplits = activeReq
+    ? resolveEffectiveCommissionSplits({
+        salespersonId,
+        salespersonName,
+        commissionAmount: activeReq.commissionAmount,
+        splits: activeReq.splits,
+      })
+    : [];
+
   return {
     jobId: job.id,
     jobNumber: job.jobNumber,
@@ -696,7 +975,7 @@ export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCo
     customerName: job.customerName,
     jobType: job.jobType,
     productSold,
-    salespersonId: job.quotation?.salespersonId || job.quotation?.salesperson?.id || null,
+    salespersonId,
     salespersonName,
     taxInvoiceNumbers: taxInvoices.join(', ') || '-',
     taxInvoiceDate: earliestInvoiceDate ? earliestInvoiceDate.toISOString() : null,
@@ -726,6 +1005,7 @@ export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCo
           payoutDate: activeReq.payoutDate ? new Date(activeReq.payoutDate).toISOString() : null,
           payoutAmount: activeReq.payoutAmount,
           payoutRefNo: activeReq.payoutRefNo,
+          splits: activeSplits,
         }
       : null,
     latestRejectedRequest: latestRejected
@@ -735,6 +1015,8 @@ export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCo
           rejectedReason: latestRejected.rejectedReason,
         }
       : null,
+    mySplit: null,
+    isJobOwner: true,
     sourceProfitPct: null,
     confirmedProfitPct: activeReq?.confirmedProfitPct ?? null,
     commissionRatePct: activeReq?.commissionRatePct ?? null,
@@ -790,11 +1072,30 @@ export function sanitizeCrmCommissionRowForRole(
   const isConfirmedCommissionVisible =
     row.derivedStatus === 'APPROVED' || row.derivedStatus === 'PAID';
 
+  const sanitizedSplits = row.existingRequest
+    ? row.existingRequest.splits.map((s) => ({
+        ...s,
+        allocatedAmount: isConfirmedCommissionVisible ? s.allocatedAmount : null,
+      }))
+    : [];
+
   return {
     ...row,
     sourceProfitPct: null,
     confirmedProfitPct: null,
     commissionRatePct: isConfirmedCommissionVisible ? row.commissionRatePct : null,
     commissionAmount: isConfirmedCommissionVisible ? row.commissionAmount : null,
+    existingRequest: row.existingRequest
+      ? {
+          ...row.existingRequest,
+          splits: sanitizedSplits,
+        }
+      : null,
+    mySplit: row.mySplit
+      ? {
+          ...row.mySplit,
+          allocatedAmount: isConfirmedCommissionVisible ? row.mySplit.allocatedAmount : null,
+        }
+      : null,
   };
 }

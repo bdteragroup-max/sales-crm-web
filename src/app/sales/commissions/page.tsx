@@ -2,6 +2,7 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/db';
 import {
+  fetchCommissionRecipientOptions,
   fetchCrmCommissionJobs,
   getCommissionActor,
 } from '@/app/lib/salesCommissionServer';
@@ -19,14 +20,19 @@ export default async function CommissionsCrmListPage() {
   }
 
   let initialRows: Awaited<ReturnType<typeof fetchCrmCommissionJobs>>['rows'] = [];
+  let recipientOptions: Awaited<ReturnType<typeof fetchCommissionRecipientOptions>> = [];
   let initialFetchedAt = new Date().toISOString();
   let initialError: string | null = null;
   let pendingApprovalCount = 0;
 
   try {
-    const res = await fetchCrmCommissionJobs({ actor });
+    const [res, recipients] = await Promise.all([
+      fetchCrmCommissionJobs({ actor }),
+      fetchCommissionRecipientOptions(),
+    ]);
     initialRows = res.rows;
     initialFetchedAt = res.fetchedAt;
+    recipientOptions = recipients;
 
     if (actor.isSuperAdmin) {
       pendingApprovalCount = await prisma.salesCommissionRequest.count({
@@ -47,6 +53,7 @@ export default async function CommissionsCrmListPage() {
       initialError={initialError}
       isSuperAdmin={actor.isSuperAdmin}
       pendingApprovalCount={pendingApprovalCount}
+      recipientOptions={JSON.parse(JSON.stringify(recipientOptions))}
     />
   );
 }
