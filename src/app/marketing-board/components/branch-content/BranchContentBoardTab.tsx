@@ -24,8 +24,10 @@ import CreateEditBranchContentModal from './CreateEditBranchContentModal';
 import BranchContentDetailModal from './BranchContentDetailModal';
 import BranchContentCalendarView from './BranchContentCalendarView';
 import BranchContentDashboardView from './BranchContentDashboardView';
+import BranchContentReviewerModal from './BranchContentReviewerModal';
 import { getBranchContentBoardData } from '@/app/actions/branchContent';
 import type {
+  AssignedMarketingReviewerSummary,
   BranchContentItem,
   BranchContentPermissions,
   BranchMasterItem,
@@ -43,6 +45,7 @@ interface BranchContentBoardTabProps {
     branches: BranchMasterItem[];
     staffOptions: { id: string; name: string; branch: string | null }[];
     permissions: BranchContentPermissions | null;
+    assignedReviewers?: AssignedMarketingReviewerSummary[];
   };
 }
 
@@ -52,9 +55,14 @@ export default function BranchContentBoardTab({
   const [contents, setContents] = useState<BranchContentItem[]>(
     initialData.contents || []
   );
-  const [branches] = useState<BranchMasterItem[]>(initialData.branches || []);
-  const [staffOptions] = useState(initialData.staffOptions || []);
-  const permissions = initialData.permissions;
+  const [branches, setBranches] = useState<BranchMasterItem[]>(initialData.branches || []);
+  const [staffOptions, setStaffOptions] = useState(initialData.staffOptions || []);
+  const [permissions, setPermissions] = useState<BranchContentPermissions | null>(
+    initialData.permissions
+  );
+  const [assignedReviewers, setAssignedReviewers] = useState<AssignedMarketingReviewerSummary[]>(
+    initialData.assignedReviewers || []
+  );
 
   // Default sub-view: Marketing/Admin defaults to 'review_board', Branch staff defaults to 'my_branch'
   const [subView, setSubView] = useState<
@@ -80,6 +88,7 @@ export default function BranchContentBoardTab({
   const [selectedItem, setSelectedItem] = useState<BranchContentItem | null>(null);
   const [isCreateEditOpen, setIsCreateEditOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<BranchContentItem | null>(null);
+  const [isReviewerModalOpen, setIsReviewerModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {
@@ -88,6 +97,10 @@ export default function BranchContentBoardTab({
       const fresh = await getBranchContentBoardData();
       if (fresh.success) {
         setContents(fresh.contents);
+        if (fresh.branches) setBranches(fresh.branches);
+        if (fresh.staffOptions) setStaffOptions(fresh.staffOptions);
+        if (fresh.permissions) setPermissions(fresh.permissions);
+        if (fresh.assignedReviewers) setAssignedReviewers(fresh.assignedReviewers);
       }
     } finally {
       setIsRefreshing(false);
@@ -273,11 +286,10 @@ export default function BranchContentBoardTab({
               setSubView('my_branch');
               setReviewQueueFilter('ALL');
             }}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-              subView === 'my_branch'
+            className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${subView === 'my_branch'
                 ? 'bg-slate-900 text-white shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+              }`}
           >
             <Building2 size={15} />
             <span>My Branch Board</span>
@@ -298,11 +310,10 @@ export default function BranchContentBoardTab({
             <button
               type="button"
               onClick={() => setSubView('review_board')}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                subView === 'review_board'
+              className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${subView === 'review_board'
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+                }`}
             >
               <Kanban size={15} />
               <span>Marketing Review Board</span>
@@ -320,11 +331,10 @@ export default function BranchContentBoardTab({
               setSubView('calendar');
               setReviewQueueFilter('ALL');
             }}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-              subView === 'calendar'
+            className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${subView === 'calendar'
                 ? 'bg-slate-900 text-white shadow-sm'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+              }`}
           >
             <Calendar size={15} />
             <span>Content Calendar</span>
@@ -337,11 +347,10 @@ export default function BranchContentBoardTab({
                 setSubView('dashboard');
                 setReviewQueueFilter('ALL');
               }}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                subView === 'dashboard'
+              className={`px-4 py-2.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all ${subView === 'dashboard'
                   ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+                }`}
             >
               <BarChart3 size={15} />
               <span>
@@ -360,6 +369,25 @@ export default function BranchContentBoardTab({
               <ShieldCheck size={14} className="text-red-600" />
               <span>{permissions.roleLabel}</span>
             </div>
+          )}
+
+          {permissions?.canManageReviewers && (
+            <button
+              type="button"
+              onClick={() => setIsReviewerModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/80 text-indigo-900 text-xs font-bold shadow-2xs transition-colors"
+            >
+              <ShieldCheck size={15} className="text-indigo-600" />
+              <span>จัดการผู้ตรวจสอบ</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${assignedReviewers.length > 0
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-amber-200 text-amber-900'
+                  }`}
+              >
+                {assignedReviewers.length}
+              </span>
+            </button>
           )}
 
           <button
@@ -392,11 +420,10 @@ export default function BranchContentBoardTab({
           <button
             type="button"
             onClick={() => setReviewQueueFilter('ALL')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-              reviewQueueFilter === 'ALL'
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${reviewQueueFilter === 'ALL'
                 ? 'bg-slate-800 text-white border-slate-800'
                 : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-            }`}
+              }`}
           >
             แสดงทุกสถานะ ({contents.length})
           </button>
@@ -410,11 +437,10 @@ export default function BranchContentBoardTab({
                   : 'WAITING_BRANCH_MANAGER'
               )
             }
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${
-              reviewQueueFilter === 'WAITING_BRANCH_MANAGER'
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${reviewQueueFilter === 'WAITING_BRANCH_MANAGER'
                 ? 'bg-amber-600 text-white border-amber-600'
                 : 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100'
-            }`}
+              }`}
           >
             <Clock size={13} />
             1. รอ ผจก.สาขาตรวจ ({quickCounts.waitingBranchMgr})
@@ -429,11 +455,10 @@ export default function BranchContentBoardTab({
                   : 'APPROVE_1_WAITING_MARKETING'
               )
             }
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${
-              reviewQueueFilter === 'APPROVE_1_WAITING_MARKETING'
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${reviewQueueFilter === 'APPROVE_1_WAITING_MARKETING'
                 ? 'bg-purple-600 text-white border-purple-600'
                 : 'bg-purple-50 text-purple-900 border-purple-200 hover:bg-purple-100'
-            }`}
+              }`}
           >
             <Sparkles size={13} />
             2. ส่งต่อการตลาด • รอการตลาดตรวจ (
@@ -449,11 +474,10 @@ export default function BranchContentBoardTab({
                   : 'ENDORSED_FOR_MARKETING_MANAGER'
               )
             }
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${
-              reviewQueueFilter === 'ENDORSED_FOR_MARKETING_MANAGER'
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${reviewQueueFilter === 'ENDORSED_FOR_MARKETING_MANAGER'
                 ? 'bg-fuchsia-600 text-white border-fuchsia-600'
                 : 'bg-fuchsia-50 text-fuchsia-900 border-fuchsia-200 hover:bg-fuchsia-100'
-            }`}
+              }`}
           >
             <ShieldCheck size={13} />
             3. Marketing ตรวจผ่าน • รอ ผจก.การตลาดอนุมัติ (
@@ -466,11 +490,10 @@ export default function BranchContentBoardTab({
               onClick={() =>
                 setReviewQueueFilter(reviewQueueFilter === 'OVERDUE' ? 'ALL' : 'OVERDUE')
               }
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${
-                reviewQueueFilter === 'OVERDUE'
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border inline-flex items-center gap-1.5 transition-all ${reviewQueueFilter === 'OVERDUE'
                   ? 'bg-red-600 text-white border-red-600'
                   : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
-              }`}
+                }`}
             >
               <AlertTriangle size={13} />
               งานเกินกำหนด ({quickCounts.overdue})
@@ -508,8 +531,8 @@ export default function BranchContentBoardTab({
               {permissions?.canViewAllBranches
                 ? 'ทุกสาขา (All 11 Branches)'
                 : branches.length > 1
-                ? `ทุกสาขาที่รับผิดชอบ (${branches.map(b => b.name).join(' • ')})`
-                : `สาขา${branches[0]?.name || permissions?.userBranchName || ''}`}
+                  ? `ทุกสาขาที่รับผิดชอบ (${branches.map(b => b.name).join(' • ')})`
+                  : `สาขา${branches[0]?.name || permissions?.userBranchName || ''}`}
             </option>
             {branches.map(b => (
               <option key={b.id} value={b.id}>
@@ -656,6 +679,7 @@ export default function BranchContentBoardTab({
 
       {/* Detail & Review Modal */}
       <BranchContentDetailModal
+        key={selectedItem?.id || 'closed'}
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
         onUpdate={updatedItem => handleItemUpsert(updatedItem)}
@@ -665,6 +689,17 @@ export default function BranchContentBoardTab({
           setIsCreateEditOpen(true);
         }}
         permissions={permissions}
+        assignedReviewers={assignedReviewers}
+        onOpenReviewerModal={
+          permissions?.canManageReviewers ? () => setIsReviewerModalOpen(true) : undefined
+        }
+      />
+
+      {/* Marketing Reviewer Assignment Modal (Marketing Manager only) */}
+      <BranchContentReviewerModal
+        isOpen={isReviewerModalOpen}
+        onClose={() => setIsReviewerModalOpen(false)}
+        onSaved={handleRefresh}
       />
     </div>
   );

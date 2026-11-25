@@ -83,6 +83,7 @@ model User {
   commissionApproved          SalesCommissionRequest[]  @relation("CommissionApprover")
   commissionPayoutRecorded    SalesCommissionRequest[]  @relation("CommissionPayoutRecorder")
   commissionSplitsReceived    SalesCommissionSplit[]    @relation("CommissionSplitRecipient")
+  branchContentReviewerPerm   BranchContentReviewerPermission? @relation("BranchContentReviewerUser")
 }
 
 model MonthlyTarget {
@@ -4112,6 +4113,7 @@ model BranchContent {
   updatedAt          DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   media              BranchContentMedia[]
   comments           BranchContentComment[]
+  commentAttachments BranchContentCommentAttachment[]
   logs               BranchContentLog[]
 
   @@index([branchId], map: "idx_branch_contents_branch_id")
@@ -4146,19 +4148,61 @@ model BranchContentMedia {
 }
 
 model BranchContentComment {
-  id          String        @id @default(cuid())
-  contentId   String        @map("content_id")
-  userId      String        @map("user_id")
-  userName    String        @map("user_name") @db.VarChar(150)
-  userRole    String?       @map("user_role") @db.VarChar(100)
-  version     Int           @default(1)
-  commentType String        @default("GENERAL") @map("comment_type") @db.VarChar(40)
-  message     String        @db.Text
-  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  content     BranchContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  id          String                           @id @default(cuid())
+  contentId   String                           @map("content_id")
+  userId      String                           @map("user_id")
+  userName    String                           @map("user_name") @db.VarChar(150)
+  userRole    String?                          @map("user_role") @db.VarChar(100)
+  version     Int                              @default(1)
+  commentType String                           @default("GENERAL") @map("comment_type") @db.VarChar(40)
+  message     String                           @db.Text
+  createdAt   DateTime                         @default(now()) @map("created_at") @db.Timestamptz(6)
+  content     BranchContent                    @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  attachments BranchContentCommentAttachment[]
 
   @@index([contentId], map: "idx_branch_content_comments_cid")
   @@map("branch_content_comments")
+}
+
+model BranchContentCommentAttachment {
+  id             String               @id @default(cuid())
+  commentId      String               @map("comment_id")
+  contentId      String               @map("content_id")
+  version        Int                  @default(1)
+  fileType       String               @default("IMAGE") @map("file_type") @db.VarChar(30)
+  fileName       String               @map("file_name") @db.VarChar(255)
+  storageBucket  String               @default("uploadsService") @map("storage_bucket") @db.VarChar(100)
+  storagePath    String               @map("storage_path")
+  fileUrl        String               @map("file_url")
+  fileSize       Int                  @default(0) @map("file_size")
+  mimeType       String               @map("mime_type") @db.VarChar(100)
+  uploadedById   String               @map("uploaded_by_id")
+  uploadedByName String               @map("uploaded_by_name") @db.VarChar(150)
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  comment        BranchContentComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  content        BranchContent        @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@index([commentId], map: "idx_branch_content_comment_att_comment")
+  @@index([contentId], map: "idx_branch_content_comment_att_content")
+  @@map("branch_content_comment_attachments")
+}
+
+model BranchContentReviewerPermission {
+  id                 String   @id @default(cuid())
+  userId             String   @unique @map("user_id")
+  canReviewComment   Boolean  @default(true) @map("can_review_comment")
+  canRequestRevision Boolean  @default(false) @map("can_request_revision")
+  canApprove         Boolean  @default(false) @map("can_approve")
+  isActive           Boolean  @default(true) @map("is_active")
+  assignedById       String?  @map("assigned_by_id")
+  assignedByName     String?  @map("assigned_by_name") @db.VarChar(150)
+  note               String?  @db.Text
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user               User     @relation("BranchContentReviewerUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([isActive], map: "idx_branch_content_reviewer_perm_active")
+  @@map("branch_content_reviewer_permissions")
 }
 
 model BranchContentLog {

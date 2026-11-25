@@ -1,3 +1,5 @@
+import { matchBranch } from '@/app/lib/roleHelper';
+
 export type BranchContentStatus =
   | 'BACKLOG'
   | 'IN_PROGRESS'
@@ -36,6 +38,21 @@ export interface BranchContentMediaItem {
   createdAt: string;
 }
 
+export interface BranchContentCommentAttachmentItem {
+  id: string;
+  commentId: string;
+  contentId: string;
+  version: number;
+  fileType: 'IMAGE' | 'DOCUMENT';
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedById: string;
+  uploadedByName: string;
+  createdAt: string;
+}
+
 export interface BranchContentCommentItem {
   id: string;
   contentId: string;
@@ -51,7 +68,35 @@ export interface BranchContentCommentItem {
     | 'ENDORSEMENT'
     | 'APPROVAL_NOTE';
   message: string;
+  attachments?: BranchContentCommentAttachmentItem[];
   createdAt: string;
+}
+
+export interface BranchContentReviewerAssignment {
+  userId: string;
+  employeeId: string;
+  fullName: string;
+  nickname?: string | null;
+  role: string;
+  position?: string | null;
+  branchName?: string | null;
+  isMarketingManager: boolean;
+  isAssigned: boolean;
+  canReviewComment: boolean;
+  canRequestRevision: boolean;
+  canApprove: boolean;
+  assignedByName?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface AssignedMarketingReviewerSummary {
+  userId: string;
+  employeeId: string;
+  fullName: string;
+  role: string;
+  canReviewComment: boolean;
+  canRequestRevision: boolean;
+  canApprove: boolean;
 }
 
 export interface BranchContentLogItem {
@@ -130,7 +175,13 @@ export interface BranchContentPermissions {
   canViewDashboard: boolean;
   canBranchApprove: boolean;
   canReview: boolean;
+  canComment: boolean;
+  canRequestRevision: boolean;
   canApprove: boolean;
+  canManageReviewers: boolean;
+  isAssignedReviewer: boolean;
+  isAssignedApprover: boolean;
+  isMarketingTeam: boolean;
   isSystemAdmin: boolean;
   isBranchManager: boolean;
 }
@@ -285,3 +336,34 @@ export const KANBAN_COLUMNS: {
     borderColor: 'border-indigo-200',
   },
 ];
+
+export function hasAllowedBranchAccess(
+  permissions: Pick<
+    BranchContentPermissions,
+    'canViewAllBranches' | 'allowedBranchIds' | 'allowedBranches' | 'userBranchId' | 'userBranchName'
+  >,
+  branchId?: string | null,
+  branchName?: string | null
+): boolean {
+  if (permissions.canViewAllBranches) return true;
+  if (permissions.allowedBranchIds?.length > 0) {
+    if (branchId && permissions.allowedBranchIds.some((id) => matchBranch(id, branchId))) {
+      return true;
+    }
+    if (
+      permissions.allowedBranches?.some(
+        (b) =>
+          (branchId && matchBranch(b.id, branchId)) ||
+          (branchName && (matchBranch(b.name, branchName) || matchBranch(b.id, branchName)))
+      )
+    ) {
+      return true;
+    }
+  }
+  return Boolean(
+    (permissions.userBranchId &&
+      ((branchId && matchBranch(branchId, permissions.userBranchId)) ||
+        (branchName && matchBranch(branchName, permissions.userBranchId)))) ||
+      (permissions.userBranchName && branchName && matchBranch(branchName, permissions.userBranchName))
+  );
+}

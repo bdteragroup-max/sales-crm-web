@@ -1,5 +1,6 @@
 'use server';
 
+import crypto from 'node:crypto';
 import prisma from '@/app/lib/db';
 import { teraDb } from '@/app/lib/teraDb';
 import { getUser } from '@/app/lib/dal';
@@ -12,14 +13,33 @@ import {
   isSupervisorOrManager,
   matchBranch,
 } from '@/app/lib/roleHelper';
-import type {
-  BranchContentItem,
-  BranchContentKPI,
-  BranchContentPermissions,
-  BranchContentStatus,
-  BranchMasterItem,
-  BranchStatRow,
+import {
+  hasAllowedBranchAccess,
+  type AssignedMarketingReviewerSummary,
+  type BranchContentItem,
+  type BranchContentKPI,
+  type BranchContentPermissions,
+  type BranchContentReviewerAssignment,
+  type BranchContentStatus,
+  type BranchMasterItem,
+  type BranchStatRow,
 } from '@/app/lib/branchContentTypes';
+import {
+  BRANCH_COMMENT_ATTACHMENT_MAX_COUNT,
+  type StagedCommentAttachmentPayload,
+} from '@/app/lib/branchContentCommentAttachments';
+import { verifyCommentAttachmentToken } from '@/app/lib/branchContentCommentAttachmentServer';
+
+const BRANCH_CONTENT_DETAIL_INCLUDE = {
+  media: { orderBy: { createdAt: 'desc' as const } },
+  comments: {
+    orderBy: { createdAt: 'desc' as const },
+    include: {
+      attachments: { orderBy: { createdAt: 'asc' as const } },
+    },
+  },
+  logs: { orderBy: { createdAt: 'desc' as const } },
+} as const;
 
 const REQUIRED_11_BRANCHES = [
   { id: 'KK01', name: 'ขอนแก่น', lat: 16.4322, lon: 102.8236 },
@@ -161,6 +181,47 @@ async function ensureBranchContentSchema() {
     `);
 
     await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS branch_content_reviewer_permissions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL UNIQUE REFERENCES "User"(id) ON DELETE CASCADE,
+        can_review_comment BOOLEAN NOT NULL DEFAULT TRUE,
+        can_request_revision BOOLEAN NOT NULL DEFAULT FALSE,
+        can_approve BOOLEAN NOT NULL DEFAULT FALSE,
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        assigned_by_id TEXT,
+        assigned_by_name VARCHAR(150),
+        note TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_branch_content_reviewer_perm_active
+        ON branch_content_reviewer_permissions(is_active);
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS branch_content_comment_attachments (
+        id TEXT PRIMARY KEY,
+        comment_id TEXT NOT NULL REFERENCES branch_content_comments(id) ON DELETE CASCADE,
+        content_id TEXT NOT NULL REFERENCES branch_contents(id) ON DELETE CASCADE,
+        version INTEGER NOT NULL DEFAULT 1,
+        file_type VARCHAR(30) NOT NULL DEFAULT 'IMAGE',
+        file_name VARCHAR(255) NOT NULL,
+        storage_bucket VARCHAR(100) NOT NULL DEFAULT 'uploadsService',
+        storage_path TEXT NOT NULL,
+        file_url TEXT NOT NULL,
+        file_size INTEGER NOT NULL DEFAULT 0,
+        mime_type VARCHAR(100) NOT NULL,
+        uploaded_by_id TEXT NOT NULL,
+        uploaded_by_name VARCHAR(150) NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE INDEX IF NOT EXISTS idx_branch_content_comment_att_comment
+        ON branch_content_comment_attachments(comment_id);
+      CREATE INDEX IF NOT EXISTS idx_branch_content_comment_att_content
+        ON branch_content_comment_attachments(content_id);
+    `);
+
+    await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS user_branch_access (
         id TEXT PRIMARY KEY,
         emp_id TEXT NOT NULL,
@@ -290,35 +351,21 @@ export async function getBranchMasterData(): Promise<BranchMasterItem[]> {
   }));
 }
 
-function hasAllowedBranchAccess(
-  permissions: Pick<
-    BranchContentPermissions,
-    'canViewAllBranches' | 'allowedBranchIds' | 'allowedBranches' | 'userBranchId' | 'userBranchName'
-  >,
-  branchId?: string | null,
-  branchName?: string | null
-): boolean {
-  if (permissions.canViewAllBranches) return true;
-  if (permissions.allowedBranchIds?.length > 0) {
-    if (branchId && permissions.allowedBranchIds.some(id => matchBranch(id, branchId))) {
-      return true;
-    }
-    if (
-      permissions.allowedBranches?.some(
-        b =>
-          (branchId && matchBranch(b.id, branchId)) ||
-          (branchName && (matchBranch(b.name, branchName) || matchBranch(b.id, branchName)))
-      )
-    ) {
-      return true;
-    }
+function isMarketingUserRecord(user: {
+  role?: string | null;
+  position?: string | null;
+  employeeSale?: { department?: string | null } | null;
+}, hrDepartmentName?: string | null): boolean {
+  if (isMarketingStaff(user.role)) return true;
+  const metaText = [user.position, user.employeeSale?.department]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  if (/marketing|การตลาด|content|กราฟิก|graphic/.test(metaText)) {
+    return true;
   }
-  return Boolean(
-    (permissions.userBranchId &&
-      ((branchId && matchBranch(branchId, permissions.userBranchId)) ||
-        (branchName && matchBranch(branchName, permissions.userBranchId)))) ||
-      (permissions.userBranchName && branchName && matchBranch(branchName, permissions.userBranchName))
-  );
+  const hrDept = (hrDepartmentName || '').trim().toLowerCase();
+  return hrDept === 'marketing' || hrDept === 'การตลาด' || hrDept === 'ฝ่ายการตลาด';
 }
 
 /**
@@ -329,6 +376,8 @@ export async function resolveUserBranchPermissions(): Promise<{
   permissions: BranchContentPermissions | null;
   branches: BranchMasterItem[];
 }> {
+  await ensureBranchContentSchema();
+
   const user = await getUser();
   const branches = await getBranchMasterData();
 
@@ -336,11 +385,40 @@ export async function resolveUserBranchPermissions(): Promise<{
     return { user: null, permissions: null, branches };
   }
 
+  const assignedPerm = await prisma.branchContentReviewerPermission
+    .findUnique({
+      where: { userId: user.id },
+    })
+    .catch(() => null);
+
   const role = user.role || '';
   const sysAdmin = isSuperUser(role);
-  const approver = isMarketingManager(role) || sysAdmin;
-  const reviewer = isMarketingStaff(role) || isReadOnlyExecutive(role) || approver;
-  const branchMgr = isSupervisorOrManager(role) && !reviewer;
+  const mktManager = isMarketingManager(role) || sysAdmin;
+  const readOnlyExec = isReadOnlyExecutive(role);
+
+  const activeAssigned = assignedPerm?.isActive ? assignedPerm : null;
+  const isAssignedReviewer = Boolean(
+    activeAssigned && (activeAssigned.canReviewComment || activeAssigned.canRequestRevision)
+  );
+  const isAssignedApprover = Boolean(activeAssigned && activeAssigned.canApprove);
+  const isMarketingTeam =
+    isMarketingStaff(role) ||
+    isMarketingUserRecord(user) ||
+    isAssignedReviewer ||
+    isAssignedApprover;
+
+  const approver = mktManager || isAssignedApprover;
+  const reviewer = mktManager || Boolean(activeAssigned?.canReviewComment);
+  const canRequestRevision = mktManager || Boolean(activeAssigned?.canRequestRevision);
+  const canManageReviewers = mktManager;
+  const canComment = mktManager
+    ? true
+    : readOnlyExec
+    ? false
+    : isMarketingTeam && !isMarketingManager(role)
+    ? Boolean(activeAssigned?.canReviewComment)
+    : true;
+  const branchMgr = isSupervisorOrManager(role) && !isMarketingTeam && !readOnlyExec;
 
   const findMatchingBranch = (candidate?: string | null): BranchMasterItem | undefined => {
     if (!candidate) return undefined;
@@ -474,7 +552,7 @@ export async function resolveUserBranchPermissions(): Promise<{
   };
 
   let extraGrants: UserBranchAccessRow[] = [];
-  if (effectiveEmpId && !sysAdmin && !approver && !reviewer) {
+  if (effectiveEmpId && !sysAdmin && !mktManager) {
     try {
       extraGrants = (await prisma.$queryRawUnsafe(
         `SELECT branch_id, can_create, can_submit, can_branch_approve, can_view_dashboard
@@ -489,7 +567,9 @@ export async function resolveUserBranchPermissions(): Promise<{
     }
   }
 
-  const canViewAllBranches = sysAdmin || approver || reviewer;
+  // Marketing team sees all branches by default per BRD; non-Marketing assignees rely strictly on existing branch permissions (no automatic expansion).
+  const canViewAllBranches =
+    sysAdmin || mktManager || readOnlyExec || isMarketingStaff(role);
   const allowedBranchMap = new Map<string, BranchMasterItem>();
 
   if (canViewAllBranches) {
@@ -516,9 +596,21 @@ export async function resolveUserBranchPermissions(): Promise<{
 
   let roleLabel = 'Branch Staff (พนักงานสาขา)';
   if (sysAdmin) roleLabel = 'System Admin (ผู้ดูแลระบบ)';
-  else if (approver) roleLabel = 'Marketing Approver (ผู้จัดการการตลาด)';
-  else if (reviewer) roleLabel = 'Marketing Reviewer (เจ้าหน้าที่การตลาด)';
-  else if (branchMgr) roleLabel = 'Branch Manager (ผู้จัดการ/หัวหน้าสาขา)';
+  else if (mktManager) roleLabel = 'Marketing Approver (ผู้จัดการการตลาด)';
+  else if (readOnlyExec) roleLabel = 'Executive Viewer (ผู้บริหาร)';
+  else if (isAssignedApprover && reviewer) {
+    roleLabel = 'Marketing Reviewer & Approver (ได้รับมอบหมาย)';
+  } else if (isAssignedApprover) {
+    roleLabel = 'Marketing Approver (ได้รับมอบหมาย)';
+  } else if (reviewer && canRequestRevision) {
+    roleLabel = 'Marketing Reviewer & Revision (ได้รับมอบหมาย)';
+  } else if (reviewer) {
+    roleLabel = 'Marketing Reviewer (ได้รับมอบหมาย)';
+  } else if (canRequestRevision) {
+    roleLabel = 'Marketing Revision Reviewer (ได้รับมอบหมาย)';
+  } else if (isMarketingTeam) {
+    roleLabel = 'Marketing Viewer (รอ ผจก.มอบหมายสิทธิ์)';
+  } else if (branchMgr) roleLabel = 'Branch Manager (ผู้จัดการ/หัวหน้าสาขา)';
   else if (allowedBranches.length > 1) {
     roleLabel = `Branch Support (${allowedBranches.map(b => b.name).join(' / ')})`;
   }
@@ -540,9 +632,15 @@ export async function resolveUserBranchPermissions(): Promise<{
       allowedBranches,
       canViewAllBranches,
       canViewDashboard,
-      canBranchApprove: branchMgr || sysAdmin || approver || hasExtraBranchApprove,
+      canBranchApprove: branchMgr || sysAdmin || mktManager || hasExtraBranchApprove,
       canReview: reviewer,
+      canComment,
+      canRequestRevision,
       canApprove: approver,
+      canManageReviewers,
+      isAssignedReviewer,
+      isAssignedApprover,
+      isMarketingTeam,
       isSystemAdmin: sysAdmin,
       isBranchManager: branchMgr,
     },
@@ -655,6 +753,22 @@ function serializeContentItem(raw: any): BranchContentItem {
       version: c.version || 1,
       commentType: c.commentType || 'GENERAL',
       message: c.message,
+      attachments: (c.attachments || []).map((att: any) => ({
+        id: att.id,
+        commentId: att.commentId,
+        contentId: att.contentId,
+        version: att.version || 1,
+        fileType: att.fileType === 'DOCUMENT' ? 'DOCUMENT' : 'IMAGE',
+        fileName: att.fileName,
+        fileUrl: att.fileUrl,
+        fileSize: Number(att.fileSize || 0),
+        mimeType: att.mimeType,
+        uploadedById: att.uploadedById,
+        uploadedByName: att.uploadedByName,
+        createdAt: att.createdAt
+          ? new Date(att.createdAt).toISOString()
+          : new Date().toISOString(),
+      })),
       createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
     })),
     logs: (raw.logs || []).map((l: any) => ({
@@ -892,6 +1006,7 @@ export async function getBranchContentBoardData() {
       branches,
       staffOptions: [] as { id: string; name: string; branch: string | null }[],
       permissions: null,
+      assignedReviewers: [] as AssignedMarketingReviewerSummary[],
       kpi: computeBranchContentKPI([], branches),
     };
   }
@@ -913,11 +1028,7 @@ export async function getBranchContentBoardData() {
 
     const rawContents = await prisma.branchContent.findMany({
       where: branchWhereClause,
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
       orderBy: [{ updatedAt: 'desc' }],
     });
 
@@ -1038,12 +1149,40 @@ export async function getBranchContentBoardData() {
 
     const kpi = computeBranchContentKPI(serialized, visibleBranches);
 
+    const assignedReviewers: AssignedMarketingReviewerSummary[] = permissions.canViewAllBranches
+      ? await prisma.branchContentReviewerPermission
+          .findMany({
+            where: { isActive: true },
+            include: {
+              user: {
+                select: { id: true, employeeId: true, fullName: true, role: true, isActive: true },
+              },
+            },
+            orderBy: { updatedAt: 'desc' },
+          })
+          .then(rows =>
+            rows
+              .filter(r => r.user?.isActive)
+              .map(r => ({
+                userId: r.userId,
+                employeeId: r.user.employeeId,
+                fullName: r.user.fullName,
+                role: r.user.role,
+                canReviewComment: r.canReviewComment,
+                canRequestRevision: r.canRequestRevision,
+                canApprove: r.canApprove,
+              }))
+          )
+          .catch(() => [])
+      : [];
+
     return {
       success: true,
       contents: serialized,
       branches: visibleBranches,
       staffOptions,
       permissions,
+      assignedReviewers,
       kpi,
     };
   } catch (error: any) {
@@ -1055,6 +1194,7 @@ export async function getBranchContentBoardData() {
       branches,
       staffOptions: [] as { id: string; name: string; branch: string | null }[],
       permissions,
+      assignedReviewers: [] as AssignedMarketingReviewerSummary[],
       kpi: computeBranchContentKPI([], branches),
     };
   }
@@ -1206,11 +1346,7 @@ export async function createBranchContent(input: {
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -1384,11 +1520,7 @@ export async function updateBranchContent(
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -1481,11 +1613,7 @@ export async function submitBranchContentForReview(contentId: string, submission
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -1591,11 +1719,7 @@ export async function branchReviewContent(
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -1623,10 +1747,19 @@ export async function reviewBranchContent(
     return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ' };
   }
 
-  if (!permissions.canReview) {
+  if (action === 'REQUEST_REVISION' && !permissions.canRequestRevision) {
     return {
       success: false,
-      error: '403 Forbidden: เฉพาะเจ้าหน้าที่ฝ่ายการตลาด (Marketing Reviewer) หรือผู้จัดการการตลาดเท่านั้นที่มีสิทธิ์ตรวจงานในขั้น Approve - 1',
+      error:
+        '403 Forbidden: คุณยังไม่ได้รับสิทธิ์ส่งกลับแก้ไข (Request Revision) จากผู้จัดการการตลาด',
+    };
+  }
+
+  if (action === 'ENDORSE_FOR_APPROVAL' && !permissions.canReview) {
+    return {
+      success: false,
+      error:
+        '403 Forbidden: คุณยังไม่ได้รับสิทธิ์ตรวจสอบเนื้อหาจากผู้จัดการการตลาด',
     };
   }
 
@@ -1643,6 +1776,15 @@ export async function reviewBranchContent(
 
   if (!existing) {
     return { success: false, error: 'ไม่พบข้อมูลคอนเทนต์นี้' };
+  }
+
+  if (!permissions.canViewAllBranches) {
+    if (!hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName)) {
+      return {
+        success: false,
+        error: '403 Forbidden: คุณไม่มีสิทธิ์ตรวจงานของสาขาอื่น',
+      };
+    }
   }
 
   try {
@@ -1687,11 +1829,7 @@ export async function reviewBranchContent(
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -1713,12 +1851,12 @@ export async function approveBranchContent(contentId: string, approvalNote?: str
     return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ' };
   }
 
-  // Strict Role Check: Only Marketing Manager or System Admin can approve!
+  // Strict Role Check: Only Marketing Manager, System Admin, or explicitly assigned Approver can approve!
   if (!permissions.canApprove) {
     return {
       success: false,
       error:
-        '403 Forbidden: สิทธิ์การอนุมัติคอนเทนต์ (Approve) สงวนไว้สำหรับ "ผู้จัดการการตลาด (Marketing Manager)" เท่านั้น (เจ้าหน้าที่การตลาดสามารถกด "ตรวจผ่าน/เสนอขออนุมัติ" เพื่อส่งต่อให้ผู้จัดการอนุมัติได้)',
+        '403 Forbidden: สิทธิ์การอนุมัติคอนเทนต์ (Approve) สงวนไว้สำหรับผู้จัดการการตลาด หรือผู้ได้รับมอบหมายสิทธิ์ Approve โดยชัดเจนเท่านั้น',
     };
   }
 
@@ -1728,6 +1866,15 @@ export async function approveBranchContent(contentId: string, approvalNote?: str
 
   if (!existing) {
     return { success: false, error: 'ไม่พบข้อมูลคอนเทนต์นี้' };
+  }
+
+  if (!permissions.canViewAllBranches) {
+    if (!hasAllowedBranchAccess(permissions, existing.branchId, existing.branchName)) {
+      return {
+        success: false,
+        error: '403 Forbidden: คุณไม่มีสิทธิ์อนุมัติงานของสาขาอื่น',
+      };
+    }
   }
 
   try {
@@ -1770,11 +1917,7 @@ export async function approveBranchContent(contentId: string, approvalNote?: str
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -1861,11 +2004,7 @@ export async function markBranchContentPublished(
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -1879,7 +2018,11 @@ export async function markBranchContentPublished(
 /**
  * Add a comment to a Branch Content card (preserves version tag).
  */
-export async function addBranchContentComment(contentId: string, message: string) {
+export async function addBranchContentComment(
+  contentId: string,
+  message: string,
+  stagedAttachments: StagedCommentAttachmentPayload[] = []
+) {
   await ensureBranchContentSchema();
 
   const { user, permissions } = await resolveUserBranchPermissions();
@@ -1887,8 +2030,27 @@ export async function addBranchContentComment(contentId: string, message: string
     return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ' };
   }
 
-  if (!message?.trim()) {
-    return { success: false, error: 'กรุณาพิมพ์ข้อความความคิดเห็น' };
+  if (!permissions.canComment) {
+    return {
+      success: false,
+      error: '403 Forbidden: คุณยังไม่ได้รับสิทธิ์คอมเมนต์และแนบไฟล์จากผู้จัดการการตลาด',
+    };
+  }
+
+  const rawAttachments = Array.isArray(stagedAttachments) ? stagedAttachments : [];
+  if (rawAttachments.length > BRANCH_COMMENT_ATTACHMENT_MAX_COUNT) {
+    return {
+      success: false,
+      error: `แนบไฟล์ได้สูงสุด ${BRANCH_COMMENT_ATTACHMENT_MAX_COUNT} ไฟล์ต่อ 1 ความคิดเห็น`,
+    };
+  }
+
+  const trimmedMessage = (message || '').trim();
+  if (!trimmedMessage && rawAttachments.length === 0) {
+    return {
+      success: false,
+      error: 'กรุณาพิมพ์ข้อความความคิดเห็นหรือแนบไฟล์อย่างน้อย 1 ไฟล์',
+    };
   }
 
   const existing = await prisma.branchContent.findUnique({
@@ -1906,33 +2068,83 @@ export async function addBranchContentComment(contentId: string, message: string
       existing.assigneeId === user.id;
 
     if (!isSameBranch) {
-      return { success: false, error: '403 Forbidden: คุณไม่มีสิทธิ์แสดงความคิดเห็นในงานของสาขาอื่น' };
+      return {
+        success: false,
+        error: '403 Forbidden: คุณไม่มีสิทธิ์แสดงความคิดเห็นในงานของสาขาอื่น',
+      };
     }
   }
 
+  // Verify every uploaded attachment signature against this content card & user before committing
+  const verifiedAttachments: Array<{
+    id: string;
+    storageBucket: string;
+    storagePath: string;
+    fileName: string;
+    fileType: 'IMAGE' | 'DOCUMENT';
+    mimeType: string;
+    fileSize: number;
+  }> = [];
+
+  for (const att of rawAttachments) {
+    const verified = await verifyCommentAttachmentToken(att?.token, {
+      contentId,
+      userId: user.id,
+    });
+    if (!verified) {
+      return {
+        success: false,
+        error: `ไฟล์แนบ "${att?.fileName || 'attachment'}" ไม่ผ่านการตรวจสอบสิทธิ์หรือหมดอายุ กรุณาลบออกแล้วอัปโหลดใหม่`,
+      };
+    }
+    verifiedAttachments.push({
+      id: crypto.randomUUID(),
+      ...verified,
+    });
+  }
+
   try {
-    await prisma.branchContentComment.create({
-      data: {
-        contentId,
-        userId: user.id,
-        userName: permissions.userName,
-        userRole: permissions.roleLabel,
-        version: existing.currentVersion,
-        commentType: permissions.canReview ? 'FEEDBACK' : 'GENERAL',
-        message: message.trim(),
-      },
+    await prisma.$transaction(async tx => {
+      const comment = await tx.branchContentComment.create({
+        data: {
+          contentId,
+          userId: user.id,
+          userName: permissions.userName,
+          userRole: permissions.roleLabel,
+          version: existing.currentVersion,
+          commentType: permissions.canReview ? 'FEEDBACK' : 'GENERAL',
+          message: trimmedMessage,
+        },
+      });
+
+      if (verifiedAttachments.length > 0) {
+        await tx.branchContentCommentAttachment.createMany({
+          data: verifiedAttachments.map(att => ({
+            id: att.id,
+            commentId: comment.id,
+            contentId,
+            version: existing.currentVersion,
+            fileType: att.fileType,
+            fileName: att.fileName,
+            storageBucket: att.storageBucket,
+            storagePath: att.storagePath,
+            fileUrl: `/api/marketing/branch-content/comments/attachments/${att.id}`,
+            fileSize: att.fileSize,
+            mimeType: att.mimeType,
+            uploadedById: user.id,
+            uploadedByName: permissions.userName,
+          })),
+        });
+      }
     });
 
     const updated = await prisma.branchContent.findUnique({
       where: { id: contentId },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
+    revalidatePath('/marketing-board/branch-content');
     return { success: true, data: serializeContentItem(updated) };
   } catch (error: any) {
     console.error('[BranchContent] addBranchContentComment error:', error);
@@ -1994,11 +2206,7 @@ export async function cancelBranchContent(contentId: string, reason: string) {
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -2020,7 +2228,9 @@ async function countPendingBranchContentForUser(
   permissions: BranchContentPermissions
 ): Promise<number> {
   if (permissions.canViewAllBranches) {
-    // Marketing Reviewer / Marketing Approver / System Admin: count items waiting in Approve - 1 or Pending Review
+    if (!permissions.canReview && !permissions.canRequestRevision && !permissions.canApprove) {
+      return 0;
+    }
     return await prisma.branchContent.count({
       where: {
         status: { in: ['APPROVE_1', 'PENDING_REVIEW'] },
@@ -2134,11 +2344,7 @@ export async function moveBranchContentCardStatus(
   if (existing.status === targetStatus) {
     const full = await prisma.branchContent.findUnique({
       where: { id: contentId },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
     return { success: true, data: serializeContentItem(full) };
   }
@@ -2166,14 +2372,16 @@ export async function moveBranchContentCardStatus(
   if (targetStatus === 'APPROVED' && !permissions.canApprove) {
     return {
       success: false,
-      error: 'เฉพาะผู้จัดการการตลาด (Marketing Manager) เท่านั้นที่สามารถอนุมัติงานเข้าสู่คอลัมน์ Approved ได้',
+      error: 'เฉพาะผู้จัดการการตลาด หรือผู้ได้รับมอบหมายสิทธิ์ Approve เท่านั้นที่สามารถอนุมัติงานเข้าสู่คอลัมน์ Approved ได้',
     };
   }
 
-  if (targetStatus === 'REVISE' && !permissions.canBranchApprove && !permissions.canReview) {
+  const canBranchRevisionFromPending =
+    permissions.canBranchApprove && existing.status === 'PENDING_REVIEW';
+  if (targetStatus === 'REVISE' && !permissions.canRequestRevision && !canBranchRevisionFromPending) {
     return {
       success: false,
-      error: 'เฉพาะผู้จัดการสาขา หรือฝ่ายการตลาดเท่านั้นที่สามารถส่งกลับแก้ไข (Revise) ได้',
+      error: 'คุณยังไม่ได้รับสิทธิ์ส่งกลับแก้ไข (Request Revision) จากผู้จัดการการตลาด',
     };
   }
 
@@ -2222,11 +2430,7 @@ export async function moveBranchContentCardStatus(
           },
         },
       },
-      include: {
-        media: { orderBy: { createdAt: 'desc' } },
-        comments: { orderBy: { createdAt: 'desc' } },
-        logs: { orderBy: { createdAt: 'desc' } },
-      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
@@ -2235,6 +2439,256 @@ export async function moveBranchContentCardStatus(
   } catch (error: any) {
     console.error('[BranchContent] moveBranchContentCardStatus error:', error);
     return { success: false, error: error?.message || 'ไม่สามารถย้ายสถานะการ์ดได้' };
+  }
+}
+
+/**
+ * Lists active Marketing team members along with their current Branch Content review/revision/approve permissions.
+ * Restricted strictly to Marketing Manager / Super Admin.
+ */
+export async function getMarketingReviewerAssignments(): Promise<{
+  success: boolean;
+  error?: string;
+  assignments: BranchContentReviewerAssignment[];
+}> {
+  await ensureBranchContentSchema();
+
+  const { user, permissions, branches } = await resolveUserBranchPermissions();
+  if (!user || !permissions) {
+    return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ', assignments: [] };
+  }
+  if (!permissions.canManageReviewers) {
+    return {
+      success: false,
+      error: '403 Forbidden: เฉพาะผู้จัดการการตลาดเท่านั้นที่มีสิทธิ์จัดการรายชื่อผู้ตรวจสอบ',
+      assignments: [],
+    };
+  }
+
+  const [activeUsers, hrEmployees] = await Promise.all([
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        employeeId: true,
+        fullName: true,
+        email: true,
+        role: true,
+        position: true,
+        employeeSale: { select: { department: true, branch: true, nickname: true } },
+        branchContentReviewerPerm: true,
+      },
+      orderBy: { fullName: 'asc' },
+    }),
+    teraDb.employees
+      .findMany({
+        where: { is_active: true },
+        select: {
+          emp_id: true,
+          name: true,
+          nickname: true,
+          branch_id: true,
+          email: true,
+          departments: { select: { name: true } },
+        },
+      })
+      .catch(() => []),
+  ]);
+
+  const cleanPersonName = (n?: string | null) =>
+    (n || '').replace(/^(นาย|นางสาว|นาง|คุณ|ดร\.)\s*/g, '').trim();
+
+  const assignments: BranchContentReviewerAssignment[] = [];
+  for (const u of activeUsers) {
+    const cleanedU = cleanPersonName(u.fullName);
+    const hrEmp = hrEmployees.find(
+      h =>
+        (u.employeeId && h.emp_id?.toUpperCase() === u.employeeId.toUpperCase()) ||
+        (u.email && h.email && h.email.toLowerCase() === u.email.toLowerCase()) ||
+        (cleanedU && cleanPersonName(h.name) === cleanedU)
+    );
+    const hrDeptName = hrEmp?.departments?.name || null;
+    const isMkt = isMarketingUserRecord(u, hrDeptName);
+    const perm = u.branchContentReviewerPerm;
+    if (!isMkt && !perm?.isActive) continue;
+
+    const rawBranch = hrEmp?.branch_id || u.employeeSale?.branch || null;
+    const matchedBranch = rawBranch
+      ? branches.find(b => matchBranch(b.id, rawBranch) || matchBranch(b.name, rawBranch))
+      : undefined;
+
+    const isMgr = isMarketingManager(u.role) || isSuperUser(u.role);
+    const isActivePerm = Boolean(perm?.isActive);
+
+    assignments.push({
+      userId: u.id,
+      employeeId: u.employeeId,
+      fullName: u.fullName,
+      nickname: hrEmp?.nickname?.trim() || u.employeeSale?.nickname?.trim() || null,
+      role: u.role,
+      position: u.position || null,
+      branchName: matchedBranch ? matchedBranch.name : rawBranch,
+      isMarketingManager: isMgr,
+      isAssigned: isMgr || isActivePerm,
+      canReviewComment: isMgr || Boolean(isActivePerm && perm?.canReviewComment),
+      canRequestRevision: isMgr || Boolean(isActivePerm && perm?.canRequestRevision),
+      canApprove: isMgr || Boolean(isActivePerm && perm?.canApprove),
+      assignedByName: perm?.assignedByName || null,
+      updatedAt: perm?.updatedAt ? perm.updatedAt.toISOString() : null,
+    });
+  }
+
+  assignments.sort((a, b) => {
+    if (a.isMarketingManager !== b.isMarketingManager) return a.isMarketingManager ? -1 : 1;
+    if (a.isAssigned !== b.isAssigned) return a.isAssigned ? -1 : 1;
+    return a.fullName.localeCompare(b.fullName, 'th');
+  });
+
+  return { success: true, assignments };
+}
+
+/**
+ * Saves granular reviewer/revision/approver assignments for active Marketing team members.
+ * Restricted strictly to Marketing Manager / Super Admin.
+ */
+export async function saveMarketingReviewerAssignments(
+  items: Array<{
+    userId: string;
+    isAssigned: boolean;
+    canReviewComment: boolean;
+    canRequestRevision: boolean;
+    canApprove: boolean;
+  }>
+): Promise<{
+  success: boolean;
+  error?: string;
+  assignments?: BranchContentReviewerAssignment[];
+}> {
+  await ensureBranchContentSchema();
+
+  const { user, permissions } = await resolveUserBranchPermissions();
+  if (!user || !permissions) {
+    return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ' };
+  }
+  if (!permissions.canManageReviewers) {
+    return {
+      success: false,
+      error: '403 Forbidden: เฉพาะผู้จัดการการตลาดเท่านั้นที่สามารถกำหนดหรือถอนสิทธิ์ผู้ตรวจสอบได้',
+    };
+  }
+
+  if (!Array.isArray(items)) {
+    return { success: false, error: 'ข้อมูลรายการสิทธิ์ไม่ถูกต้อง' };
+  }
+
+  const userIds = Array.from(
+    new Set(items.map(it => (typeof it?.userId === 'string' ? it.userId.trim() : '')).filter(Boolean))
+  );
+
+  const [targetUsers, hrEmployees] = await Promise.all([
+    prisma.user.findMany({
+      where: { id: { in: userIds }, isActive: true },
+      select: {
+        id: true,
+        employeeId: true,
+        fullName: true,
+        email: true,
+        role: true,
+        position: true,
+        employeeSale: { select: { department: true } },
+      },
+    }),
+    teraDb.employees
+      .findMany({
+        where: { is_active: true },
+        select: { emp_id: true, email: true, name: true, departments: { select: { name: true } } },
+      })
+      .catch(() => []),
+  ]);
+
+  const targetUserMap = new Map(targetUsers.map(u => [u.id, u]));
+
+  for (const uid of userIds) {
+    const target = targetUserMap.get(uid);
+    if (!target) {
+      return { success: false, error: 'พบรายชื่อผู้ใช้งานที่ไม่มีอยู่หรือไม่ Active ในระบบ' };
+    }
+    const hrEmp = hrEmployees.find(
+      h =>
+        (target.employeeId && h.emp_id?.toUpperCase() === target.employeeId.toUpperCase()) ||
+        (target.email && h.email && h.email.toLowerCase() === target.email.toLowerCase())
+    );
+    if (!isMarketingUserRecord(target, hrEmp?.departments?.name || null)) {
+      return {
+        success: false,
+        error: `ผู้ใช้ "${target.fullName}" ไม่ได้อยู่ในทีม Marketing ที่มีสิทธิ์มอบหมาย`,
+      };
+    }
+  }
+
+  try {
+    await prisma.$transaction(async tx => {
+      for (const item of items) {
+        const target = targetUserMap.get(item.userId);
+        if (!target) continue;
+        // Marketing Managers always retain full implicit authority and cannot be stripped via assignment rows
+        if (isMarketingManager(target.role) || isSuperUser(target.role)) continue;
+
+        const hasAnyPermission = Boolean(
+          item.canReviewComment || item.canRequestRevision || item.canApprove
+        );
+        const shouldActivate = Boolean(item.isAssigned && hasAnyPermission);
+
+        if (shouldActivate) {
+          await tx.branchContentReviewerPermission.upsert({
+            where: { userId: target.id },
+            create: {
+              userId: target.id,
+              canReviewComment: Boolean(item.canReviewComment),
+              canRequestRevision: Boolean(item.canRequestRevision),
+              canApprove: Boolean(item.canApprove),
+              isActive: true,
+              assignedById: user.id,
+              assignedByName: permissions.userName,
+            },
+            update: {
+              canReviewComment: Boolean(item.canReviewComment),
+              canRequestRevision: Boolean(item.canRequestRevision),
+              canApprove: Boolean(item.canApprove),
+              isActive: true,
+              assignedById: user.id,
+              assignedByName: permissions.userName,
+            },
+          });
+        } else {
+          await tx.branchContentReviewerPermission.updateMany({
+            where: { userId: target.id },
+            data: {
+              canReviewComment: false,
+              canRequestRevision: false,
+              canApprove: false,
+              isActive: false,
+              assignedById: user.id,
+              assignedByName: permissions.userName,
+            },
+          });
+        }
+      }
+    });
+
+    revalidatePath('/marketing-board');
+    revalidatePath('/marketing-board/branch-content');
+
+    const refreshed = await getMarketingReviewerAssignments();
+    return { success: true, assignments: refreshed.assignments };
+  } catch (error: unknown) {
+    console.error('[BranchContent] saveMarketingReviewerAssignments error:', error);
+    const message =
+      error instanceof Error ? error.message : 'ไม่สามารถบันทึกสิทธิ์ผู้ตรวจสอบได้';
+    return {
+      success: false,
+      error: message,
+    };
   }
 }
 

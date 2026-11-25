@@ -46,6 +46,7 @@ import {
   moveBranchContentCardStatus,
 } from '@/app/actions/branchContent';
 import type {
+  AssignedMarketingReviewerSummary,
   BranchContentItem,
   BranchContentPermissions,
   BranchContentStatus,
@@ -57,6 +58,7 @@ import CreateEditBranchContentModal from './CreateEditBranchContentModal';
 import BranchContentDetailModal from './BranchContentDetailModal';
 import BranchContentCalendarView from './BranchContentCalendarView';
 import BranchContentDashboardView from './BranchContentDashboardView';
+import BranchContentReviewerModal from './BranchContentReviewerModal';
 
 interface BranchContentKanbanPageClientProps {
   initialData: {
@@ -64,6 +66,7 @@ interface BranchContentKanbanPageClientProps {
     branches: BranchMasterItem[];
     staffOptions: { id: string; name: string; branch: string | null }[];
     permissions: BranchContentPermissions | null;
+    assignedReviewers?: AssignedMarketingReviewerSummary[];
   };
 }
 
@@ -487,9 +490,14 @@ export default function BranchContentKanbanPageClient({
   const [contents, setContents] = useState<BranchContentItem[]>(
     initialData.contents || []
   );
-  const [branches] = useState<BranchMasterItem[]>(initialData.branches || []);
-  const [staffOptions] = useState(initialData.staffOptions || []);
-  const permissions = initialData.permissions;
+  const [branches, setBranches] = useState<BranchMasterItem[]>(initialData.branches || []);
+  const [staffOptions, setStaffOptions] = useState(initialData.staffOptions || []);
+  const [permissions, setPermissions] = useState<BranchContentPermissions | null>(
+    initialData.permissions
+  );
+  const [assignedReviewers, setAssignedReviewers] = useState<AssignedMarketingReviewerSummary[]>(
+    initialData.assignedReviewers || []
+  );
 
   // View Switcher in Top Header matching /marketing/kanban
   const [viewType, setViewType] = useState<'board' | 'calendar' | 'dashboard'>('board');
@@ -515,6 +523,7 @@ export default function BranchContentKanbanPageClient({
   const [selectedItem, setSelectedItem] = useState<BranchContentItem | null>(null);
   const [isCreateEditOpen, setIsCreateEditOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<BranchContentItem | null>(null);
+  const [isReviewerModalOpen, setIsReviewerModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const sensors = useSensors(
@@ -536,6 +545,10 @@ export default function BranchContentKanbanPageClient({
       const fresh = await getBranchContentBoardData();
       if (fresh.success) {
         setContents(fresh.contents);
+        if (fresh.branches) setBranches(fresh.branches);
+        if (fresh.staffOptions) setStaffOptions(fresh.staffOptions);
+        if (fresh.permissions) setPermissions(fresh.permissions);
+        if (fresh.assignedReviewers) setAssignedReviewers(fresh.assignedReviewers);
       }
     } finally {
       setIsRefreshing(false);
@@ -812,6 +825,27 @@ export default function BranchContentKanbanPageClient({
                 สาขา{permissions?.userBranchName || branches[0]?.name || 'ของฉัน'}
               </span>
             </div>
+          )}
+
+          {permissions?.canManageReviewers && (
+            <button
+              type="button"
+              onClick={() => setIsReviewerModalOpen(true)}
+              className="h-10 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 px-3.5 rounded-xl text-xs md:text-sm font-bold flex items-center gap-1.5 shadow-2xs transition-all whitespace-nowrap shrink-0"
+              title="มอบหมายผู้ตรวจสอบและอนุมัติ (เฉพาะผู้จัดการการตลาด)"
+            >
+              <ShieldCheck size={16} className="text-indigo-600 shrink-0" />
+              <span className="hidden sm:inline">จัดการผู้ตรวจสอบ</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                  assignedReviewers.length > 0
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-amber-200 text-amber-900'
+                }`}
+              >
+                {assignedReviewers.length}
+              </span>
+            </button>
           )}
 
           <button
@@ -1242,6 +1276,7 @@ export default function BranchContentKanbanPageClient({
 
       {/* Detail & Review Modal */}
       <BranchContentDetailModal
+        key={selectedItem?.id || 'closed'}
         item={selectedItem}
         onClose={() => setSelectedItem(null)}
         onUpdate={updatedItem => handleItemUpsert(updatedItem)}
@@ -1251,6 +1286,17 @@ export default function BranchContentKanbanPageClient({
           setIsCreateEditOpen(true);
         }}
         permissions={permissions}
+        assignedReviewers={assignedReviewers}
+        onOpenReviewerModal={
+          permissions?.canManageReviewers ? () => setIsReviewerModalOpen(true) : undefined
+        }
+      />
+
+      {/* Marketing Reviewer Assignment Modal (Marketing Manager only) */}
+      <BranchContentReviewerModal
+        isOpen={isReviewerModalOpen}
+        onClose={() => setIsReviewerModalOpen(false)}
+        onSaved={handleRefresh}
       />
     </div>
   );
