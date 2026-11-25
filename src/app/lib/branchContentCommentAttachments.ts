@@ -148,3 +148,44 @@ export function buildCommentAttachmentStoragePath(
 
   return `branch-content-comments/${safeContentId}/${uniqueSuffix}-${safeStem}.${ext}`;
 }
+
+/**
+ * Normalizes clipboard-pasted or dropped browser File objects so generic pasted images
+ * (often named "image.png" or empty) receive unique, extension-valid filenames.
+ */
+export function normalizeAttachmentUploadFiles(
+  rawFiles: Iterable<File>,
+  now = Date.now()
+): File[] {
+  const result: File[] = [];
+  let idx = 0;
+
+  for (const file of rawFiles) {
+    idx++;
+    const rawName = (file.name || '').trim();
+    const mime = (file.type || '').toLowerCase().trim();
+    const extFromMime =
+      mime === 'image/png'
+        ? 'png'
+        : mime === 'image/jpeg' || mime === 'image/jpg'
+        ? 'jpg'
+        : mime === 'application/pdf'
+        ? 'pdf'
+        : null;
+
+    const needsSyntheticName =
+      !rawName ||
+      rawName.toLowerCase() === 'image.png' ||
+      rawName.toLowerCase() === 'blob' ||
+      (!ALLOWED_EXT_RE.test(rawName) && extFromMime !== null);
+
+    if (needsSyntheticName && extFromMime) {
+      const uniqueName = `clipboard-${now}-${idx}.${extFromMime}`;
+      result.push(new File([file], uniqueName, { type: file.type || `image/${extFromMime}` }));
+    } else {
+      result.push(file);
+    }
+  }
+
+  return result;
+}

@@ -367,3 +367,83 @@ export function hasAllowedBranchAccess(
       (permissions.userBranchName && branchName && matchBranch(branchName, permissions.userBranchName))
   );
 }
+
+export interface BranchContentRevertPlan {
+  toStatus: BranchContentStatus;
+  toSubStatus: ReviewSubStatus;
+  label: string;
+  clearApproval: boolean;
+  clearReview: boolean;
+  decrementRevision: boolean;
+}
+
+/**
+ * Returns the canonical 1-step revert transition for Marketing Manager / Admin
+ * when a review/endorsement/approval action was clicked by mistake.
+ */
+export function getBranchContentRevertPlan(
+  status: BranchContentStatus,
+  reviewSubStatus?: string | null
+): BranchContentRevertPlan | null {
+  if (status === 'PUBLISHED') {
+    return {
+      toStatus: 'APPROVED',
+      toSubStatus: 'APPROVED',
+      label: 'ย้อนกลับเป็น "อนุมัติแล้ว (พร้อมโพสต์)"',
+      clearApproval: false,
+      clearReview: false,
+      decrementRevision: false,
+    };
+  }
+  if (status === 'APPROVED') {
+    return {
+      toStatus: 'APPROVE_1',
+      toSubStatus: 'WAITING_MARKETING_REVIEWER',
+      label: 'ย้อนกลับเป็น "รอการตลาดตรวจ"',
+      clearApproval: true,
+      clearReview: true,
+      decrementRevision: false,
+    };
+  }
+  if (status === 'APPROVE_1') {
+    if (reviewSubStatus === 'ENDORSED_FOR_MARKETING_MANAGER') {
+      return {
+        toStatus: 'APPROVE_1',
+        toSubStatus: 'WAITING_MARKETING_REVIEWER',
+        label: 'ยกเลิก "MKT ตรวจผ่าน" กลับเป็นรอการตลาดตรวจ',
+        clearApproval: false,
+        clearReview: true,
+        decrementRevision: false,
+      };
+    }
+    return {
+      toStatus: 'PENDING_REVIEW',
+      toSubStatus: null,
+      label: 'ย้อนกลับเป็น "รอ ผจก.สาขาตรวจ"',
+      clearApproval: false,
+      clearReview: true,
+      decrementRevision: false,
+    };
+  }
+  if (status === 'REVISE') {
+    return {
+      toStatus: 'PENDING_REVIEW',
+      toSubStatus: null,
+      label: 'ย้อนคำสั่งส่งแก้ไข กลับเป็น "รอ ผจก.สาขาตรวจ"',
+      clearApproval: false,
+      clearReview: true,
+      decrementRevision: true,
+    };
+  }
+  if (status === 'PENDING_REVIEW') {
+    return {
+      toStatus: 'IN_PROGRESS',
+      toSubStatus: null,
+      label: 'ย้อนกลับเป็น "กำลังทำคอนเทนต์"',
+      clearApproval: false,
+      clearReview: false,
+      decrementRevision: false,
+    };
+  }
+  return null;
+}

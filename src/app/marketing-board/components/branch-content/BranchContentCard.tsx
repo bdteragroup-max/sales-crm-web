@@ -49,6 +49,10 @@ export default function BranchContentCard({ item, onClick }: BranchContentCardPr
 
   // Find latest media for preview
   const latestMedia = item.media?.[0];
+  const commentAttachmentCount = (item.comments || []).reduce(
+    (sum, c) => sum + (c.attachments?.length || 0),
+    0
+  );
   const isVideo =
     latestMedia?.fileType === 'VIDEO' ||
     latestMedia?.mimeType?.startsWith('video/') ||
@@ -276,6 +280,15 @@ export default function BranchContentCard({ item, onClick }: BranchContentCardPr
                 <MessageSquare size={11} />
                 {item.comments?.length || 0}
               </span>
+              {commentAttachmentCount > 0 && (
+                <span
+                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold"
+                  title={`มีไฟล์แนบในความคิดเห็น ${commentAttachmentCount} ไฟล์`}
+                >
+                  <Paperclip size={9} />
+                  <span>{commentAttachmentCount} ไฟล์แนบ</span>
+                </span>
+              )}
             </div>
 
             {item.status === 'PUBLISHED' && item.publishedUrl ? (

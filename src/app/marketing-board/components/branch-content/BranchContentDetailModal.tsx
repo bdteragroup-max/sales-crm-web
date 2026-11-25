@@ -38,6 +38,7 @@ import {
   markBranchContentPublished,
   addBranchContentComment,
   cancelBranchContent,
+  revertBranchContentStage,
 } from '@/app/actions/branchContent';
 import type {
   AssignedMarketingReviewerSummary,
@@ -45,11 +46,16 @@ import type {
   BranchContentItem,
   BranchContentPermissions,
 } from '@/app/lib/branchContentTypes';
-import { CONTENT_TYPES, TARGET_CHANNELS } from '@/app/lib/branchContentTypes';
+import {
+  CONTENT_TYPES,
+  TARGET_CHANNELS,
+  getBranchContentRevertPlan,
+} from '@/app/lib/branchContentTypes';
 import {
   BRANCH_COMMENT_ATTACHMENT_MAX_COUNT,
   formatAttachmentFileSize,
   getCommentAttachmentKindLabel,
+  normalizeAttachmentUploadFiles,
   type StagedCommentAttachmentPayload,
   validateCommentAttachmentClientFile,
 } from '@/app/lib/branchContentCommentAttachments';
@@ -95,14 +101,38 @@ export default function BranchContentDetailModal({
   assignedReviewers = [],
   onOpenReviewerModal,
 }: BranchContentDetailModalProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'review' | 'publish' | 'history'>('overview');
+  const initialTab: 'overview' | 'review' | 'publish' | 'history' = (() => {
+    if (!item) return 'overview';
+    if (
+      (item.status === 'PENDING_REVIEW' ||
+        item.status === 'APPROVE_1' ||
+        item.status === 'REVISE') &&
+      permissions &&
+      (permissions.canReview ||
+        permissions.canRequestRevision ||
+        permissions.canApprove ||
+        permissions.canBranchApprove ||
+        permissions.canComment)
+    ) {
+      return 'review';
+    }
+    if (item.status === 'APPROVED') return 'publish';
+    return 'overview';
+  })();
+
+  const [activeTab, setActiveTab] = useState<'overview' | 'review' | 'publish' | 'history'>(
+    initialTab
+  );
   const [selectedMediaIdx, setSelectedMediaIdx] = useState(0);
   const [versionFilter, setVersionFilter] = useState<number | 'ALL'>('ALL');
 
   // Review & Comment states
   const [reviewFeedbackInput, setReviewFeedbackInput] = useState('');
+  const [reviewAttachments, setReviewAttachments] = useState<ComposerAttachmentDraft[]>([]);
+  const reviewFileInputRef = useRef<HTMLInputElement>(null);
   const [commentInput, setCommentInput] = useState('');
   const [commentAttachments, setCommentAttachments] = useState<ComposerAttachmentDraft[]>([]);
+  const [isDragOverTarget, setIsDragOverTarget] = useState<'comment' | 'review' | null>(null);
   const [previewAttachment, setPreviewAttachment] =
     useState<BranchContentCommentAttachmentItem | null>(null);
   const commentFileInputRef = useRef<HTMLInputElement>(null);
@@ -203,6 +233,256 @@ export default function BranchContentDetailModal({
     }
   };
 
+  const updateDraftAttachments = (
+    target: 'comment' | 'review',
+    updater: (prev: ComposerAttachmentDraft[]) => ComposerAttachmentDraft[]
+  ) => {
+    if (target === 'comment') {
+      setCommentAttachments(updater);
+    } else {
+      setReviewAttachments(updater);
+    }
+  };
+
+  const uploadSingleDraftFile = async (
+    target: 'comment' | 'review',
+    localId: string,
+    file: File
+  ) => {
+    updateDraftAttachments(target, prev =>
+      prev.map(att =>
+        att.localId === localId
+          ? { ...att, status: 'uploading', errorMessage: undefined }
+          : att
+      )
+    );
+
+    try {
+      const formData = new FormData();
+      formData.append('contentId', item.id);
+      formData.append('file', file);
+
+      const res = await fetch('/api/marketing/branch-content/comments/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok || !json?.success || !json?.attachment) {
+        throw new Error(json?.error || `อัปโหลด "${file.name}" ไม่สำเร็จ (HTTP ${res.status})`);
+      }
+
+      updateDraftAttachments(target, prev =>
+        prev.map(att =>
+          att.localId === localId
+            ? { ...att, status: 'uploaded', uploaded: json.attachment }
+            : att
+        )
+      );
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : `อัปโหลด "${file.name}" ไม่สำเร็จ`;
+      updateDraftAttachments(target, prev =>
+        prev.map(att =>
+          att.localId === localId
+            ? { ...att, status: 'error', errorMessage: msg }
+            : att
+        )
+      );
+    }
+  };
+
+  const enqueueFilesForTarget = (target: 'comment' | 'review', rawFiles: File[]) => {
+    if (rawFiles.length === 0) return;
+
+    const currentList = target === 'comment' ? commentAttachments : reviewAttachments;
+    const normalizedFiles = normalizeAttachmentUploadFiles(rawFiles);
+    const remainingSlots = BRANCH_COMMENT_ATTACHMENT_MAX_COUNT - currentList.length;
+
+    if (remainingSlots <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: `แนบได้สูงสุด ${BRANCH_COMMENT_ATTACHMENT_MAX_COUNT} ไฟล์ต่อ 1 รายการ`,
+        text: 'กรุณาลบไฟล์เดิมออกก่อนจึงจะเพิ่มไฟล์ใหม่ได้',
+      });
+      return;
+    }
+
+    const filesToProcess = normalizedFiles.slice(0, remainingSlots);
+    if (normalizedFiles.length > remainingSlots) {
+      Swal.fire({
+        icon: 'info',
+        title: `เลือกได้สูงสุด ${BRANCH_COMMENT_ATTACHMENT_MAX_COUNT} ไฟล์ต่อ 1 รายการ`,
+        text: `ระบบรับเฉพาะ ${remainingSlots} ไฟล์แรกที่เหลือในโควต้านี้`,
+        timer: 2200,
+        showConfirmButton: false,
+      });
+    }
+
+    const validPairs: { draft: ComposerAttachmentDraft; file: File }[] = [];
+    const invalidErrors: string[] = [];
+
+    for (const file of filesToProcess) {
+      const validationError = validateCommentAttachmentClientFile(file);
+      if (validationError) {
+        invalidErrors.push(validationError);
+        continue;
+      }
+      const localId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      validPairs.push({
+        file,
+        draft: {
+          localId,
+          file,
+          fileName: file.name,
+          fileSize: file.size,
+          kindLabel: getCommentAttachmentKindLabel(file.name, file.type),
+          status: 'uploading',
+        },
+      });
+    }
+
+    if (invalidErrors.length > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'บางไฟล์ไม่สามารถแนบได้',
+        text: invalidErrors.join(' | '),
+      });
+    }
+
+    if (validPairs.length > 0) {
+      updateDraftAttachments(target, prev => [...prev, ...validPairs.map(p => p.draft)]);
+      for (const pair of validPairs) {
+        void uploadSingleDraftFile(target, pair.draft.localId, pair.file);
+      }
+    }
+  };
+
+  const handleFileInputSelect = (
+    target: 'comment' | 'review',
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    e.target.value = '';
+    enqueueFilesForTarget(target, selectedFiles);
+  };
+
+  const handlePasteFilesToTarget = (
+    target: 'comment' | 'review',
+    e: React.ClipboardEvent
+  ) => {
+    const items = Array.from(e.clipboardData?.items || []);
+    const pastedFiles: File[] = [];
+    for (const entry of items) {
+      if (entry.kind === 'file') {
+        const f = entry.getAsFile();
+        if (f) pastedFiles.push(f);
+      }
+    }
+    if (pastedFiles.length === 0 && e.clipboardData?.files?.length) {
+      pastedFiles.push(...Array.from(e.clipboardData.files));
+    }
+    if (pastedFiles.length > 0) {
+      e.preventDefault();
+      enqueueFilesForTarget(target, pastedFiles);
+    }
+  };
+
+  const handleDropFilesToTarget = (
+    target: 'comment' | 'review',
+    e: React.DragEvent
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOverTarget(null);
+    const droppedFiles = Array.from(e.dataTransfer?.files || []);
+    if (droppedFiles.length > 0) {
+      enqueueFilesForTarget(target, droppedFiles);
+    }
+  };
+
+  const handleRemoveDraftAttachment = (target: 'comment' | 'review', localId: string) => {
+    updateDraftAttachments(target, prev => prev.filter(att => att.localId !== localId));
+  };
+
+  const collectReadyAttachmentPayloads = (
+    list: ComposerAttachmentDraft[]
+  ): StagedCommentAttachmentPayload[] | null => {
+    if (list.some(a => a.status === 'uploading')) {
+      Swal.fire({
+        icon: 'info',
+        title: 'กำลังอัปโหลดไฟล์แนบ',
+        text: 'กรุณารอให้ไฟล์ที่เลือกอัปโหลดเสร็จสมบูรณ์ก่อนส่งข้อมูล',
+      });
+      return null;
+    }
+
+    if (list.some(a => a.status === 'error')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'มีไฟล์แนบที่อัปโหลดไม่สำเร็จ',
+        text: 'กรุณากดลองใหม่หรือลบไฟล์ที่อัปโหลดไม่สำเร็จออกก่อนส่ง',
+      });
+      return null;
+    }
+
+    return list
+      .map(a => a.uploaded)
+      .filter((u): u is StagedCommentAttachmentPayload => Boolean(u));
+  };
+
+  const renderStagedAttachmentChips = (
+    target: 'comment' | 'review',
+    list: ComposerAttachmentDraft[]
+  ) => {
+    if (list.length === 0) return null;
+    return (
+      <div className="flex flex-wrap gap-1.5">
+        {list.map(att => (
+          <div
+            key={att.localId}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold max-w-full ${
+              att.status === 'error'
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : 'bg-slate-50 border-slate-200 text-slate-800'
+            }`}
+          >
+            {att.status === 'uploading' && (
+              <Loader2 size={12} className="animate-spin text-red-600 shrink-0" />
+            )}
+            <span className="font-mono font-bold text-[10px] text-slate-500 shrink-0">
+              {att.kindLabel}
+            </span>
+            <span className="truncate max-w-[165px]" title={att.fileName}>
+              {att.fileName}
+            </span>
+            <span className="text-[10px] text-slate-400 shrink-0">
+              ({formatAttachmentFileSize(att.fileSize)})
+            </span>
+            {att.status === 'error' && (
+              <button
+                type="button"
+                onClick={() => void uploadSingleDraftFile(target, att.localId, att.file)}
+                className="px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px] font-bold hover:bg-red-700 shrink-0"
+                title={att.errorMessage}
+              >
+                ลองใหม่
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => handleRemoveDraftAttachment(target, att.localId)}
+              className="text-slate-400 hover:text-red-600 font-bold pl-0.5 shrink-0"
+              aria-label={`ลบไฟล์ ${att.fileName}`}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const handleBranchManagerAction = async (
     action: 'APPROVE_TO_MARKETING' | 'REQUEST_REVISION'
   ) => {
@@ -215,12 +495,21 @@ export default function BranchContentDetailModal({
       return;
     }
 
+    const uploadedPayloads = collectReadyAttachmentPayloads(reviewAttachments);
+    if (!uploadedPayloads) return;
+
     setIsProcessing(true);
     try {
-      const res = await branchReviewContent(item.id, action, reviewFeedbackInput);
+      const res = await branchReviewContent(
+        item.id,
+        action,
+        reviewFeedbackInput,
+        uploadedPayloads
+      );
       if (res.success && res.data) {
         onUpdate(res.data);
         setReviewFeedbackInput('');
+        setReviewAttachments([]);
         Swal.fire({
           icon: 'success',
           title:
@@ -248,12 +537,21 @@ export default function BranchContentDetailModal({
       return;
     }
 
+    const uploadedPayloads = collectReadyAttachmentPayloads(reviewAttachments);
+    if (!uploadedPayloads) return;
+
     setIsProcessing(true);
     try {
-      const res = await reviewBranchContent(item.id, action, reviewFeedbackInput);
+      const res = await reviewBranchContent(
+        item.id,
+        action,
+        reviewFeedbackInput,
+        uploadedPayloads
+      );
       if (res.success && res.data) {
         onUpdate(res.data);
         setReviewFeedbackInput('');
+        setReviewAttachments([]);
         Swal.fire({
           icon: 'success',
           title:
@@ -272,12 +570,20 @@ export default function BranchContentDetailModal({
   };
 
   const handleApproverAction = async () => {
+    const uploadedPayloads = collectReadyAttachmentPayloads(reviewAttachments);
+    if (!uploadedPayloads) return;
+
     setIsProcessing(true);
     try {
-      const res = await approveBranchContent(item.id, reviewFeedbackInput);
+      const res = await approveBranchContent(
+        item.id,
+        reviewFeedbackInput,
+        uploadedPayloads
+      );
       if (res.success && res.data) {
         onUpdate(res.data);
         setReviewFeedbackInput('');
+        setReviewAttachments([]);
         Swal.fire({
           icon: 'success',
           title: 'อนุมัติคอนเทนต์เรียบร้อยแล้ว (Approved)',
@@ -287,6 +593,44 @@ export default function BranchContentDetailModal({
         });
       } else {
         Swal.fire({ icon: 'error', title: 'ไม่สามารถอนุมัติได้', text: res.error });
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRevertStage = async () => {
+    const plan = getBranchContentRevertPlan(item.status, item.reviewSubStatus);
+    if (!plan) return;
+
+    const { value: reason, isConfirmed } = await Swal.fire({
+      icon: 'question',
+      title: 'ยืนยันการย้อนสถานะงาน?',
+      text: plan.label,
+      input: 'text',
+      inputPlaceholder: 'ระบุหมายเหตุสั้นๆ (ไม่บังคับ) เช่น กดผิดปุ่ม',
+      showCancelButton: true,
+      confirmButtonText: 'ยืนยันย้อนสถานะ',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#4f46e5',
+    });
+
+    if (!isConfirmed) return;
+
+    setIsProcessing(true);
+    try {
+      const res = await revertBranchContentStage(item.id, typeof reason === 'string' ? reason : '');
+      if (res.success && res.data) {
+        onUpdate(res.data);
+        Swal.fire({
+          icon: 'success',
+          title: 'ย้อนสถานะเรียบร้อยแล้ว',
+          text: plan.label,
+          timer: 1800,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({ icon: 'error', title: 'ไม่สามารถย้อนสถานะได้', text: res.error });
       }
     } finally {
       setIsProcessing(false);
@@ -326,146 +670,12 @@ export default function BranchContentDetailModal({
     }
   };
 
-  const uploadSingleCommentFile = async (localId: string, file: File) => {
-    setCommentAttachments(prev =>
-      prev.map(att =>
-        att.localId === localId
-          ? { ...att, status: 'uploading', errorMessage: undefined }
-          : att
-      )
-    );
-
-    try {
-      const formData = new FormData();
-      formData.append('contentId', item.id);
-      formData.append('file', file);
-
-      const res = await fetch('/api/marketing/branch-content/comments/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok || !json?.success || !json?.attachment) {
-        throw new Error(json?.error || `อัปโหลด "${file.name}" ไม่สำเร็จ (HTTP ${res.status})`);
-      }
-
-      setCommentAttachments(prev =>
-        prev.map(att =>
-          att.localId === localId
-            ? { ...att, status: 'uploaded', uploaded: json.attachment }
-            : att
-        )
-      );
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : `อัปโหลด "${file.name}" ไม่สำเร็จ`;
-      setCommentAttachments(prev =>
-        prev.map(att =>
-          att.localId === localId
-            ? { ...att, status: 'error', errorMessage: msg }
-            : att
-        )
-      );
-    }
-  };
-
-  const handleCommentFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    e.target.value = '';
-    if (selectedFiles.length === 0) return;
-
-    const remainingSlots = BRANCH_COMMENT_ATTACHMENT_MAX_COUNT - commentAttachments.length;
-    if (remainingSlots <= 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: `แนบได้สูงสุด ${BRANCH_COMMENT_ATTACHMENT_MAX_COUNT} ไฟล์ต่อ Comment`,
-        text: 'กรุณาลบไฟล์เดิมออกก่อนจึงจะเพิ่มไฟล์ใหม่ได้',
-      });
-      return;
-    }
-
-    const filesToProcess = selectedFiles.slice(0, remainingSlots);
-    if (selectedFiles.length > remainingSlots) {
-      Swal.fire({
-        icon: 'info',
-        title: `เลือกได้สูงสุด ${BRANCH_COMMENT_ATTACHMENT_MAX_COUNT} ไฟล์ต่อ Comment`,
-        text: `ระบบรับเฉพาะ ${remainingSlots} ไฟล์แรกที่เหลือในโควต้านี้`,
-        timer: 2200,
-        showConfirmButton: false,
-      });
-    }
-
-    const validPairs: { draft: ComposerAttachmentDraft; file: File }[] = [];
-    const invalidErrors: string[] = [];
-
-    for (const file of filesToProcess) {
-      const validationError = validateCommentAttachmentClientFile(file);
-      if (validationError) {
-        invalidErrors.push(validationError);
-        continue;
-      }
-      const localId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-      validPairs.push({
-        file,
-        draft: {
-          localId,
-          file,
-          fileName: file.name,
-          fileSize: file.size,
-          kindLabel: getCommentAttachmentKindLabel(file.name, file.type),
-          status: 'uploading',
-        },
-      });
-    }
-
-    if (invalidErrors.length > 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'บางไฟล์ไม่สามารถแนบได้',
-        text: invalidErrors.join(' | '),
-      });
-    }
-
-    if (validPairs.length > 0) {
-      setCommentAttachments(prev => [...prev, ...validPairs.map(p => p.draft)]);
-      for (const pair of validPairs) {
-        void uploadSingleCommentFile(pair.draft.localId, pair.file);
-      }
-    }
-  };
-
-  const handleRemoveComposerAttachment = (localId: string) => {
-    setCommentAttachments(prev => prev.filter(att => att.localId !== localId));
-  };
-
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!permissions?.canComment) return;
 
-    const isAnyUploading = commentAttachments.some(a => a.status === 'uploading');
-    if (isAnyUploading) {
-      Swal.fire({
-        icon: 'info',
-        title: 'กำลังอัปโหลดไฟล์แนบ',
-        text: 'กรุณารอให้ไฟล์ที่เลือกอัปโหลดเสร็จสมบูรณ์ก่อนส่งความคิดเห็น',
-      });
-      return;
-    }
-
-    const failedFiles = commentAttachments.filter(a => a.status === 'error');
-    if (failedFiles.length > 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'มีไฟล์แนบที่อัปโหลดไม่สำเร็จ',
-        text: 'กรุณากดลองใหม่หรือลบไฟล์ที่อัปโหลดไม่สำเร็จออกก่อนส่ง (ระบบจะไม่บันทึก Comment หากไฟล์แนบไม่ครบ)',
-      });
-      return;
-    }
-
-    const uploadedPayloads = commentAttachments
-      .map(a => a.uploaded)
-      .filter((u): u is StagedCommentAttachmentPayload => Boolean(u));
+    const uploadedPayloads = collectReadyAttachmentPayloads(commentAttachments);
+    if (!uploadedPayloads) return;
 
     if (!commentInput.trim() && uploadedPayloads.length === 0) return;
 
@@ -545,6 +755,46 @@ export default function BranchContentDetailModal({
       : item.status === 'CANCELLED'
       ? 'รายการคอนเทนต์นี้ถูกยกเลิกแล้ว'
       : 'กำลังอยู่ในขั้นตอนเตรียมเนื้อหาและสื่อเพื่อส่งตรวจสอบ';
+
+  const revertPlan = permissions?.canManageReviewers
+    ? getBranchContentRevertPlan(item.status, item.reviewSubStatus)
+    : null;
+
+  const isReviewAttachmentUploading = reviewAttachments.some(a => a.status === 'uploading');
+
+  const renderReviewAttachmentToolbar = (tone: 'amber' | 'indigo') => {
+    const borderClass =
+      tone === 'amber'
+        ? 'border-amber-200 bg-amber-50/60 hover:bg-amber-100 text-amber-900'
+        : 'border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100 text-indigo-800';
+    return (
+      <div className="space-y-1.5">
+        {renderStagedAttachmentChips('review', reviewAttachments)}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => reviewFileInputRef.current?.click()}
+            disabled={
+              isProcessing ||
+              reviewAttachments.length >= BRANCH_COMMENT_ATTACHMENT_MAX_COUNT
+            }
+            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-[11px] font-bold disabled:opacity-50 transition-colors ${borderClass}`}
+          >
+            <Paperclip size={12} />
+            <span>
+              + แนบไฟล์ประกอบ
+              {reviewAttachments.length > 0
+                ? ` (${reviewAttachments.length}/${BRANCH_COMMENT_ATTACHMENT_MAX_COUNT})`
+                : ''}
+            </span>
+          </button>
+          <span className="text-[10px] text-slate-400">
+            JPG, PNG, PDF • วางรูป Ctrl+V / ลากวางในช่องข้อความได้
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/65 backdrop-blur-xs p-3 sm:p-5 overflow-y-auto">
@@ -965,18 +1215,119 @@ export default function BranchContentDetailModal({
 
           {/* TAB 2: REVIEW, FEEDBACK & APPROVAL WORKSPACE — Symmetrical Equal-Height Columns */}
           {activeTab === 'review' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            <div className="space-y-4">
+              {/* Compact Media & Caption Quick-Look Strip (Aligned flush with 2-col cards below) */}
+              {(item.media.length > 0 || item.caption) && (
+                <div className="min-h-[52px] bg-slate-50/80 border border-slate-200 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    {item.media.length > 0 && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {item.media.slice(0, 3).map((m, idx) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedMediaIdx(idx);
+                              setActiveTab('overview');
+                            }}
+                            title={`เปิดดูสื่อ: ${m.fileName}`}
+                            className="w-9 h-9 rounded-lg overflow-hidden border border-slate-200 bg-slate-900 text-white flex items-center justify-center hover:ring-2 hover:ring-red-400 transition-all shrink-0"
+                          >
+                            {m.fileType === 'VIDEO' || m.mimeType?.startsWith('video/') ? (
+                              <Video size={14} />
+                            ) : (
+                              <img
+                                src={m.thumbnailUrl || m.fileUrl}
+                                alt={m.fileName}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </button>
+                        ))}
+                        {item.media.length > 3 && (
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab('overview')}
+                            className="px-1.5 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700"
+                          >
+                            +{item.media.length - 3}
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[11px] font-bold text-slate-800 flex items-center gap-1.5">
+                        <span>สื่อ V{item.currentVersion} ({item.media.length} ไฟล์)</span>
+                        {item.caption && (
+                          <span className="text-slate-400 font-normal hidden sm:inline">•</span>
+                        )}
+                      </div>
+                      {item.caption && (
+                        <p className="text-[11px] text-slate-500 truncate">{item.caption}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {item.caption && (
+                      <button
+                        type="button"
+                        onClick={handleCopyCaption}
+                        className="inline-flex items-center gap-1 px-2.5 h-7 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold transition-colors"
+                      >
+                        <Copy size={11} /> คัดลอก Caption
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('overview')}
+                      className="inline-flex items-center gap-1 px-2.5 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold transition-colors"
+                    >
+                      <Eye size={11} /> ดูสื่อ/รายละเอียด
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
               {/* Left 6 Cols: Unified Status & Workflow Action Card */}
               <div className="lg:col-span-6 h-full flex flex-col bg-slate-50/80 rounded-2xl p-4 border border-slate-200 gap-3">
+                {/* Shared hidden input for Step 2 / Step 3 review attachments */}
+                {(showBranchMgrReview || showHqReview) && (
+                  <input
+                    ref={reviewFileInputRef}
+                    type="file"
+                    multiple
+                    accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                    onChange={e => handleFileInputSelect('review', e)}
+                    className="hidden"
+                  />
+                )}
+
                 {/* Header Row (min-h-[28px] matches Right Comment Header) */}
                 <div className="min-h-[28px] flex items-center justify-between gap-2">
                   <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
                     <ShieldCheck size={16} className="text-red-600 shrink-0" />
                     <span>สถานะการตรวจและอนุมัติปัจจุบัน</span>
                   </h4>
-                  <span className="inline-flex items-center px-2.5 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-[11px] shrink-0">
-                    Version {item.currentVersion}
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {revertPlan && (
+                      <button
+                        type="button"
+                        disabled={isProcessing}
+                        onClick={handleRevertStage}
+                        title={revertPlan.label}
+                        className="inline-flex items-center gap-1 px-2.5 h-6 rounded-lg bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-[11px] transition-colors disabled:opacity-50"
+                      >
+                        <RotateCcw size={11} />
+                        <span>ย้อนสถานะ</span>
+                      </button>
+                    )}
+                    <span className="inline-flex items-center px-2.5 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-[11px] shrink-0">
+                      Version {item.currentVersion}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Row 1: Symmetrical 2-Column Reviewer & Approver Summary (min-h-[60px] matches Right Composer Bar) */}
@@ -1102,7 +1453,19 @@ export default function BranchContentDetailModal({
 
                   {/* Step 2: Branch Manager Review Workspace (Pending Review -> Forward to Marketing) */}
                   {showBranchMgrReview && (
-                    <div className="flex-1 p-3.5 rounded-xl bg-white border border-amber-200 flex flex-col justify-between gap-2.5">
+                    <div
+                      onDragOver={e => {
+                        e.preventDefault();
+                        setIsDragOverTarget('review');
+                      }}
+                      onDragLeave={() => setIsDragOverTarget(prev => (prev === 'review' ? null : prev))}
+                      onDrop={e => handleDropFilesToTarget('review', e)}
+                      className={`flex-1 p-3.5 rounded-xl bg-white border flex flex-col justify-between gap-2.5 transition-all ${
+                        isDragOverTarget === 'review'
+                          ? 'border-amber-500 ring-2 ring-amber-200'
+                          : 'border-amber-200'
+                      }`}
+                    >
                       <div className="space-y-1">
                         <div className="flex items-center justify-between flex-wrap gap-1">
                           <h4 className="font-extrabold text-amber-950 text-xs sm:text-sm flex items-center gap-1.5">
@@ -1124,16 +1487,19 @@ export default function BranchContentDetailModal({
                         rows={2}
                         value={reviewFeedbackInput}
                         onChange={e => setReviewFeedbackInput(e.target.value)}
-                        placeholder="ความเห็นจากผู้จัดการสาขา (ระบุสิ่งที่ต้องแก้หากส่งกลับ หรือหมายเหตุถึงทีมการตลาด)..."
+                        onPaste={e => handlePasteFilesToTarget('review', e)}
+                        placeholder="ความเห็นจากผู้จัดการสาขา (ระบุสิ่งที่ต้องแก้หากส่งกลับ หรือวางรูปด้วย Ctrl+V)..."
                         className="w-full px-3 py-2 bg-slate-50/70 border border-amber-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
+
+                      {renderReviewAttachmentToolbar('amber')}
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         <button
                           type="button"
-                          disabled={isProcessing}
+                          disabled={isProcessing || isReviewAttachmentUploading}
                           onClick={() => handleBranchManagerAction('REQUEST_REVISION')}
-                          className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all"
+                          className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
                         >
                           <RotateCcw size={14} />
                           ส่งกลับให้สาขาแก้ไข (Revise)
@@ -1141,9 +1507,9 @@ export default function BranchContentDetailModal({
 
                         <button
                           type="button"
-                          disabled={isProcessing}
+                          disabled={isProcessing || isReviewAttachmentUploading}
                           onClick={() => handleBranchManagerAction('APPROVE_TO_MARKETING')}
-                          className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-purple-600/20 transition-all"
+                          className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-purple-600/20 transition-all disabled:opacity-50"
                         >
                           <CheckCircle2 size={14} />
                           ส่งต่อการตลาด
@@ -1154,7 +1520,19 @@ export default function BranchContentDetailModal({
 
                   {/* Step 3: HQ Marketing Reviewer & Marketing Manager Workspace */}
                   {showHqReview && permissions && (
-                    <div className="flex-1 p-3.5 rounded-xl bg-white border border-indigo-200 flex flex-col justify-between gap-2.5">
+                    <div
+                      onDragOver={e => {
+                        e.preventDefault();
+                        setIsDragOverTarget('review');
+                      }}
+                      onDragLeave={() => setIsDragOverTarget(prev => (prev === 'review' ? null : prev))}
+                      onDrop={e => handleDropFilesToTarget('review', e)}
+                      className={`flex-1 p-3.5 rounded-xl bg-white border flex flex-col justify-between gap-2.5 transition-all ${
+                        isDragOverTarget === 'review'
+                          ? 'border-indigo-500 ring-2 ring-indigo-200'
+                          : 'border-indigo-200'
+                      }`}
+                    >
                       <div className="flex items-center justify-between flex-wrap gap-1">
                         <h4 className="font-extrabold text-indigo-950 text-xs sm:text-sm flex items-center gap-1.5">
                           <Sparkles size={15} className="text-indigo-600 shrink-0" />
@@ -1217,9 +1595,12 @@ export default function BranchContentDetailModal({
                         rows={3}
                         value={reviewFeedbackInput}
                         onChange={e => setReviewFeedbackInput(e.target.value)}
-                        placeholder="พิมพ์ Feedback จุดที่ต้องให้สาขาแก้ไข หรือหมายเหตุประกอบการเสนอขออนุมัติ/การอนุมัติ..."
+                        onPaste={e => handlePasteFilesToTarget('review', e)}
+                        placeholder="พิมพ์ Feedback จุดที่ต้องให้สาขาแก้ไข หรือวางรูป/แคปหน้าจอด้วย Ctrl+V..."
                         className="w-full px-3.5 py-2.5 bg-slate-50/70 border border-indigo-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       />
+
+                      {renderReviewAttachmentToolbar('indigo')}
 
                       <div className="space-y-2">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -1227,9 +1608,9 @@ export default function BranchContentDetailModal({
                           {permissions.canRequestRevision && (
                             <button
                               type="button"
-                              disabled={isProcessing}
+                              disabled={isProcessing || isReviewAttachmentUploading}
                               onClick={() => handleReviewerAction('REQUEST_REVISION')}
-                              className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all"
+                              className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
                             >
                               <RotateCcw size={14} />
                               ส่งกลับให้สาขาแก้ไข (Revise)
@@ -1240,9 +1621,9 @@ export default function BranchContentDetailModal({
                           {permissions.canReview && !permissions.canApprove && (
                             <button
                               type="button"
-                              disabled={isProcessing}
+                              disabled={isProcessing || isReviewAttachmentUploading}
                               onClick={() => handleReviewerAction('ENDORSE_FOR_APPROVAL')}
-                              className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all"
+                              className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
                             >
                               <ShieldCheck size={14} />
                               Marketing ตรวจผ่าน • เสนออนุมัติ
@@ -1253,9 +1634,9 @@ export default function BranchContentDetailModal({
                           {permissions.canApprove && (
                             <button
                               type="button"
-                              disabled={isProcessing}
+                              disabled={isProcessing || isReviewAttachmentUploading}
                               onClick={handleApproverAction}
-                              className="h-10 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all"
+                              className="h-10 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50"
                             >
                               <CheckCircle2 size={15} />
                               อนุมัติให้เผยแพร่ (Final Approve)
@@ -1269,9 +1650,9 @@ export default function BranchContentDetailModal({
                           (item.status === 'APPROVE_1' || item.status === 'PENDING_REVIEW') && (
                             <button
                               type="button"
-                              disabled={isProcessing}
+                              disabled={isProcessing || isReviewAttachmentUploading}
                               onClick={() => handleReviewerAction('ENDORSE_FOR_APPROVAL')}
-                              className="w-full py-1.5 rounded-lg border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold text-[11px] transition-colors"
+                              className="w-full py-1.5 rounded-lg border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold text-[11px] transition-colors disabled:opacity-50"
                             >
                               หรือบันทึกสถานะเป็น &ldquo;Marketing ตรวจเนื้อหาผ่านแล้ว • รอผู้จัดการการตลาดอนุมัติ&rdquo;
                             </button>
@@ -1295,18 +1676,28 @@ export default function BranchContentDetailModal({
                   </span>
                 </div>
 
-                {/* Row 1: Unified Comment Composer Bar with CR-01B Attachments */}
+                {/* Row 1: Unified Comment Composer Bar with CR-01B Attachments + Ctrl+V & Drop */}
                 {permissions?.canComment ? (
                   <form
                     onSubmit={handleAddComment}
-                    className="bg-white p-2.5 rounded-xl border border-slate-200/90 space-y-2"
+                    onDragOver={e => {
+                      e.preventDefault();
+                      setIsDragOverTarget('comment');
+                    }}
+                    onDragLeave={() => setIsDragOverTarget(prev => (prev === 'comment' ? null : prev))}
+                    onDrop={e => handleDropFilesToTarget('comment', e)}
+                    className={`bg-white p-2.5 rounded-xl border space-y-2 transition-all ${
+                      isDragOverTarget === 'comment'
+                        ? 'border-red-400 ring-2 ring-red-200'
+                        : 'border-slate-200/90'
+                    }`}
                   >
                     <input
                       ref={commentFileInputRef}
                       type="file"
                       multiple
                       accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
-                      onChange={handleCommentFileSelect}
+                      onChange={e => handleFileInputSelect('comment', e)}
                       className="hidden"
                     />
 
@@ -1314,57 +1705,12 @@ export default function BranchContentDetailModal({
                       type="text"
                       value={commentInput}
                       onChange={e => setCommentInput(e.target.value)}
-                      placeholder={`แสดงความคิดเห็นเพิ่มเติมสำหรับ Version ${item.currentVersion}...`}
+                      onPaste={e => handlePasteFilesToTarget('comment', e)}
+                      placeholder={`แสดงความคิดเห็น Version ${item.currentVersion}... (หรือวางรูปด้วย Ctrl+V)`}
                       className="w-full h-10 px-3.5 bg-slate-50/70 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
                     />
 
-                    {commentAttachments.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {commentAttachments.map(att => (
-                          <div
-                            key={att.localId}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold max-w-full ${
-                              att.status === 'error'
-                                ? 'bg-red-50 border-red-200 text-red-700'
-                                : att.status === 'uploading'
-                                ? 'bg-slate-50 border-slate-200 text-slate-600'
-                                : 'bg-slate-50 border-slate-200 text-slate-800'
-                            }`}
-                          >
-                            {att.status === 'uploading' && (
-                              <Loader2 size={12} className="animate-spin text-red-600 shrink-0" />
-                            )}
-                            <span className="font-mono font-bold text-[10px] text-slate-500 shrink-0">
-                              {att.kindLabel}
-                            </span>
-                            <span className="truncate max-w-[165px]" title={att.fileName}>
-                              {att.fileName}
-                            </span>
-                            <span className="text-[10px] text-slate-400 shrink-0">
-                              ({formatAttachmentFileSize(att.fileSize)})
-                            </span>
-                            {att.status === 'error' && (
-                              <button
-                                type="button"
-                                onClick={() => void uploadSingleCommentFile(att.localId, att.file)}
-                                className="px-1.5 py-0.5 rounded bg-red-600 text-white text-[10px] font-bold hover:bg-red-700 shrink-0"
-                                title={att.errorMessage}
-                              >
-                                ลองใหม่
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveComposerAttachment(att.localId)}
-                              className="text-slate-400 hover:text-red-600 font-bold pl-0.5 shrink-0"
-                              aria-label={`ลบไฟล์ ${att.fileName}`}
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {renderStagedAttachmentChips('comment', commentAttachments)}
 
                     <div className="flex items-center justify-between gap-2 pt-0.5 flex-wrap">
                       <div className="flex items-center gap-2">
@@ -1388,7 +1734,7 @@ export default function BranchContentDetailModal({
                           )}
                         </button>
                         <span className="text-[10px] text-slate-400 hidden sm:inline">
-                          JPG, PNG, PDF • สูงสุด 4 MB/ไฟล์ (ไม่เกิน 5 ไฟล์)
+                          JPG, PNG, PDF • สูงสุด 4 MB • Ctrl+V / ลากวางได้
                         </span>
                       </div>
 
@@ -1540,6 +1886,7 @@ export default function BranchContentDetailModal({
                     })
                   )}
                 </div>
+              </div>
               </div>
             </div>
           )}

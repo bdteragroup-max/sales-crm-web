@@ -14,6 +14,7 @@ import {
   matchBranch,
 } from '@/app/lib/roleHelper';
 import {
+  getBranchContentRevertPlan,
   hasAllowedBranchAccess,
   type AssignedMarketingReviewerSummary,
   type BranchContentItem,
@@ -55,10 +56,123 @@ const REQUIRED_11_BRANCHES = [
   { id: 'NRT01', name: 'นครศรีธรรมราช', lat: 8.4304, lon: 99.9631 },
 ];
 
+type CachedHrEmployeeRecord = {
+  emp_id: string;
+  name: string;
+  nickname: string | null;
+  branch_id: string | null;
+  email: string | null;
+  departments: { name: string } | null;
+};
+
+type CachedHrEmployeesIndex = {
+  rows: CachedHrEmployeeRecord[];
+  byEmpId: Map<string, CachedHrEmployeeRecord>;
+  byEmail: Map<string, CachedHrEmployeeRecord>;
+  byCleanName: Map<string, CachedHrEmployeeRecord>;
+};
+
+const BRANCH_MASTER_CACHE_TTL_MS = 5 * 60 * 1000;
+const HR_EMPLOYEES_CACHE_TTL_MS = 2 * 60 * 1000;
+
 const globalForBranchContentSchema = globalThis as unknown as {
   __branchContentSchemaReady?: boolean;
   __branchContentSchemaPromise?: Promise<void> | null;
+  __branchMasterCache?: { data: BranchMasterItem[]; expiresAt: number } | null;
+  __branchMasterPromise?: Promise<BranchMasterItem[]> | null;
+  __hrEmployeesCache?: { data: CachedHrEmployeesIndex; expiresAt: number } | null;
+  __hrEmployeesPromise?: Promise<CachedHrEmployeesIndex> | null;
 };
+
+function cleanPersonTitlePrefix(n?: string | null): string {
+  return (n || '').replace(/^(นาย|นางสาว|นาง|คุณ|ดร\.)\s*/g, '').trim();
+}
+
+function indexHrEmployees(rows: CachedHrEmployeeRecord[]): CachedHrEmployeesIndex {
+  const byEmpId = new Map<string, CachedHrEmployeeRecord>();
+  const byEmail = new Map<string, CachedHrEmployeeRecord>();
+  const byCleanName = new Map<string, CachedHrEmployeeRecord>();
+
+  for (const h of rows) {
+    if (h.emp_id) {
+      byEmpId.set(h.emp_id.toUpperCase(), h);
+    }
+    if (h.email) {
+      byEmail.set(h.email.toLowerCase(), h);
+    }
+    const cleanName = cleanPersonTitlePrefix(h.name);
+    if (cleanName && !byCleanName.has(cleanName)) {
+      byCleanName.set(cleanName, h);
+    }
+  }
+
+  return { rows, byEmpId, byEmail, byCleanName };
+}
+
+function findMatchingHrEmployee(
+  hrIndex: CachedHrEmployeesIndex,
+  candidate: { employeeId?: string | null; email?: string | null; fullName?: string | null }
+): CachedHrEmployeeRecord | undefined {
+  if (candidate.employeeId) {
+    const byId = hrIndex.byEmpId.get(candidate.employeeId.toUpperCase());
+    if (byId) return byId;
+  }
+  if (candidate.email) {
+    const byEmail = hrIndex.byEmail.get(candidate.email.toLowerCase());
+    if (byEmail) return byEmail;
+  }
+  const cleanName = cleanPersonTitlePrefix(candidate.fullName);
+  if (cleanName) {
+    return hrIndex.byCleanName.get(cleanName);
+  }
+  return undefined;
+}
+
+/**
+ * Fetches and caches active HR employee records (single-flight + 2-minute TTL)
+ * so cross-database HR lookups do not stall repeated board/modal loads.
+ */
+async function getActiveHrEmployeesCached(): Promise<CachedHrEmployeesIndex> {
+  const now = Date.now();
+  const cached = globalForBranchContentSchema.__hrEmployeesCache;
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
+
+  if (globalForBranchContentSchema.__hrEmployeesPromise) {
+    return globalForBranchContentSchema.__hrEmployeesPromise;
+  }
+
+  const runLoad = async (): Promise<CachedHrEmployeesIndex> => {
+    try {
+      const rows = await teraDb.employees.findMany({
+        where: { is_active: true },
+        select: {
+          emp_id: true,
+          name: true,
+          nickname: true,
+          branch_id: true,
+          email: true,
+          departments: { select: { name: true } },
+        },
+      });
+      const indexed = indexHrEmployees(rows);
+      globalForBranchContentSchema.__hrEmployeesCache = {
+        data: indexed,
+        expiresAt: Date.now() + HR_EMPLOYEES_CACHE_TTL_MS,
+      };
+      return indexed;
+    } catch {
+      if (cached?.data) return cached.data;
+      return indexHrEmployees([]);
+    } finally {
+      globalForBranchContentSchema.__hrEmployeesPromise = null;
+    }
+  };
+
+  globalForBranchContentSchema.__hrEmployeesPromise = runLoad();
+  return globalForBranchContentSchema.__hrEmployeesPromise;
+}
 
 /**
  * Ensures database tables and the 11 required branches in Branch Master Data exist (single-flight across HMR/parallel requests).
@@ -305,50 +419,75 @@ async function ensureBranchContentSchema() {
  * Fetches the active regional branches from Master Data (excluding HQ / Warehouse).
  */
 export async function getBranchMasterData(): Promise<BranchMasterItem[]> {
-  await ensureBranchContentSchema();
+  const now = Date.now();
+  const cached = globalForBranchContentSchema.__branchMasterCache;
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
 
-  const rawBranches = await prisma.branches.findMany({
-    select: { id: true, name: true },
-    orderBy: { id: 'asc' },
-  });
+  if (globalForBranchContentSchema.__branchMasterPromise) {
+    return globalForBranchContentSchema.__branchMasterPromise;
+  }
 
-  // Filter out HQ / Warehouse / Chiangmai / Samutsakhon to keep strictly the 11 active regional branches
-  const excludedKeywords = [
-    'สำนักงานใหญ่',
-    'headquarter',
-    'hq',
-    'warehouse',
-    'wh62',
-    'bkk',
-    'เชียงใหม่',
-    'chiangmai',
-    'cmi',
-    'สมุทรสาคร',
-    'samutsakhon',
-    'smk',
-  ];
-  const activeBranches = rawBranches.filter(b => {
-    const lowerName = b.name.toLowerCase();
-    const lowerId = b.id.toLowerCase();
-    return !excludedKeywords.some(kw => lowerName.includes(kw) || lowerId.includes(kw));
-  });
+  const runFetch = async (): Promise<BranchMasterItem[]> => {
+    try {
+      await ensureBranchContentSchema();
 
-  // Sort following standard 11-branch priority first, then any additional dynamic branches from Master Data
-  const orderNames = REQUIRED_11_BRANCHES.map(b => b.name);
-  const sorted = activeBranches.sort((a, b) => {
-    const idxA = orderNames.findIndex(n => a.name.includes(n) || matchBranch(a.name, n));
-    const idxB = orderNames.findIndex(n => b.name.includes(n) || matchBranch(b.name, n));
-    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-    if (idxA !== -1) return -1;
-    if (idxB !== -1) return 1;
-    return a.name.localeCompare(b.name, 'th');
-  });
+      const rawBranches = await prisma.branches.findMany({
+        select: { id: true, name: true },
+        orderBy: { id: 'asc' },
+      });
 
-  return sorted.map(b => ({
-    id: b.id,
-    name: b.name.replace(/^สาขา\s*/, '').trim(),
-    code: b.id.toUpperCase(),
-  }));
+      // Filter out HQ / Warehouse / Chiangmai / Samutsakhon to keep strictly the 11 active regional branches
+      const excludedKeywords = [
+        'สำนักงานใหญ่',
+        'headquarter',
+        'hq',
+        'warehouse',
+        'wh62',
+        'bkk',
+        'เชียงใหม่',
+        'chiangmai',
+        'cmi',
+        'สมุทรสาคร',
+        'samutsakhon',
+        'smk',
+      ];
+      const activeBranches = rawBranches.filter(b => {
+        const lowerName = b.name.toLowerCase();
+        const lowerId = b.id.toLowerCase();
+        return !excludedKeywords.some(kw => lowerName.includes(kw) || lowerId.includes(kw));
+      });
+
+      // Sort following standard 11-branch priority first, then any additional dynamic branches from Master Data
+      const orderNames = REQUIRED_11_BRANCHES.map(b => b.name);
+      const sorted = activeBranches.sort((a, b) => {
+        const idxA = orderNames.findIndex(n => a.name.includes(n) || matchBranch(a.name, n));
+        const idxB = orderNames.findIndex(n => b.name.includes(n) || matchBranch(b.name, n));
+        if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+        if (idxA !== -1) return -1;
+        if (idxB !== -1) return 1;
+        return a.name.localeCompare(b.name, 'th');
+      });
+
+      const result = sorted.map(b => ({
+        id: b.id,
+        name: b.name.replace(/^สาขา\s*/, '').trim(),
+        code: b.id.toUpperCase(),
+      }));
+
+      globalForBranchContentSchema.__branchMasterCache = {
+        data: result,
+        expiresAt: Date.now() + BRANCH_MASTER_CACHE_TTL_MS,
+      };
+      return result;
+    } finally {
+      globalForBranchContentSchema.__branchMasterPromise = null;
+    }
+  };
+
+  globalForBranchContentSchema.__branchMasterPromise = runFetch();
+  return globalForBranchContentSchema.__branchMasterPromise;
 }
 
 function isMarketingUserRecord(user: {
@@ -378,8 +517,7 @@ export async function resolveUserBranchPermissions(): Promise<{
 }> {
   await ensureBranchContentSchema();
 
-  const user = await getUser();
-  const branches = await getBranchMasterData();
+  const [user, branches] = await Promise.all([getUser(), getBranchMasterData()]);
 
   if (!user) {
     return { user: null, permissions: null, branches };
@@ -435,28 +573,35 @@ export async function resolveUserBranchPermissions(): Promise<{
   let matchedBranch: BranchMasterItem | undefined = findMatchingBranch(rawUserBranch);
   let effectiveEmpId: string | null = user.employeeId || null;
 
-  // 1. Check HR database (`teraDb.employees`) if primary branch or employeeId isn't matched yet
-  if (!matchedBranch || !effectiveEmpId) {
+  // 1. Check HR database (`teraDb.employees`) only when primary branch (for branch-scoped users) or employeeId is missing.
+  // Skip this slow cross-DB lookup for HQ Marketing / Admin users who already have full visibility & employeeId.
+  const canViewAllEarly = sysAdmin || mktManager || readOnlyExec || isMarketingStaff(role);
+  if ((!matchedBranch && !canViewAllEarly) || !effectiveEmpId) {
     try {
-      const cleanFullName = (user.fullName || '')
-        .replace(/^(นาย|นางสาว|นาง|คุณ|ดร\.)\s*/g, '')
-        .trim();
+      const warmHr = globalForBranchContentSchema.__hrEmployeesCache;
+      const warmMatch =
+        warmHr && warmHr.expiresAt > Date.now()
+          ? findMatchingHrEmployee(warmHr.data, user)
+          : undefined;
 
-      const hrEmp = await teraDb.employees
-        .findFirst({
-          where: {
-            OR: [
-              ...(user.employeeId ? [{ emp_id: user.employeeId }] : []),
-              ...(user.email ? [{ email: user.email }] : []),
-              ...(cleanFullName ? [{ name: { contains: cleanFullName } }] : []),
-            ],
-          },
-          select: {
-            emp_id: true,
-            branch_id: true,
-          },
-        })
-        .catch(() => null);
+      const cleanFullName = cleanPersonTitlePrefix(user.fullName);
+      const hrEmp =
+        warmMatch ||
+        (await teraDb.employees
+          .findFirst({
+            where: {
+              OR: [
+                ...(user.employeeId ? [{ emp_id: user.employeeId }] : []),
+                ...(user.email ? [{ email: user.email }] : []),
+                ...(cleanFullName ? [{ name: { contains: cleanFullName } }] : []),
+              ],
+            },
+            select: {
+              emp_id: true,
+              branch_id: true,
+            },
+          })
+          .catch(() => null));
 
       if (hrEmp) {
         if (!effectiveEmpId && hrEmp.emp_id) {
@@ -1007,6 +1152,7 @@ export async function getBranchContentBoardData() {
       staffOptions: [] as { id: string; name: string; branch: string | null }[],
       permissions: null,
       assignedReviewers: [] as AssignedMarketingReviewerSummary[],
+      reviewerAssignments: [] as BranchContentReviewerAssignment[],
       kpi: computeBranchContentKPI([], branches),
     };
   }
@@ -1026,11 +1172,29 @@ export async function getBranchContentBoardData() {
           }
         : undefined;
 
-    const rawContents = await prisma.branchContent.findMany({
-      where: branchWhereClause,
-      include: BRANCH_CONTENT_DETAIL_INCLUDE,
-      orderBy: [{ updatedAt: 'desc' }],
-    });
+    // Fetch branch contents, active CRM users, and cached HR employees in parallel
+    const [rawContents, usersWithBranch, hrIndex] = await Promise.all([
+      prisma.branchContent.findMany({
+        where: branchWhereClause,
+        include: BRANCH_CONTENT_DETAIL_INCLUDE,
+        orderBy: [{ updatedAt: 'desc' }],
+      }),
+      prisma.user.findMany({
+        where: { isActive: true },
+        select: {
+          id: true,
+          employeeId: true,
+          fullName: true,
+          email: true,
+          role: true,
+          position: true,
+          employeeSale: { select: { branch: true, department: true, nickname: true } },
+          branchContentReviewerPerm: true,
+        },
+        orderBy: { fullName: 'asc' },
+      }),
+      getActiveHrEmployeesCached(),
+    ]);
 
     // Strict Backend Access Control:
     // If user is NOT Marketing/Admin, filter strictly to their primary + granted branches!
@@ -1042,36 +1206,6 @@ export async function getBranchContentBoardData() {
 
     const serialized = authorizedContents.map(serializeContentItem);
 
-    // Fetch active staff for assignee selector (combining CRM Users + HR Employees for accurate branch & nickname)
-    const [usersWithBranch, hrEmployees] = await Promise.all([
-      prisma.user.findMany({
-        where: { isActive: true },
-        select: {
-          id: true,
-          employeeId: true,
-          fullName: true,
-          email: true,
-          employeeSale: { select: { branch: true } },
-        },
-        orderBy: { fullName: 'asc' },
-      }),
-      teraDb.employees
-        .findMany({
-          where: { is_active: true },
-          select: {
-            emp_id: true,
-            name: true,
-            nickname: true,
-            branch_id: true,
-            email: true,
-          },
-        })
-        .catch(() => []),
-    ]);
-
-    const cleanPersonName = (n?: string | null) =>
-      (n || '').replace(/^(นาย|นางสาว|นาง|คุณ|ดร\.)\s*/g, '').trim();
-
     const matchedEmpIds = new Set<string>();
     const staffOptions: {
       id: string;
@@ -1081,13 +1215,7 @@ export async function getBranchContentBoardData() {
     }[] = [];
 
     for (const u of usersWithBranch) {
-      const cleanedU = cleanPersonName(u.fullName);
-      const hrEmp = hrEmployees.find(
-        h =>
-          (u.employeeId && h.emp_id === u.employeeId) ||
-          (u.email && h.email && u.email.toLowerCase() === h.email.toLowerCase()) ||
-          (cleanedU && cleanPersonName(h.name) === cleanedU)
-      );
+      const hrEmp = findMatchingHrEmployee(hrIndex, u);
 
       if (hrEmp?.emp_id) matchedEmpIds.add(hrEmp.emp_id);
 
@@ -1102,7 +1230,7 @@ export async function getBranchContentBoardData() {
           )
         : undefined;
 
-      const nickname = hrEmp?.nickname?.trim() || null;
+      const nickname = hrEmp?.nickname?.trim() || u.employeeSale?.nickname?.trim() || null;
       const hasNickInName = nickname && u.fullName.includes(`(${nickname})`);
       const formattedName =
         nickname && !hasNickInName ? `${u.fullName} (${nickname})` : u.fullName;
@@ -1116,7 +1244,7 @@ export async function getBranchContentBoardData() {
     }
 
     // Also include active HR branch employees who may not have a separate CRM user row yet
-    for (const h of hrEmployees) {
+    for (const h of hrIndex.rows) {
       if (matchedEmpIds.has(h.emp_id)) continue;
       if (!h.branch_id) continue;
       const matchedB = branches.find(
@@ -1149,31 +1277,25 @@ export async function getBranchContentBoardData() {
 
     const kpi = computeBranchContentKPI(serialized, visibleBranches);
 
+    const reviewerAssignments = permissions.canManageReviewers
+      ? buildMarketingReviewerAssignments(usersWithBranch, hrIndex, branches)
+      : [];
+
     const assignedReviewers: AssignedMarketingReviewerSummary[] = permissions.canViewAllBranches
-      ? await prisma.branchContentReviewerPermission
-          .findMany({
-            where: { isActive: true },
-            include: {
-              user: {
-                select: { id: true, employeeId: true, fullName: true, role: true, isActive: true },
-              },
-            },
-            orderBy: { updatedAt: 'desc' },
+      ? usersWithBranch
+          .filter(u => u.branchContentReviewerPerm?.isActive)
+          .map(u => {
+            const p = u.branchContentReviewerPerm!;
+            return {
+              userId: u.id,
+              employeeId: u.employeeId,
+              fullName: u.fullName,
+              role: u.role,
+              canReviewComment: p.canReviewComment,
+              canRequestRevision: p.canRequestRevision,
+              canApprove: p.canApprove,
+            };
           })
-          .then(rows =>
-            rows
-              .filter(r => r.user?.isActive)
-              .map(r => ({
-                userId: r.userId,
-                employeeId: r.user.employeeId,
-                fullName: r.user.fullName,
-                role: r.user.role,
-                canReviewComment: r.canReviewComment,
-                canRequestRevision: r.canRequestRevision,
-                canApprove: r.canApprove,
-              }))
-          )
-          .catch(() => [])
       : [];
 
     return {
@@ -1183,6 +1305,7 @@ export async function getBranchContentBoardData() {
       staffOptions,
       permissions,
       assignedReviewers,
+      reviewerAssignments,
       kpi,
     };
   } catch (error: any) {
@@ -1629,10 +1752,114 @@ export async function submitBranchContentForReview(contentId: string, submission
  * - 'APPROVE_TO_MARKETING': Moves card from PENDING_REVIEW -> APPROVE_1 (Approve - 1) so HQ Marketing can inspect.
  * - 'REQUEST_REVISION': Sends back to Branch Staff (status -> REVISE, increments revisionCount).
  */
+type VerifiedStagedAttachment = {
+  id: string;
+  storageBucket: string;
+  storagePath: string;
+  fileName: string;
+  fileType: 'IMAGE' | 'DOCUMENT';
+  mimeType: string;
+  fileSize: number;
+};
+
+/**
+ * Verifies signed staged upload tokens for a target Branch Content card & user.
+ */
+async function verifyStagedCommentAttachments(
+  stagedAttachments: StagedCommentAttachmentPayload[],
+  contentId: string,
+  userId: string
+): Promise<{ ok: true; verified: VerifiedStagedAttachment[] } | { ok: false; error: string }> {
+  const rawAttachments = Array.isArray(stagedAttachments) ? stagedAttachments : [];
+  if (rawAttachments.length > BRANCH_COMMENT_ATTACHMENT_MAX_COUNT) {
+    return {
+      ok: false,
+      error: `แนบไฟล์ได้สูงสุด ${BRANCH_COMMENT_ATTACHMENT_MAX_COUNT} ไฟล์ต่อ 1 ความคิดเห็น`,
+    };
+  }
+
+  const verified: VerifiedStagedAttachment[] = [];
+  for (const att of rawAttachments) {
+    const check = await verifyCommentAttachmentToken(att?.token, {
+      contentId,
+      userId,
+    });
+    if (!check) {
+      return {
+        ok: false,
+        error: `ไฟล์แนบ "${att?.fileName || 'attachment'}" ไม่ผ่านการตรวจสอบสิทธิ์หรือหมดอายุ กรุณาลบออกแล้วอัปโหลดใหม่`,
+      };
+    }
+    verified.push({
+      id: crypto.randomUUID(),
+      ...check,
+    });
+  }
+
+  return { ok: true, verified };
+}
+
+/**
+ * Inserts a comment row plus all verified attachment rows inside the active Prisma transaction.
+ */
+async function createCommentWithAttachmentsTx(
+  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+  params: {
+    contentId: string;
+    userId: string;
+    userName: string;
+    userRole: string;
+    version: number;
+    commentType: string;
+    message: string;
+    verifiedAttachments: VerifiedStagedAttachment[];
+  }
+) {
+  const comment = await tx.branchContentComment.create({
+    data: {
+      contentId: params.contentId,
+      userId: params.userId,
+      userName: params.userName,
+      userRole: params.userRole,
+      version: params.version,
+      commentType: params.commentType,
+      message: params.message,
+    },
+  });
+
+  if (params.verifiedAttachments.length > 0) {
+    await tx.branchContentCommentAttachment.createMany({
+      data: params.verifiedAttachments.map(att => ({
+        id: att.id,
+        commentId: comment.id,
+        contentId: params.contentId,
+        version: params.version,
+        fileType: att.fileType,
+        fileName: att.fileName,
+        storageBucket: att.storageBucket,
+        storagePath: att.storagePath,
+        fileUrl: `/api/marketing/branch-content/comments/attachments/${att.id}`,
+        fileSize: att.fileSize,
+        mimeType: att.mimeType,
+        uploadedById: params.userId,
+        uploadedByName: params.userName,
+      })),
+    });
+  }
+
+  return comment;
+}
+
+/**
+ * Step 1.5 Review: Branch Manager screens content submitted by branch staff at PENDING_REVIEW.
+ * - 'APPROVE_TO_MARKETING': Approve - 1 (status -> APPROVE_1, waiting for HQ Marketing Team).
+ * - 'REQUEST_REVISION': Sends back to Branch Staff (status -> REVISE, increments revisionCount).
+ */
 export async function branchReviewContent(
   contentId: string,
   action: 'APPROVE_TO_MARKETING' | 'REQUEST_REVISION',
-  feedback?: string
+  feedback?: string,
+  stagedAttachments: StagedCommentAttachmentPayload[] = []
 ) {
   await ensureBranchContentSchema();
 
@@ -1672,57 +1899,71 @@ export async function branchReviewContent(
     }
   }
 
+  const attCheck = await verifyStagedCommentAttachments(stagedAttachments, contentId, user.id);
+  if (!attCheck.ok) {
+    return { success: false, error: attCheck.error };
+  }
+
   try {
     const isRevise = action === 'REQUEST_REVISION';
     const nextStatus: BranchContentStatus = isRevise ? 'REVISE' : 'APPROVE_1';
     const nextSubStatus = isRevise ? null : 'WAITING_MARKETING_REVIEWER';
+    const commentMessage = isRevise
+      ? `[ผจก.สาขา ส่งกลับแก้ไข] ${feedback?.trim()}`
+      : `[ผจก.สาขา ส่งต่อการตลาด] ${
+          feedback?.trim() || 'ตรวจสอบเนื้อหาภายในสาขาเรียบร้อยแล้ว ไม่มีแก้ไขเพิ่มเติม ส่งต่อให้ทีมการตลาดตรวจสอบ'
+        }`;
 
-    const updated = await prisma.branchContent.update({
+    await prisma.$transaction(async tx => {
+      await tx.branchContent.update({
+        where: { id: contentId },
+        data: {
+          status: nextStatus,
+          reviewSubStatus: nextSubStatus,
+          revisionCount: isRevise ? existing.revisionCount + 1 : existing.revisionCount,
+          reviewFeedback: isRevise
+            ? `[ผจก.สาขา ส่งแก้ไข] ${feedback?.trim()}`
+            : feedback?.trim()
+            ? `[ผจก.สาขา ส่งต่อการตลาด] ${feedback.trim()}`
+            : existing.reviewFeedback,
+          logs: {
+            create: {
+              userId: user.id,
+              userName: permissions.userName,
+              userRole: permissions.roleLabel,
+              action: isRevise ? 'BRANCH_REQUEST_REVISION' : 'BRANCH_APPROVED_TO_APPROVE_1',
+              fromStatus: existing.status,
+              toStatus: nextStatus,
+              version: existing.currentVersion,
+              details: isRevise
+                ? `ผู้จัดการสาขาส่งกลับให้แก้ไข (รอบที่ ${existing.revisionCount + 1}): ${feedback?.trim()}`
+                : `ผู้จัดการสาขาตรวจผ่านแล้ว ส่งต่อการตลาดเพื่อตรวจสอบ${
+                    feedback?.trim() ? ` (${feedback.trim()})` : ''
+                  }`,
+            },
+          },
+        },
+      });
+
+      await createCommentWithAttachmentsTx(tx, {
+        contentId,
+        userId: user.id,
+        userName: permissions.userName,
+        userRole: permissions.roleLabel,
+        version: existing.currentVersion,
+        commentType: isRevise ? 'REVISION_REQUEST' : 'BRANCH_APPROVAL',
+        message: commentMessage,
+        verifiedAttachments: attCheck.verified,
+      });
+    });
+
+    const updated = await prisma.branchContent.findUnique({
       where: { id: contentId },
-      data: {
-        status: nextStatus,
-        reviewSubStatus: nextSubStatus,
-        revisionCount: isRevise ? existing.revisionCount + 1 : existing.revisionCount,
-        reviewFeedback: isRevise
-          ? `[ผจก.สาขา ส่งแก้ไข] ${feedback?.trim()}`
-          : feedback?.trim()
-          ? `[ผจก.สาขา ส่งต่อการตลาด] ${feedback.trim()}`
-          : existing.reviewFeedback,
-        comments: {
-          create: {
-            userId: user.id,
-            userName: permissions.userName,
-            userRole: permissions.roleLabel,
-            version: existing.currentVersion,
-            commentType: isRevise ? 'REVISION_REQUEST' : 'BRANCH_APPROVAL',
-            message: isRevise
-              ? `[ผจก.สาขา ส่งกลับแก้ไข] ${feedback?.trim()}`
-              : `[ผจก.สาขา ส่งต่อการตลาด] ${
-                  feedback?.trim() || 'ตรวจสอบเนื้อหาภายในสาขาเรียบร้อยแล้ว ไม่มีแก้ไขเพิ่มเติม ส่งต่อให้ทีมการตลาดตรวจสอบ'
-                }`,
-          },
-        },
-        logs: {
-          create: {
-            userId: user.id,
-            userName: permissions.userName,
-            userRole: permissions.roleLabel,
-            action: isRevise ? 'BRANCH_REQUEST_REVISION' : 'BRANCH_APPROVED_TO_APPROVE_1',
-            fromStatus: existing.status,
-            toStatus: nextStatus,
-            version: existing.currentVersion,
-            details: isRevise
-              ? `ผู้จัดการสาขาส่งกลับให้แก้ไข (รอบที่ ${existing.revisionCount + 1}): ${feedback?.trim()}`
-              : `ผู้จัดการสาขาตรวจผ่านแล้ว ส่งต่อการตลาดเพื่อตรวจสอบ${
-                  feedback?.trim() ? ` (${feedback.trim()})` : ''
-                }`,
-          },
-        },
-      },
       include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
+    revalidatePath('/marketing-board/branch-content');
     return { success: true, data: serializeContentItem(updated) };
   } catch (error: any) {
     console.error('[BranchContent] branchReviewContent error:', error);
@@ -1738,7 +1979,8 @@ export async function branchReviewContent(
 export async function reviewBranchContent(
   contentId: string,
   action: 'REQUEST_REVISION' | 'ENDORSE_FOR_APPROVAL',
-  feedback: string
+  feedback: string,
+  stagedAttachments: StagedCommentAttachmentPayload[] = []
 ) {
   await ensureBranchContentSchema();
 
@@ -1787,52 +2029,66 @@ export async function reviewBranchContent(
     }
   }
 
+  const attCheck = await verifyStagedCommentAttachments(stagedAttachments, contentId, user.id);
+  if (!attCheck.ok) {
+    return { success: false, error: attCheck.error };
+  }
+
   try {
     const isRevise = action === 'REQUEST_REVISION';
     const nextStatus: BranchContentStatus = isRevise ? 'REVISE' : 'APPROVE_1';
     const nextSubStatus = isRevise ? null : 'ENDORSED_FOR_MARKETING_MANAGER';
+    const commentMessage =
+      feedback?.trim() ||
+      'ตรวจสอบเนื้อหาและสื่อในขั้น Approve - 1 เรียบร้อยแล้ว เสนอให้ผู้จัดการการตลาดพิจารณาอนุมัติขั้นสุดท้าย';
 
-    const updated = await prisma.branchContent.update({
+    await prisma.$transaction(async tx => {
+      await tx.branchContent.update({
+        where: { id: contentId },
+        data: {
+          status: nextStatus,
+          reviewSubStatus: nextSubStatus,
+          revisionCount: isRevise ? existing.revisionCount + 1 : existing.revisionCount,
+          reviewerId: user.id,
+          reviewerName: permissions.userName,
+          reviewedAt: new Date(),
+          reviewFeedback: feedback?.trim() || (isRevise ? '' : 'Marketing ตรวจสอบเนื้อหาที่ Approve - 1 ผ่านแล้ว เสนอผู้จัดการการตลาดอนุมัติ'),
+          logs: {
+            create: {
+              userId: user.id,
+              userName: permissions.userName,
+              userRole: permissions.roleLabel,
+              action: isRevise ? 'MARKETING_REQUEST_REVISION' : 'ENDORSED_FOR_MARKETING_MANAGER',
+              fromStatus: existing.status,
+              toStatus: nextStatus,
+              version: existing.currentVersion,
+              details: isRevise
+                ? `ฝ่ายการตลาดส่งกลับแก้ไข (รอบที่ ${existing.revisionCount + 1}): ${feedback.trim()}`
+                : `Marketing ตรวจผ่านในขั้น Approve - 1 และเสนอให้ผู้จัดการการตลาดอนุมัติ${feedback ? ` (${feedback.trim()})` : ''}`,
+            },
+          },
+        },
+      });
+
+      await createCommentWithAttachmentsTx(tx, {
+        contentId,
+        userId: user.id,
+        userName: permissions.userName,
+        userRole: permissions.roleLabel,
+        version: existing.currentVersion,
+        commentType: isRevise ? 'REVISION_REQUEST' : 'ENDORSEMENT',
+        message: commentMessage,
+        verifiedAttachments: attCheck.verified,
+      });
+    });
+
+    const updated = await prisma.branchContent.findUnique({
       where: { id: contentId },
-      data: {
-        status: nextStatus,
-        reviewSubStatus: nextSubStatus,
-        revisionCount: isRevise ? existing.revisionCount + 1 : existing.revisionCount,
-        reviewerId: user.id,
-        reviewerName: permissions.userName,
-        reviewedAt: new Date(),
-        reviewFeedback: feedback?.trim() || (isRevise ? '' : 'Marketing ตรวจสอบเนื้อหาที่ Approve - 1 ผ่านแล้ว เสนอผู้จัดการการตลาดอนุมัติ'),
-        comments: {
-          create: {
-            userId: user.id,
-            userName: permissions.userName,
-            userRole: permissions.roleLabel,
-            version: existing.currentVersion,
-            commentType: isRevise ? 'REVISION_REQUEST' : 'ENDORSEMENT',
-            message:
-              feedback?.trim() ||
-              'ตรวจสอบเนื้อหาและสื่อในขั้น Approve - 1 เรียบร้อยแล้ว เสนอให้ผู้จัดการการตลาดพิจารณาอนุมัติขั้นสุดท้าย',
-          },
-        },
-        logs: {
-          create: {
-            userId: user.id,
-            userName: permissions.userName,
-            userRole: permissions.roleLabel,
-            action: isRevise ? 'MARKETING_REQUEST_REVISION' : 'ENDORSED_FOR_MARKETING_MANAGER',
-            fromStatus: existing.status,
-            toStatus: nextStatus,
-            version: existing.currentVersion,
-            details: isRevise
-              ? `ฝ่ายการตลาดส่งกลับแก้ไข (รอบที่ ${existing.revisionCount + 1}): ${feedback.trim()}`
-              : `Marketing ตรวจผ่านในขั้น Approve - 1 และเสนอให้ผู้จัดการการตลาดอนุมัติ${feedback ? ` (${feedback.trim()})` : ''}`,
-          },
-        },
-      },
       include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
+    revalidatePath('/marketing-board/branch-content');
     return { success: true, data: serializeContentItem(updated) };
   } catch (error: any) {
     console.error('[BranchContent] reviewBranchContent error:', error);
@@ -1843,7 +2099,11 @@ export async function reviewBranchContent(
 /**
  * Marketing Approver (Marketing Manager / Superadmin) approves content for publishing.
  */
-export async function approveBranchContent(contentId: string, approvalNote?: string) {
+export async function approveBranchContent(
+  contentId: string,
+  approvalNote?: string,
+  stagedAttachments: StagedCommentAttachmentPayload[] = []
+) {
   await ensureBranchContentSchema();
 
   const { user, permissions } = await resolveUserBranchPermissions();
@@ -1877,50 +2137,66 @@ export async function approveBranchContent(contentId: string, approvalNote?: str
     }
   }
 
+  const attCheck = await verifyStagedCommentAttachments(stagedAttachments, contentId, user.id);
+  if (!attCheck.ok) {
+    return { success: false, error: attCheck.error };
+  }
+
   try {
-    const updated = await prisma.branchContent.update({
-      where: { id: contentId },
-      data: {
-        status: 'APPROVED',
-        reviewSubStatus: 'APPROVED',
-        approvedById: user.id,
-        approvedByName: permissions.userName,
-        approvedAt: new Date(),
-        approvalNote: approvalNote?.trim() || 'อนุมัติให้เผยแพร่ได้',
-        reviewerId: existing.reviewerId || user.id,
-        reviewerName: existing.reviewerName || permissions.userName,
-        reviewedAt: existing.reviewedAt || new Date(),
-        comments: approvalNote?.trim()
-          ? {
-              create: {
-                userId: user.id,
-                userName: permissions.userName,
-                userRole: permissions.roleLabel,
-                version: existing.currentVersion,
-                commentType: 'APPROVAL_NOTE',
-                message: `[อนุมัติเผยแพร่] ${approvalNote.trim()}`,
-              },
-            }
-          : undefined,
-        logs: {
-          create: {
-            userId: user.id,
-            userName: permissions.userName,
-            userRole: permissions.roleLabel,
-            action: 'APPROVED',
-            fromStatus: existing.status,
-            toStatus: 'APPROVED',
-            version: existing.currentVersion,
-            details: `อนุมัติคอนเทนต์อย่างเป็นทางการโดย ${permissions.userName} (V${existing.currentVersion})${
-              approvalNote ? `: ${approvalNote.trim()}` : ''
-            }`,
+    const trimmedNote = (approvalNote || '').trim();
+    const shouldCreateComment = Boolean(trimmedNote || attCheck.verified.length > 0);
+
+    await prisma.$transaction(async tx => {
+      await tx.branchContent.update({
+        where: { id: contentId },
+        data: {
+          status: 'APPROVED',
+          reviewSubStatus: 'APPROVED',
+          approvedById: user.id,
+          approvedByName: permissions.userName,
+          approvedAt: new Date(),
+          approvalNote: trimmedNote || 'อนุมัติให้เผยแพร่ได้',
+          reviewerId: existing.reviewerId || user.id,
+          reviewerName: existing.reviewerName || permissions.userName,
+          reviewedAt: existing.reviewedAt || new Date(),
+          logs: {
+            create: {
+              userId: user.id,
+              userName: permissions.userName,
+              userRole: permissions.roleLabel,
+              action: 'APPROVED',
+              fromStatus: existing.status,
+              toStatus: 'APPROVED',
+              version: existing.currentVersion,
+              details: `อนุมัติคอนเทนต์อย่างเป็นทางการโดย ${permissions.userName} (V${existing.currentVersion})${
+                trimmedNote ? `: ${trimmedNote}` : ''
+              }`,
+            },
           },
         },
-      },
+      });
+
+      if (shouldCreateComment) {
+        await createCommentWithAttachmentsTx(tx, {
+          contentId,
+          userId: user.id,
+          userName: permissions.userName,
+          userRole: permissions.roleLabel,
+          version: existing.currentVersion,
+          commentType: 'APPROVAL_NOTE',
+          message: trimmedNote ? `[อนุมัติเผยแพร่] ${trimmedNote}` : '[อนุมัติเผยแพร่]',
+          verifiedAttachments: attCheck.verified,
+        });
+      }
+    });
+
+    const updated = await prisma.branchContent.findUnique({
+      where: { id: contentId },
       include: BRANCH_CONTENT_DETAIL_INCLUDE,
     });
 
     revalidatePath('/marketing-board');
+    revalidatePath('/marketing-board/branch-content');
     return { success: true, data: serializeContentItem(updated) };
   } catch (error: any) {
     console.error('[BranchContent] approveBranchContent error:', error);
@@ -2075,67 +2351,23 @@ export async function addBranchContentComment(
     }
   }
 
-  // Verify every uploaded attachment signature against this content card & user before committing
-  const verifiedAttachments: Array<{
-    id: string;
-    storageBucket: string;
-    storagePath: string;
-    fileName: string;
-    fileType: 'IMAGE' | 'DOCUMENT';
-    mimeType: string;
-    fileSize: number;
-  }> = [];
-
-  for (const att of rawAttachments) {
-    const verified = await verifyCommentAttachmentToken(att?.token, {
-      contentId,
-      userId: user.id,
-    });
-    if (!verified) {
-      return {
-        success: false,
-        error: `ไฟล์แนบ "${att?.fileName || 'attachment'}" ไม่ผ่านการตรวจสอบสิทธิ์หรือหมดอายุ กรุณาลบออกแล้วอัปโหลดใหม่`,
-      };
-    }
-    verifiedAttachments.push({
-      id: crypto.randomUUID(),
-      ...verified,
-    });
+  const attCheck = await verifyStagedCommentAttachments(stagedAttachments, contentId, user.id);
+  if (!attCheck.ok) {
+    return { success: false, error: attCheck.error };
   }
 
   try {
     await prisma.$transaction(async tx => {
-      const comment = await tx.branchContentComment.create({
-        data: {
-          contentId,
-          userId: user.id,
-          userName: permissions.userName,
-          userRole: permissions.roleLabel,
-          version: existing.currentVersion,
-          commentType: permissions.canReview ? 'FEEDBACK' : 'GENERAL',
-          message: trimmedMessage,
-        },
+      await createCommentWithAttachmentsTx(tx, {
+        contentId,
+        userId: user.id,
+        userName: permissions.userName,
+        userRole: permissions.roleLabel,
+        version: existing.currentVersion,
+        commentType: permissions.canReview ? 'FEEDBACK' : 'GENERAL',
+        message: trimmedMessage,
+        verifiedAttachments: attCheck.verified,
       });
-
-      if (verifiedAttachments.length > 0) {
-        await tx.branchContentCommentAttachment.createMany({
-          data: verifiedAttachments.map(att => ({
-            id: att.id,
-            commentId: comment.id,
-            contentId,
-            version: existing.currentVersion,
-            fileType: att.fileType,
-            fileName: att.fileName,
-            storageBucket: att.storageBucket,
-            storagePath: att.storagePath,
-            fileUrl: `/api/marketing/branch-content/comments/attachments/${att.id}`,
-            fileSize: att.fileSize,
-            mimeType: att.mimeType,
-            uploadedById: user.id,
-            uploadedByName: permissions.userName,
-          })),
-        });
-      }
     });
 
     const updated = await prisma.branchContent.findUnique({
@@ -2149,6 +2381,113 @@ export async function addBranchContentComment(
   } catch (error: any) {
     console.error('[BranchContent] addBranchContentComment error:', error);
     return { success: false, error: error?.message || 'ไม่สามารถบันทึกความคิดเห็นได้' };
+  }
+}
+
+/**
+ * Reverts a Branch Content card 1 workflow stage when a reviewer/approver clicked an action by mistake.
+ * Restricted strictly to Marketing Manager / Super Admin (`canManageReviewers`).
+ */
+export async function revertBranchContentStage(contentId: string, reason?: string) {
+  await ensureBranchContentSchema();
+
+  const { user, permissions } = await resolveUserBranchPermissions();
+  if (!user || !permissions) {
+    return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ' };
+  }
+
+  if (!permissions.canManageReviewers) {
+    return {
+      success: false,
+      error: '403 Forbidden: เฉพาะผู้จัดการการตลาด หรือผู้ดูแลระบบเท่านั้นที่สามารถย้อนสถานะงานได้',
+    };
+  }
+
+  const existing = await prisma.branchContent.findUnique({
+    where: { id: contentId },
+  });
+
+  if (!existing) {
+    return { success: false, error: 'ไม่พบข้อมูลคอนเทนต์นี้' };
+  }
+
+  const plan = getBranchContentRevertPlan(
+    existing.status as BranchContentStatus,
+    existing.reviewSubStatus
+  );
+
+  if (!plan) {
+    return {
+      success: false,
+      error: `สถานะ "${existing.status}" ไม่สามารถย้อนขั้นตอนได้`,
+    };
+  }
+
+  const trimmedReason = (reason || '').trim();
+  const detailText = `${plan.label} (ย้อนโดย ${permissions.userName})${
+    trimmedReason ? `: ${trimmedReason}` : ''
+  }`;
+
+  try {
+    const updated = await prisma.branchContent.update({
+      where: { id: contentId },
+      data: {
+        status: plan.toStatus,
+        reviewSubStatus: plan.toSubStatus,
+        revisionCount: plan.decrementRevision
+          ? Math.max(0, existing.revisionCount - 1)
+          : existing.revisionCount,
+        ...(plan.clearReview
+          ? {
+              reviewerId: null,
+              reviewerName: null,
+              reviewedAt: null,
+              reviewFeedback: null,
+            }
+          : {}),
+        ...(plan.clearApproval
+          ? {
+              approvedById: null,
+              approvedByName: null,
+              approvedAt: null,
+              approvalNote: null,
+            }
+          : {}),
+        comments: {
+          create: {
+            userId: user.id,
+            userName: permissions.userName,
+            userRole: permissions.roleLabel,
+            version: existing.currentVersion,
+            commentType: 'GENERAL',
+            message: `[ย้อนสถานะ] ${detailText}`,
+          },
+        },
+        logs: {
+          create: {
+            userId: user.id,
+            userName: permissions.userName,
+            userRole: permissions.roleLabel,
+            action: 'STAGE_REVERTED',
+            fromStatus: existing.status,
+            toStatus: plan.toStatus,
+            version: existing.currentVersion,
+            details: detailText,
+          },
+        },
+      },
+      include: BRANCH_CONTENT_DETAIL_INCLUDE,
+    });
+
+    revalidatePath('/marketing-board');
+    revalidatePath('/marketing-board/branch-content');
+    return { success: true, data: serializeContentItem(updated) };
+  } catch (error: unknown) {
+    console.error('[BranchContent] revertBranchContentStage error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'ไม่สามารถย้อนสถานะงานได้',
+    };
   }
 }
 
@@ -2446,67 +2785,37 @@ export async function moveBranchContentCardStatus(
  * Lists active Marketing team members along with their current Branch Content review/revision/approve permissions.
  * Restricted strictly to Marketing Manager / Super Admin.
  */
-export async function getMarketingReviewerAssignments(): Promise<{
-  success: boolean;
-  error?: string;
-  assignments: BranchContentReviewerAssignment[];
-}> {
-  await ensureBranchContentSchema();
+type UserWithReviewerPermRow = {
+  id: string;
+  employeeId: string;
+  fullName: string;
+  email: string | null;
+  role: string;
+  position: string | null;
+  employeeSale: {
+    department: string | null;
+    branch: string | null;
+    nickname: string | null;
+  } | null;
+  branchContentReviewerPerm: {
+    isActive: boolean;
+    canReviewComment: boolean;
+    canRequestRevision: boolean;
+    canApprove: boolean;
+    assignedByName: string | null;
+    updatedAt: Date;
+  } | null;
+};
 
-  const { user, permissions, branches } = await resolveUserBranchPermissions();
-  if (!user || !permissions) {
-    return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ', assignments: [] };
-  }
-  if (!permissions.canManageReviewers) {
-    return {
-      success: false,
-      error: '403 Forbidden: เฉพาะผู้จัดการการตลาดเท่านั้นที่มีสิทธิ์จัดการรายชื่อผู้ตรวจสอบ',
-      assignments: [],
-    };
-  }
-
-  const [activeUsers, hrEmployees] = await Promise.all([
-    prisma.user.findMany({
-      where: { isActive: true },
-      select: {
-        id: true,
-        employeeId: true,
-        fullName: true,
-        email: true,
-        role: true,
-        position: true,
-        employeeSale: { select: { department: true, branch: true, nickname: true } },
-        branchContentReviewerPerm: true,
-      },
-      orderBy: { fullName: 'asc' },
-    }),
-    teraDb.employees
-      .findMany({
-        where: { is_active: true },
-        select: {
-          emp_id: true,
-          name: true,
-          nickname: true,
-          branch_id: true,
-          email: true,
-          departments: { select: { name: true } },
-        },
-      })
-      .catch(() => []),
-  ]);
-
-  const cleanPersonName = (n?: string | null) =>
-    (n || '').replace(/^(นาย|นางสาว|นาง|คุณ|ดร\.)\s*/g, '').trim();
-
+function buildMarketingReviewerAssignments(
+  activeUsers: UserWithReviewerPermRow[],
+  hrIndex: CachedHrEmployeesIndex,
+  branches: BranchMasterItem[]
+): BranchContentReviewerAssignment[] {
   const assignments: BranchContentReviewerAssignment[] = [];
+
   for (const u of activeUsers) {
-    const cleanedU = cleanPersonName(u.fullName);
-    const hrEmp = hrEmployees.find(
-      h =>
-        (u.employeeId && h.emp_id?.toUpperCase() === u.employeeId.toUpperCase()) ||
-        (u.email && h.email && h.email.toLowerCase() === u.email.toLowerCase()) ||
-        (cleanedU && cleanPersonName(h.name) === cleanedU)
-    );
+    const hrEmp = findMatchingHrEmployee(hrIndex, u);
     const hrDeptName = hrEmp?.departments?.name || null;
     const isMkt = isMarketingUserRecord(u, hrDeptName);
     const perm = u.branchContentReviewerPerm;
@@ -2544,6 +2853,57 @@ export async function getMarketingReviewerAssignments(): Promise<{
     return a.fullName.localeCompare(b.fullName, 'th');
   });
 
+  return assignments;
+}
+
+async function fetchMarketingReviewerAssignmentsFast(
+  branches: BranchMasterItem[]
+): Promise<BranchContentReviewerAssignment[]> {
+  const [activeUsers, hrIndex] = await Promise.all([
+    prisma.user.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        employeeId: true,
+        fullName: true,
+        email: true,
+        role: true,
+        position: true,
+        employeeSale: { select: { department: true, branch: true, nickname: true } },
+        branchContentReviewerPerm: true,
+      },
+      orderBy: { fullName: 'asc' },
+    }),
+    getActiveHrEmployeesCached(),
+  ]);
+
+  return buildMarketingReviewerAssignments(activeUsers, hrIndex, branches);
+}
+
+/**
+ * Lists active Marketing team members along with their current Branch Content review/revision/approve permissions.
+ * Restricted strictly to Marketing Manager / Super Admin.
+ */
+export async function getMarketingReviewerAssignments(): Promise<{
+  success: boolean;
+  error?: string;
+  assignments: BranchContentReviewerAssignment[];
+}> {
+  await ensureBranchContentSchema();
+
+  const { user, permissions, branches } = await resolveUserBranchPermissions();
+  if (!user || !permissions) {
+    return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ', assignments: [] };
+  }
+  if (!permissions.canManageReviewers) {
+    return {
+      success: false,
+      error: '403 Forbidden: เฉพาะผู้จัดการการตลาดเท่านั้นที่มีสิทธิ์จัดการรายชื่อผู้ตรวจสอบ',
+      assignments: [],
+    };
+  }
+
+  const assignments = await fetchMarketingReviewerAssignmentsFast(branches);
   return { success: true, assignments };
 }
 
@@ -2566,7 +2926,7 @@ export async function saveMarketingReviewerAssignments(
 }> {
   await ensureBranchContentSchema();
 
-  const { user, permissions } = await resolveUserBranchPermissions();
+  const { user, permissions, branches } = await resolveUserBranchPermissions();
   if (!user || !permissions) {
     return { success: false, error: 'กรุณาเข้าสู่ระบบก่อนทำรายการ' };
   }
@@ -2585,7 +2945,7 @@ export async function saveMarketingReviewerAssignments(
     new Set(items.map(it => (typeof it?.userId === 'string' ? it.userId.trim() : '')).filter(Boolean))
   );
 
-  const [targetUsers, hrEmployees] = await Promise.all([
+  const [targetUsers, hrIndex] = await Promise.all([
     prisma.user.findMany({
       where: { id: { in: userIds }, isActive: true },
       select: {
@@ -2598,12 +2958,7 @@ export async function saveMarketingReviewerAssignments(
         employeeSale: { select: { department: true } },
       },
     }),
-    teraDb.employees
-      .findMany({
-        where: { is_active: true },
-        select: { emp_id: true, email: true, name: true, departments: { select: { name: true } } },
-      })
-      .catch(() => []),
+    getActiveHrEmployeesCached(),
   ]);
 
   const targetUserMap = new Map(targetUsers.map(u => [u.id, u]));
@@ -2613,11 +2968,7 @@ export async function saveMarketingReviewerAssignments(
     if (!target) {
       return { success: false, error: 'พบรายชื่อผู้ใช้งานที่ไม่มีอยู่หรือไม่ Active ในระบบ' };
     }
-    const hrEmp = hrEmployees.find(
-      h =>
-        (target.employeeId && h.emp_id?.toUpperCase() === target.employeeId.toUpperCase()) ||
-        (target.email && h.email && h.email.toLowerCase() === target.email.toLowerCase())
-    );
+    const hrEmp = findMatchingHrEmployee(hrIndex, target);
     if (!isMarketingUserRecord(target, hrEmp?.departments?.name || null)) {
       return {
         success: false,
@@ -2679,8 +3030,8 @@ export async function saveMarketingReviewerAssignments(
     revalidatePath('/marketing-board');
     revalidatePath('/marketing-board/branch-content');
 
-    const refreshed = await getMarketingReviewerAssignments();
-    return { success: true, assignments: refreshed.assignments };
+    const assignments = await fetchMarketingReviewerAssignmentsFast(branches);
+    return { success: true, assignments };
   } catch (error: unknown) {
     console.error('[BranchContent] saveMarketingReviewerAssignments error:', error);
     const message =

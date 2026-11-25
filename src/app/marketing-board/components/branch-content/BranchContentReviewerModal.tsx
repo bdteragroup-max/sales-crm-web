@@ -13,6 +13,7 @@ import {
   Users,
   Save,
   Info,
+  RefreshCw,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import {
@@ -24,26 +25,60 @@ import type { BranchContentReviewerAssignment } from '@/app/lib/branchContentTyp
 interface BranchContentReviewerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaved?: () => Promise<void> | void;
+  initialAssignments?: BranchContentReviewerAssignment[];
+  onSaved?: (updatedAssignments?: BranchContentReviewerAssignment[]) => Promise<void> | void;
 }
 
 export default function BranchContentReviewerModal({
   isOpen,
   onClose,
+  initialAssignments,
   onSaved,
 }: BranchContentReviewerModalProps) {
-  const [rows, setRows] = useState<BranchContentReviewerAssignment[]>([]);
+  const hasInitialRows = Boolean(initialAssignments && initialAssignments.length > 0);
+  const [rows, setRows] = useState<BranchContentReviewerAssignment[]>(
+    () => initialAssignments || []
+  );
+  const [initialApproveIds, setInitialApproveIds] = useState<string[]>(() =>
+    (initialAssignments || [])
+      .filter(r => !r.isMarketingManager && r.isAssigned && r.canApprove)
+      .map(r => r.userId)
+  );
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(!hasInitialRows);
   const [isSaving, setIsSaving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const loadAssignments = async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const res = await getMarketingReviewerAssignments();
+      if (!res.success) {
+        setLoadError(res.error || 'ไม่สามารถโหลดรายชื่อผู้ตรวจสอบได้');
+        return;
+      }
+      const loaded = res.assignments || [];
+      setRows(loaded);
+      setInitialApproveIds(
+        loaded
+          .filter(r => !r.isMarketingManager && r.isAssigned && r.canApprove)
+          .map(r => r.userId)
+      );
+    } catch (err: unknown) {
+      setLoadError(
+        err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการโหลดข้อมูล'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || hasInitialRows) return;
     let cancelled = false;
 
     const fetchRows = async () => {
-      setIsLoading(true);
       setLoadError(null);
       try {
         const res = await getMarketingReviewerAssignments();
@@ -52,7 +87,13 @@ export default function BranchContentReviewerModal({
           setLoadError(res.error || 'ไม่สามารถโหลดรายชื่อผู้ตรวจสอบได้');
           return;
         }
-        setRows(res.assignments || []);
+        const loaded = res.assignments || [];
+        setRows(loaded);
+        setInitialApproveIds(
+          loaded
+            .filter(r => !r.isMarketingManager && r.isAssigned && r.canApprove)
+            .map(r => r.userId)
+        );
       } catch (err: unknown) {
         if (!cancelled) {
           setLoadError(
@@ -68,7 +109,7 @@ export default function BranchContentReviewerModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen]);
+  }, [isOpen, hasInitialRows]);
 
   const filteredRows = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -141,7 +182,69 @@ export default function BranchContentReviewerModal({
     );
   };
 
+  const isInternRow = (r: BranchContentReviewerAssignment) =>
+    Boolean(
+      (r.position || '').includes('ฝึกงาน') ||
+        r.employeeId.toUpperCase().startsWith('TGIT')
+    );
+
+  const applyQuickPreset = (
+    preset: 'STAFF_REVIEW_AND_REVISE' | 'STAFF_COMMENT_ONLY' | 'CLEAR_ALL'
+  ) => {
+    setRows(prev =>
+      prev.map(r => {
+        if (r.isMarketingManager) return r;
+        if (preset === 'CLEAR_ALL') {
+          return {
+            ...r,
+            isAssigned: false,
+            canReviewComment: false,
+            canRequestRevision: false,
+            canApprove: false,
+          };
+        }
+        if (isInternRow(r)) return r;
+        if (preset === 'STAFF_REVIEW_AND_REVISE') {
+          return {
+            ...r,
+            isAssigned: true,
+            canReviewComment: true,
+            canRequestRevision: true,
+          };
+        }
+        return {
+          ...r,
+          isAssigned: true,
+          canReviewComment: true,
+          canRequestRevision: false,
+        };
+      })
+    );
+  };
+
   const handleSave = async () => {
+    const newlyGrantedApprovers = rows.filter(
+      r =>
+        !r.isMarketingManager &&
+        r.isAssigned &&
+        r.canApprove &&
+        !initialApproveIds.includes(r.userId)
+    );
+
+    if (newlyGrantedApprovers.length > 0) {
+      const names = newlyGrantedApprovers.map(r => r.fullName).join(', ');
+      const confirm = await Swal.fire({
+        icon: 'question',
+        title: 'ยืนยันการมอบหมายสิทธิ์ Approve?',
+        text: `คุณกำลังให้สิทธิ์อนุมัติขั้นสุดท้าย (Final Approve) แก่: ${names}`,
+        showCancelButton: true,
+        confirmButtonText: 'ยืนยันและบันทึก',
+        cancelButtonText: 'กลับไปแก้ไข',
+        confirmButtonColor: '#059669',
+      });
+      if (!confirm.isConfirmed) return;
+    }
+
     setIsSaving(true);
     try {
       const payload = rows
@@ -168,7 +271,7 @@ export default function BranchContentReviewerModal({
         setRows(res.assignments);
       }
       if (onSaved) {
-        await onSaved();
+        await onSaved(res.assignments);
       }
       onClose();
       Swal.fire({
@@ -204,15 +307,28 @@ export default function BranchContentReviewerModal({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSaving}
-            className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors shrink-0"
-            aria-label="ปิดหน้าต่าง"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => void loadAssignments()}
+              disabled={isLoading || isSaving}
+              className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors disabled:opacity-50"
+              title="รีเฟรชรายชื่อล่าสุด"
+              aria-label="รีเฟรชรายชื่อล่าสุด"
+            >
+              <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+              aria-label="ปิดหน้าต่าง"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* BRD Rule Notice & Search / Summary Bar */}
@@ -273,11 +389,38 @@ export default function BranchContentReviewerModal({
             <>
               {/* Assignable Marketing Staff */}
               <div className="space-y-2.5">
-                <div className="text-xs font-extrabold text-slate-800 flex items-center justify-between">
-                  <span>สมาชิกทีม Marketing (เลือกมอบหมายและกำหนดสิทธิ์รายบุคคล)</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-xs font-extrabold text-slate-800">
+                    สมาชิกทีม Marketing (เลือกมอบหมายและกำหนดสิทธิ์รายบุคคล)
+                  </span>
                   <span className="text-[11px] font-semibold text-slate-400">
                     แสดง {assignableRows.length} รายชื่อ
                   </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                  <span className="font-bold text-slate-500 mr-0.5">ตั้งค่าด่วน:</span>
+                  <button
+                    type="button"
+                    onClick={() => applyQuickPreset('STAFF_COMMENT_ONLY')}
+                    className="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-800 font-bold transition-colors"
+                  >
+                    + พนักงานประจำ (ตรวจ &amp; คอมเมนต์)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyQuickPreset('STAFF_REVIEW_AND_REVISE')}
+                    className="px-2.5 py-1 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-800 font-bold transition-colors"
+                  >
+                    + พนักงานประจำ (ตรวจ &amp; ส่งแก้ไข)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyQuickPreset('CLEAR_ALL')}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 font-bold transition-colors"
+                  >
+                    ล้างการเลือกทั้งหมด
+                  </button>
                 </div>
 
                 {assignableRows.length === 0 ? (
@@ -314,6 +457,11 @@ export default function BranchContentReviewerModal({
                                 <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-mono font-bold text-slate-600">
                                   {row.employeeId}
                                 </span>
+                                {isInternRow(row) && (
+                                  <span className="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-bold">
+                                    นักศึกษาฝึกงาน
+                                  </span>
+                                )}
                                 {row.isAssigned ? (
                                   <span className="px-2 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold">
                                     มีสิทธิ์ตรวจสอบ

@@ -10,14 +10,9 @@ import {
   Kanban,
   ShieldCheck,
   Clock,
-  RotateCcw,
-  CheckCircle2,
   AlertTriangle,
-  Filter,
   RefreshCw,
   Sparkles,
-  User,
-  Layers,
 } from 'lucide-react';
 import BranchContentCard from './BranchContentCard';
 import CreateEditBranchContentModal from './CreateEditBranchContentModal';
@@ -30,6 +25,7 @@ import type {
   AssignedMarketingReviewerSummary,
   BranchContentItem,
   BranchContentPermissions,
+  BranchContentReviewerAssignment,
   BranchMasterItem,
 } from '@/app/lib/branchContentTypes';
 import {
@@ -46,6 +42,7 @@ interface BranchContentBoardTabProps {
     staffOptions: { id: string; name: string; branch: string | null }[];
     permissions: BranchContentPermissions | null;
     assignedReviewers?: AssignedMarketingReviewerSummary[];
+    reviewerAssignments?: BranchContentReviewerAssignment[];
   };
 }
 
@@ -63,6 +60,9 @@ export default function BranchContentBoardTab({
   const [assignedReviewers, setAssignedReviewers] = useState<AssignedMarketingReviewerSummary[]>(
     initialData.assignedReviewers || []
   );
+  const [reviewerAssignments, setReviewerAssignments] = useState<BranchContentReviewerAssignment[]>(
+    initialData.reviewerAssignments || []
+  );
 
   // Default sub-view: Marketing/Admin defaults to 'review_board', Branch staff defaults to 'my_branch'
   const [subView, setSubView] = useState<
@@ -74,7 +74,6 @@ export default function BranchContentBoardTab({
   const [selectedBranch, setSelectedBranch] = useState<string>('ALL');
   const [selectedProductGroup, setSelectedProductGroup] = useState<string>('ALL');
   const [selectedChannel, setSelectedChannel] = useState<string>('ALL');
-  const [selectedAssignee, setSelectedAssignee] = useState<string>('ALL');
   const [selectedMonth, setSelectedMonth] = useState<string>('ALL');
   const [reviewQueueFilter, setReviewQueueFilter] = useState<
     | 'ALL'
@@ -101,6 +100,7 @@ export default function BranchContentBoardTab({
         if (fresh.staffOptions) setStaffOptions(fresh.staffOptions);
         if (fresh.permissions) setPermissions(fresh.permissions);
         if (fresh.assignedReviewers) setAssignedReviewers(fresh.assignedReviewers);
+        if (fresh.reviewerAssignments) setReviewerAssignments(fresh.reviewerAssignments);
       }
     } finally {
       setIsRefreshing(false);
@@ -164,14 +164,7 @@ export default function BranchContentBoardTab({
         if (!hasCh) return false;
       }
 
-      // 5. Assignee Filter
-      if (selectedAssignee !== 'ALL') {
-        if (item.assigneeId !== selectedAssignee && item.createdById !== selectedAssignee) {
-          return false;
-        }
-      }
-
-      // 6. Month Filter
+      // 5. Month Filter
       if (selectedMonth !== 'ALL') {
         const dStr = item.plannedPublishDate || item.submissionDueDate || item.createdAt;
         if (!dStr) return false;
@@ -225,7 +218,6 @@ export default function BranchContentBoardTab({
     selectedBranch,
     selectedProductGroup,
     selectedChannel,
-    selectedAssignee,
     selectedMonth,
     reviewQueueFilter,
     searchQuery,
@@ -697,9 +689,29 @@ export default function BranchContentBoardTab({
 
       {/* Marketing Reviewer Assignment Modal (Marketing Manager only) */}
       <BranchContentReviewerModal
+        key={isReviewerModalOpen ? 'reviewer-modal-open' : 'reviewer-modal-closed'}
         isOpen={isReviewerModalOpen}
         onClose={() => setIsReviewerModalOpen(false)}
-        onSaved={handleRefresh}
+        initialAssignments={reviewerAssignments}
+        onSaved={updated => {
+          if (updated) {
+            setReviewerAssignments(updated);
+            setAssignedReviewers(
+              updated
+                .filter(r => !r.isMarketingManager && r.isAssigned)
+                .map(r => ({
+                  userId: r.userId,
+                  employeeId: r.employeeId,
+                  fullName: r.fullName,
+                  role: r.role,
+                  canReviewComment: r.canReviewComment,
+                  canRequestRevision: r.canRequestRevision,
+                  canApprove: r.canApprove,
+                }))
+            );
+          }
+          void handleRefresh();
+        }}
       />
     </div>
   );

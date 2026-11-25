@@ -25,7 +25,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!permissions.canComment) {
+    const canStageAttachment = Boolean(
+      permissions.canComment ||
+        permissions.canReview ||
+        permissions.canRequestRevision ||
+        permissions.canApprove
+    );
+
+    if (!canStageAttachment) {
       return NextResponse.json(
         {
           success: false,

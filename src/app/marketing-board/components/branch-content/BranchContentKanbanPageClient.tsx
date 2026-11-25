@@ -38,6 +38,8 @@ import {
   AlertTriangle,
   ExternalLink,
   RefreshCw,
+  Search,
+  X,
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import {
@@ -49,6 +51,7 @@ import type {
   AssignedMarketingReviewerSummary,
   BranchContentItem,
   BranchContentPermissions,
+  BranchContentReviewerAssignment,
   BranchContentStatus,
   BranchMasterItem,
 } from '@/app/lib/branchContentTypes';
@@ -67,6 +70,7 @@ interface BranchContentKanbanPageClientProps {
     staffOptions: { id: string; name: string; branch: string | null }[];
     permissions: BranchContentPermissions | null;
     assignedReviewers?: AssignedMarketingReviewerSummary[];
+    reviewerAssignments?: BranchContentReviewerAssignment[];
   };
 }
 
@@ -106,6 +110,11 @@ function DraggableBranchCard({
   const coverVideo = !coverImage
     ? card.media?.find(m => m.fileType === 'VIDEO' || m.mimeType?.startsWith('video/'))
     : null;
+
+  const commentAttachmentCount = (card.comments || []).reduce(
+    (sum, c) => sum + (c.attachments?.length || 0),
+    0
+  );
 
   const isCompleted = card.status === 'PUBLISHED';
 
@@ -236,6 +245,15 @@ function DraggableBranchCard({
             <div className="flex items-center gap-1 text-xs font-semibold hover:text-gray-600 transition-colors">
               <Paperclip size={14} />
               <span>{card.media.length}</span>
+            </div>
+          )}
+          {commentAttachmentCount > 0 && (
+            <div
+              className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold"
+              title={`มีไฟล์แนบในความคิดเห็น ${commentAttachmentCount} ไฟล์`}
+            >
+              <Paperclip size={10} />
+              <span>{commentAttachmentCount}</span>
             </div>
           )}
         </div>
@@ -498,6 +516,9 @@ export default function BranchContentKanbanPageClient({
   const [assignedReviewers, setAssignedReviewers] = useState<AssignedMarketingReviewerSummary[]>(
     initialData.assignedReviewers || []
   );
+  const [reviewerAssignments, setReviewerAssignments] = useState<BranchContentReviewerAssignment[]>(
+    initialData.reviewerAssignments || []
+  );
 
   // View Switcher in Top Header matching /marketing/kanban
   const [viewType, setViewType] = useState<'board' | 'calendar' | 'dashboard'>('board');
@@ -507,6 +528,7 @@ export default function BranchContentKanbanPageClient({
   const [sidebarTab, setSidebarTab] = useState<'filters' | 'activity'>('filters');
 
   // Filter States
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedBranch, setSelectedBranch] = useState<string>('ALL');
   const [filterAssignee, setFilterAssignee] = useState<string | null>(null);
   const [filterLabel, setFilterLabel] = useState<
@@ -549,6 +571,7 @@ export default function BranchContentKanbanPageClient({
         if (fresh.staffOptions) setStaffOptions(fresh.staffOptions);
         if (fresh.permissions) setPermissions(fresh.permissions);
         if (fresh.assignedReviewers) setAssignedReviewers(fresh.assignedReviewers);
+        if (fresh.reviewerAssignments) setReviewerAssignments(fresh.reviewerAssignments);
       }
     } finally {
       setIsRefreshing(false);
@@ -689,9 +712,58 @@ export default function BranchContentKanbanPageClient({
       if (filterLabel === 'REVISE' && card.status !== 'REVISE') return false;
       if (filterLabel === 'OVERDUE' && !card.isOverdue) return false;
 
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        const matchSearch =
+          card.contentNo.toLowerCase().includes(q) ||
+          card.title.toLowerCase().includes(q) ||
+          card.branchName.toLowerCase().includes(q) ||
+          (card.caption && card.caption.toLowerCase().includes(q)) ||
+          (card.assigneeName && card.assigneeName.toLowerCase().includes(q)) ||
+          (card.createdByName && card.createdByName.toLowerCase().includes(q));
+        if (!matchSearch) return false;
+      }
+
       return true;
     });
-  }, [contents, showPublished, selectedBranch, filterAssignee, filterLabel]);
+  }, [contents, showPublished, selectedBranch, filterAssignee, filterLabel, searchQuery]);
+
+  const myQueueFilterKey: 'APPROVE_1' | 'WAITING_BRANCH_MGR' | null =
+    permissions?.canApprove || permissions?.canReview || permissions?.canRequestRevision
+      ? 'APPROVE_1'
+      : permissions?.canBranchApprove
+      ? 'WAITING_BRANCH_MGR'
+      : null;
+
+  const queueCounts = useMemo(() => {
+    let total = 0;
+    let myQueue = 0;
+    let revise = 0;
+    let overdue = 0;
+
+    contents.forEach(card => {
+      if (!showPublished && card.status === 'PUBLISHED') return;
+      if (selectedBranch !== 'ALL') {
+        const matchB =
+          card.branchId === selectedBranch ||
+          matchBranch(card.branchName, selectedBranch) ||
+          matchBranch(card.branchId, selectedBranch);
+        if (!matchB) return;
+      }
+
+      total++;
+      if (
+        (myQueueFilterKey === 'APPROVE_1' && card.status === 'APPROVE_1') ||
+        (myQueueFilterKey === 'WAITING_BRANCH_MGR' && card.status === 'PENDING_REVIEW')
+      ) {
+        myQueue++;
+      }
+      if (card.status === 'REVISE') revise++;
+      if (card.isOverdue) overdue++;
+    });
+
+    return { total, myQueue, revise, overdue };
+  }, [contents, showPublished, selectedBranch, myQueueFilterKey]);
 
   // All Activity Logs for Right Drawer
   const allActivities = useMemo(() => {
@@ -725,107 +797,82 @@ export default function BranchContentKanbanPageClient({
   }, [contents]);
 
   const activeFilterCount =
+    (searchQuery.trim() ? 1 : 0) +
     (selectedBranch !== 'ALL' ? 1 : 0) +
     (filterAssignee ? 1 : 0) +
     (filterLabel ? 1 : 0);
 
   return (
     <div className="flex-1 flex flex-col h-screen min-h-0 bg-[#f8fafc] overflow-hidden">
-      {/* ─── TOP HEADER BAR (Symmetrical single-row layout matching /marketing/kanban) ─── */}
-      <header className="flex-shrink-0 h-16 bg-white border-b border-gray-200/80 px-6 flex items-center justify-between gap-4 shadow-sm z-10">
-        {/* Left Group: Icon + Title + View Switcher */}
-        <div className="flex items-center gap-3.5 min-w-0">
+      {/* ─── ROW 1: TOP HEADER BAR (Balanced Brand/Title Left + Views & Primary Actions Right) ─── */}
+      <header className="flex-shrink-0 h-16 bg-white border-b border-gray-200/80 px-6 flex items-center justify-between gap-4 z-10">
+        {/* Left Group: Icon + Title + Branch Scope Subtitle */}
+        <div className="flex items-center gap-3 shrink-0">
           <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-[#ff2301] shrink-0">
             <KanbanSquare size={20} strokeWidth={2.5} />
           </div>
 
-          <div className="min-w-0 flex items-center gap-3.5">
-            <div className="min-w-0">
-              <h1 className="font-bold text-base md:text-lg text-gray-900 leading-tight tracking-tight truncate whitespace-nowrap">
-                บอร์ดคอนเทนต์สาขา
-              </h1>
-              <p className="text-[11px] text-gray-500 font-medium leading-tight truncate hidden xl:block">
-                {permissions?.canViewAllBranches
-                  ? 'Branch Content Board • ภาพรวม 11 สาขา'
-                  : branches.length > 1
-                  ? `Branch Content Board • ${branches.map(b => `สาขา${b.name}`).join(' & ')}`
-                  : `Branch Content Board • สาขา${permissions?.userBranchName || branches[0]?.name || 'ของฉัน'}`}
-              </p>
-            </div>
-
-            {/* View Switcher Pill: บอร์ด / ปฏิทิน / Dashboard */}
-            <div className="hidden sm:flex h-10 bg-gray-100 p-1 rounded-xl items-center shrink-0">
-              <button
-                type="button"
-                onClick={() => setViewType('board')}
-                className={`h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
-                  viewType === 'board'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <KanbanSquare size={15} /> บอร์ด
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewType('calendar')}
-                className={`h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
-                  viewType === 'calendar'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <CalendarIcon size={15} /> ปฏิทิน
-              </button>
-              {(permissions?.canViewAllBranches || permissions?.canViewDashboard) && (
-                <button
-                  type="button"
-                  onClick={() => setViewType('dashboard')}
-                  className={`h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
-                    viewType === 'dashboard'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  <BarChart3 size={15} />{' '}
-                  {permissions?.canViewAllBranches
-                    ? 'สรุป 11 สาขา'
-                    : branches.length > 1
-                    ? `Dashboard (${branches.length} สาขา)`
-                    : 'Dashboard สาขา'}
-                </button>
-              )}
-            </div>
+          <div className="min-w-0">
+            <h1 className="font-bold text-base md:text-lg text-gray-900 leading-tight tracking-tight whitespace-nowrap">
+              บอร์ดคอนเทนต์สาขา
+            </h1>
+            <p className="text-[11px] text-gray-500 font-medium leading-tight whitespace-nowrap hidden xl:block">
+              {permissions?.canViewAllBranches
+                ? 'Branch Content Board • ภาพรวม 11 สาขา'
+                : branches.length > 1
+                ? `Branch Content Board • ${branches.map(b => `สาขา${b.name}`).join(' & ')}`
+                : `Branch Content Board • สาขา${permissions?.userBranchName || branches[0]?.name || 'ของฉัน'}`}
+            </p>
           </div>
         </div>
 
-        {/* Right Controls: Branch Selector (HQ & Multi-branch) or Locked Branch Badge (Single-branch users) + Create Button + Refresh + Right Sidebar Drawer Toggle */}
+        {/* Right Group: View Switcher + Primary Actions + Icon Tools */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {(permissions?.canViewAllBranches || branches.length > 1) ? (
-            <select
-              value={selectedBranch}
-              onChange={e => setSelectedBranch(e.target.value)}
-              className="hidden md:block h-10 px-3.5 bg-gray-100 hover:bg-gray-200/70 rounded-xl text-xs font-bold text-gray-700 outline-none border border-transparent focus:border-red-300 transition-all shrink-0 cursor-pointer"
+          {/* View Switcher Pill: บอร์ด / ปฏิทิน / Dashboard */}
+          <div className="hidden sm:flex h-10 bg-gray-100 p-1 rounded-xl items-center shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewType('board')}
+              className={`h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
+                viewType === 'board'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
-              <option value="ALL">
+              <KanbanSquare size={15} /> บอร์ด
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewType('calendar')}
+              className={`h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
+                viewType === 'calendar'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <CalendarIcon size={15} /> ปฏิทิน
+            </button>
+            {(permissions?.canViewAllBranches || permissions?.canViewDashboard) && (
+              <button
+                type="button"
+                onClick={() => setViewType('dashboard')}
+                className={`h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
+                  viewType === 'dashboard'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <BarChart3 size={15} />{' '}
                 {permissions?.canViewAllBranches
-                  ? 'ทุกสาขา (11 สาขา)'
-                  : `ทุกสาขาที่เข้าถึง (${branches.length} สาขา)`}
-              </option>
-              {branches.map(b => (
-                <option key={b.id} value={b.id}>
-                  สาขา{b.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <div className="hidden md:flex h-10 px-3.5 bg-gray-100 rounded-xl text-xs font-bold text-gray-700 items-center gap-1.5 border border-gray-200/70 shrink-0 whitespace-nowrap">
-              <Building2 size={14} className="text-[#ff2301] shrink-0" />
-              <span>
-                สาขา{permissions?.userBranchName || branches[0]?.name || 'ของฉัน'}
-              </span>
-            </div>
-          )}
+                  ? 'สรุป 11 สาขา'
+                  : branches.length > 1
+                  ? `Dashboard (${branches.length} สาขา)`
+                  : 'Dashboard สาขา'}
+              </button>
+            )}
+          </div>
+
+          <div className="h-6 w-px bg-gray-200 hidden sm:block" />
 
           {permissions?.canManageReviewers && (
             <button
@@ -835,7 +882,7 @@ export default function BranchContentKanbanPageClient({
               title="มอบหมายผู้ตรวจสอบและอนุมัติ (เฉพาะผู้จัดการการตลาด)"
             >
               <ShieldCheck size={16} className="text-indigo-600 shrink-0" />
-              <span className="hidden sm:inline">จัดการผู้ตรวจสอบ</span>
+              <span className="hidden md:inline">จัดการผู้ตรวจสอบ</span>
               <span
                 className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
                   assignedReviewers.length > 0
@@ -889,6 +936,174 @@ export default function BranchContentKanbanPageClient({
           </button>
         </div>
       </header>
+
+      {/* ─── ROW 2: SYMMETRICAL FILTER & QUICK-QUEUE SUB-BAR (Uniform h-8 controls) ─── */}
+      <div className="flex-shrink-0 bg-white/95 border-b border-gray-200/80 px-6 py-2 flex items-center justify-between gap-3 flex-wrap shadow-2xs z-10">
+        {/* Left: Branch Selector + Quick Queue Chips */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {(permissions?.canViewAllBranches || branches.length > 1) ? (
+            <select
+              value={selectedBranch}
+              onChange={e => setSelectedBranch(e.target.value)}
+              className="h-8 px-3 bg-white hover:bg-gray-50 rounded-lg text-xs font-bold text-gray-700 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all cursor-pointer shrink-0"
+            >
+              <option value="ALL">
+                {permissions?.canViewAllBranches
+                  ? 'ทุกสาขา (11 สาขา)'
+                  : `ทุกสาขาที่เข้าถึง (${branches.length} สาขา)`}
+              </option>
+              {branches.map(b => (
+                <option key={b.id} value={b.id}>
+                  สาขา{b.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="h-8 px-3 bg-gray-100 rounded-lg text-xs font-bold text-gray-700 inline-flex items-center gap-1.5 border border-gray-200 shrink-0 whitespace-nowrap">
+              <Building2 size={13} className="text-[#ff2301] shrink-0" />
+              <span>
+                สาขา{permissions?.userBranchName || branches[0]?.name || 'ของฉัน'}
+              </span>
+            </div>
+          )}
+
+          <div className="w-px h-5 bg-gray-200 hidden sm:block" />
+
+          <button
+            type="button"
+            onClick={() => setFilterLabel(null)}
+            className={`h-8 px-3 rounded-lg text-xs font-bold border transition-all inline-flex items-center gap-1.5 whitespace-nowrap ${
+              filterLabel === null
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            <span>ทั้งหมด</span>
+            <span
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                filterLabel === null ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              {queueCounts.total}
+            </span>
+          </button>
+
+          {myQueueFilterKey && queueCounts.myQueue > 0 && (
+            <button
+              type="button"
+              onClick={() =>
+                setFilterLabel(prev => (prev === myQueueFilterKey ? null : myQueueFilterKey))
+              }
+              className={`h-8 px-3 rounded-lg text-xs font-bold border inline-flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                filterLabel === myQueueFilterKey
+                  ? 'bg-purple-600 text-white border-purple-700 shadow-2xs'
+                  : 'bg-purple-50 text-purple-900 border-purple-200 hover:bg-purple-100'
+              }`}
+              title="กรองเฉพาะคิวงานที่รอตรวจ/อนุมัติ"
+            >
+              <span>รอตรวจ</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                  filterLabel === myQueueFilterKey
+                    ? 'bg-white text-purple-700'
+                    : 'bg-purple-600 text-white'
+                }`}
+              >
+                {queueCounts.myQueue}
+              </span>
+            </button>
+          )}
+
+          {queueCounts.revise > 0 && (
+            <button
+              type="button"
+              onClick={() => setFilterLabel(prev => (prev === 'REVISE' ? null : 'REVISE'))}
+              className={`h-8 px-3 rounded-lg text-xs font-bold border inline-flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                filterLabel === 'REVISE'
+                  ? 'bg-orange-600 text-white border-orange-700 shadow-2xs'
+                  : 'bg-orange-50 text-orange-800 border-orange-200 hover:bg-orange-100'
+              }`}
+            >
+              <span>ส่งแก้</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                  filterLabel === 'REVISE'
+                    ? 'bg-white text-orange-700'
+                    : 'bg-orange-200/80 text-orange-900'
+                }`}
+              >
+                {queueCounts.revise}
+              </span>
+            </button>
+          )}
+
+          {queueCounts.overdue > 0 && (
+            <button
+              type="button"
+              onClick={() => setFilterLabel(prev => (prev === 'OVERDUE' ? null : 'OVERDUE'))}
+              className={`h-8 px-3 rounded-lg text-xs font-bold border inline-flex items-center gap-1.5 transition-all whitespace-nowrap ${
+                filterLabel === 'OVERDUE'
+                  ? 'bg-red-600 text-white border-red-700 shadow-2xs'
+                  : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+              }`}
+            >
+              <AlertTriangle size={12} />
+              <span>เกินกำหนด</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                  filterLabel === 'OVERDUE'
+                    ? 'bg-white text-red-700'
+                    : 'bg-red-200/80 text-red-900'
+                }`}
+              >
+                {queueCounts.overdue}
+              </span>
+            </button>
+          )}
+        </div>
+
+        {/* Right: Quick Search + Reset Filter */}
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <div className="flex items-center relative w-52 sm:w-64 shrink-0">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="ค้นหารหัส BC, ชื่อเรื่อง, สาขา..."
+              className="w-full h-8 pl-8 pr-7 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                aria-label="ล้างคำค้นหา"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
+          {activeFilterCount > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedBranch('ALL');
+                setFilterAssignee(null);
+                setFilterLabel(null);
+              }}
+              className="h-8 px-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-100 text-xs font-bold text-gray-600 transition-colors whitespace-nowrap"
+            >
+              ล้างตัวกรอง ({activeFilterCount})
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* ─── MAIN WORKSPACE + COLLAPSIBLE RIGHT SIDEBAR (Like /marketing/kanban) ─── */}
       <div className="flex-1 flex min-h-0 overflow-hidden relative">
@@ -987,6 +1202,51 @@ export default function BranchContentKanbanPageClient({
             <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
               {sidebarTab === 'filters' && (
                 <div className="space-y-6">
+                  {/* 0. ค้นหา & ล้างตัวกรอง */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        ค้นหางาน (Quick Search)
+                      </h3>
+                      {activeFilterCount > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setSelectedBranch('ALL');
+                            setFilterAssignee(null);
+                            setFilterLabel(null);
+                          }}
+                          className="text-[11px] font-bold text-[#ff2301] hover:underline"
+                        >
+                          ล้างตัวกรอง ({activeFilterCount})
+                        </button>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Search
+                        size={14}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                      />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="รหัส BC, ชื่อคอนเทนต์, สาขา..."
+                        className="w-full h-9 pl-8 pr-7 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/30"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                        >
+                          <X size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   {/* 1. ป้ายกำกับ / คิวตรวจ (Labels) */}
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
@@ -1294,9 +1554,29 @@ export default function BranchContentKanbanPageClient({
 
       {/* Marketing Reviewer Assignment Modal (Marketing Manager only) */}
       <BranchContentReviewerModal
+        key={isReviewerModalOpen ? 'reviewer-modal-open' : 'reviewer-modal-closed'}
         isOpen={isReviewerModalOpen}
         onClose={() => setIsReviewerModalOpen(false)}
-        onSaved={handleRefresh}
+        initialAssignments={reviewerAssignments}
+        onSaved={updated => {
+          if (updated) {
+            setReviewerAssignments(updated);
+            setAssignedReviewers(
+              updated
+                .filter(r => !r.isMarketingManager && r.isAssigned)
+                .map(r => ({
+                  userId: r.userId,
+                  employeeId: r.employeeId,
+                  fullName: r.fullName,
+                  role: r.role,
+                  canReviewComment: r.canReviewComment,
+                  canRequestRevision: r.canRequestRevision,
+                  canApprove: r.canApprove,
+                }))
+            );
+          }
+          void handleRefresh();
+        }}
       />
     </div>
   );
