@@ -37,9 +37,9 @@ export async function PATCH(
     if (!existing) {
       return NextResponse.json({ error: 'ไม่พบคำขอค่าคอมมิชชั่น' }, { status: 404 });
     }
-    if (existing.status === 'APPROVED' || existing.status === 'PAID') {
+    if (existing.status === 'PAID') {
       return NextResponse.json(
-        { error: 'ไม่สามารถแก้ไขกำไรของคำขอที่อนุมัติหรือจ่ายเงินแล้วได้' },
+        { error: 'ไม่สามารถแก้ไขกำไรของคำขอที่บันทึกจ่ายเงินแล้วได้' },
         { status: 400 }
       );
     }
@@ -54,6 +54,7 @@ export async function PATCH(
     }
     const { costAmount: nextCostAmount, profitPct: nextProfitPct } = resolved;
 
+    const isAlreadyApproved = existing.status === 'APPROVED';
     const isRevision = existing.confirmedProfitPct !== null;
     if (isRevision && !reason && !inlineQuickSave) {
       return NextResponse.json(
@@ -63,12 +64,14 @@ export async function PATCH(
     }
     const effectiveReason =
       reason ||
-      (isRevision
+      (isAlreadyApproved
+        ? 'แก้ไขตัวเลขกำไรหลังอนุมัติจากตารางตรวจสอบ'
+        : isRevision
         ? 'แก้ไขตัวเลขกำไรจากตารางตรวจสอบ'
         : 'ยืนยันกำไรโดย SUPER_ADMIN');
 
     const calc = calculateCommissionFromProfit(existing.salesAmountExVat, nextProfitPct);
-    const nextStatus = 'PENDING_APPROVAL';
+    const nextStatus = isAlreadyApproved ? 'APPROVED' : 'PENDING_APPROVAL';
     const nextSourceProfit =
       existing.sourceProfitPct !== null ? existing.sourceProfitPct : nextProfitPct;
 
@@ -94,7 +97,11 @@ export async function PATCH(
       await tx.salesCommissionLog.create({
         data: {
           requestId: id,
-          action: isRevision ? 'PROFIT_UPDATED' : 'PROFIT_CONFIRMED',
+          action: isAlreadyApproved
+            ? 'APPROVED_PROFIT_UPDATED'
+            : isRevision
+            ? 'PROFIT_UPDATED'
+            : 'PROFIT_CONFIRMED',
           fromStatus: existing.status,
           toStatus: nextStatus,
           actorId: actor.id,
@@ -109,7 +116,9 @@ export async function PATCH(
           newCommissionAmount: calc.amount,
           reason:
             reason ||
-            (isRevision
+            (isAlreadyApproved
+              ? 'แก้ไขตัวเลขกำไรหลังอนุมัติและคำนวณค่าคอมมิชชั่นใหม่'
+              : isRevision
               ? 'แก้ไขตัวเลขกำไรและคำนวณค่าคอมมิชชั่นใหม่จากตารางตรวจสอบ'
               : 'ยืนยันตัวเลขกำไรและคำนวณค่าคอมมิชชั่นใหม่'),
         },

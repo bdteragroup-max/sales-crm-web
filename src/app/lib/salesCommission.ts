@@ -540,6 +540,9 @@ export type CrmJobSourceInput = {
     deliveryNumber: string;
     accountingInvoiceNo: string | null;
   }>;
+  repairOrder?: {
+    invoiceNo?: string | null;
+  } | null;
   goodsReturns: Array<{
     id: string;
     documentNo: string | null;
@@ -686,119 +689,14 @@ export function resolveJobCompanyCode(
 }
 
 export function evaluateJobForCommission(job: CrmJobSourceInput): EvaluatedCrmCommissionRow {
-  const taxInvoiceSet = new Set<string>();
-  const taxInvoices: string[] = [];
-  const receiptSet = new Set<string>();
-  const receipts: string[] = [];
-
-  const pushToken = (
-    raw: string | null | undefined,
-    opts?: { receiptOnly?: boolean; excludeReceipt?: boolean; strictPrefix?: boolean }
-  ) => {
-    if (!raw) return;
-    const parts = String(raw)
-      .split(/[,;\n]+/)
-      .map((s) => s.trim())
-      .filter((s) => s && s !== '-');
-
-    for (const part of parts) {
-      if (NON_INVOICE_STEP_NOTES.has(part)) continue;
-      if (/^(ดำเนินการอัตโนมัติ|ตีกลับ|ยกเลิก)/.test(part)) continue;
-
-      const isReceipt = /^RE[-/]?\d/i.test(part);
-      if (isReceipt) {
-        const key = part.toUpperCase();
-        if (!receiptSet.has(key)) {
-          receiptSet.add(key);
-          receipts.push(part);
-        }
-        if (opts?.excludeReceipt) continue;
-      }
-      if (opts?.receiptOnly && !isReceipt) continue;
-
-      if (opts?.strictPrefix) {
-        if (!/^[A-Za-z]{2,6}[-/]?\d{3,}/.test(part)) continue;
-      } else {
-        if (!/([A-Za-z]{1,6}[-/]?\d{3,}|\b\d{5,}\b)/.test(part)) continue;
-      }
-
-      if (!isReceipt) {
-        const key = part.toUpperCase();
-        if (!taxInvoiceSet.has(key)) {
-          taxInvoiceSet.add(key);
-          taxInvoices.push(part);
-        }
-      }
-    }
-  };
-
   const accountingLogs = (job.stepLogs || []).filter((l) => l.step === 'accounting');
-  for (const log of accountingLogs) {
-    pushToken(log.note);
-  }
-  for (const pt of job.paymentTasks || []) {
-    pushToken(pt.invoiceNumber, { excludeReceipt: true });
-    pushToken(pt.note, { receiptOnly: true });
-  }
   const accountingDocs = parseAccountingTaxDocuments(job.accountingTaxDocuments);
-  for (const doc of accountingDocs) {
-    if (doc.docType === 'RECEIPT') {
-      const key = doc.docNumber.toUpperCase();
-      if (!receiptSet.has(key)) {
-        receiptSet.add(key);
-        receipts.push(doc.docNumber);
-      }
-    } else if (doc.docType === 'TAX_INVOICE_RECEIPT') {
-      const key = doc.docNumber.toUpperCase();
-      if (!taxInvoiceSet.has(key)) {
-        taxInvoiceSet.add(key);
-        taxInvoices.push(doc.docNumber);
-      }
-      if (!receiptSet.has(key)) {
-        receiptSet.add(key);
-        receipts.push(doc.docNumber);
-      }
-    } else {
-      const key = doc.docNumber.toUpperCase();
-      if (!taxInvoiceSet.has(key)) {
-        taxInvoiceSet.add(key);
-        taxInvoices.push(doc.docNumber);
-      }
-    }
-  }
-  for (const rd of job.repairDeliveries || []) {
-    pushToken(rd.accountingInvoiceNo, { excludeReceipt: true });
-  }
-  if (job.quotation?.invoiceNumber) {
-    pushToken(job.quotation.invoiceNumber, { excludeReceipt: true, strictPrefix: true });
-  }
-
-  // Earliest tax invoice date (prefer tax document date, then task invoiceDate, then accounting close date)
-  let earliestInvoiceDate: Date | null = null;
-  for (const doc of accountingDocs) {
-    const d = normalizeDocDate(doc.docDate);
-    if (d && (!earliestInvoiceDate || d < earliestInvoiceDate)) {
-      earliestInvoiceDate = d;
-    }
-  }
-  for (const pt of job.paymentTasks || []) {
-    const d = normalizeDocDate(pt.invoiceDate);
-    if (d && (!earliestInvoiceDate || d < earliestInvoiceDate)) {
-      earliestInvoiceDate = d;
-    }
-  }
-  if (!earliestInvoiceDate && job.accountingClosedAt) {
-    earliestInvoiceDate = normalizeDocDate(job.accountingClosedAt);
-  }
-  if (!earliestInvoiceDate && accountingLogs.length > 0) {
-    const sortedAcctDates = accountingLogs
-      .map((l) => normalizeDocDate(l.completedAt))
-      .filter((d): d is Date => Boolean(d))
-      .sort((a, b) => a.getTime() - b.getTime());
-    if (sortedAcctDates.length > 0) {
-      earliestInvoiceDate = sortedAcctDates[0];
-    }
-  }
+  const docSummary = extractJobAccountingDocumentSummary(job);
+  const {
+    taxInvoices,
+    receipts,
+    earliestInvoiceDate,
+  } = docSummary;
 
   const reconciliation = evaluateAccountingAmountReconciliation({
     accountingVerifiedBeforeVat: job.accountingVerifiedBeforeVat,
@@ -1101,4 +999,396 @@ export function sanitizeCrmCommissionRowForRole(
         }
       : null,
   };
+}
+
+export type TaxInvoiceDuplicateRelation =
+  | 'PREVIOUS_MONTH'
+  | 'OTHER_MONTH'
+  | 'SAME_MONTH';
+
+export type TaxInvoiceDuplicateSource = 'COMMISSION_REQUEST' | 'CRM_JOB';
+
+export type TaxInvoiceDuplicateMatch = {
+  token: string;
+  normalizedToken: string;
+  source: TaxInvoiceDuplicateSource;
+  relation: TaxInvoiceDuplicateRelation;
+  matchedRequestId?: string | null;
+  matchedRequestNo?: string | null;
+  matchedJobId: string;
+  matchedJobNumber: string;
+  matchedCustomerName: string;
+  matchedStatus: string;
+  matchedMonthKey: string | null;
+  matchedMonthLabel: string;
+  matchedDate: string | null;
+};
+
+export function parseTaxInvoiceTokens(raw: string | null | undefined): string[] {
+  if (!raw || typeof raw !== 'string') return [];
+  const parts = raw
+    .split(/[,;\n\r]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && s !== '-');
+
+  const seen = new Set<string>();
+  const tokens: string[] = [];
+  for (const part of parts) {
+    const key = part.toUpperCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tokens.push(part);
+  }
+  return tokens;
+}
+
+export function normalizeTaxInvoiceTokenKey(token: string): string {
+  return token.trim().toUpperCase().replace(/\s+/g, '');
+}
+
+export function getBangkokYearMonthKey(
+  dateInput: Date | string | null | undefined
+): string | null {
+  if (!dateInput) return null;
+  const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+  if (Number.isNaN(d.getTime())) return null;
+  const formatted = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric',
+    month: '2-digit',
+  }).format(d);
+  return /^\d{4}-\d{2}$/.test(formatted) ? formatted : null;
+}
+
+export function formatThaiMonthYearLabel(
+  dateInput: Date | string | null | undefined
+): string {
+  if (!dateInput) return 'ไม่ระบุเดือน';
+  const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+  if (Number.isNaN(d.getTime())) return 'ไม่ระบุเดือน';
+  return new Intl.DateTimeFormat('th-TH', {
+    timeZone: 'Asia/Bangkok',
+    month: 'short',
+    year: 'numeric',
+  }).format(d);
+}
+
+export function classifyInvoiceMonthRelation(
+  targetMonthKey: string | null,
+  matchedMonthKey: string | null
+): TaxInvoiceDuplicateRelation {
+  if (!targetMonthKey || !matchedMonthKey) return 'OTHER_MONTH';
+  if (matchedMonthKey < targetMonthKey) return 'PREVIOUS_MONTH';
+  if (matchedMonthKey > targetMonthKey) return 'OTHER_MONTH';
+  return 'SAME_MONTH';
+}
+
+export type CommissionDuplicateCandidate = {
+  id: string;
+  requestNo: string;
+  jobId: string;
+  jobNumber: string;
+  customerName: string;
+  status: string;
+  taxInvoiceNumbers: string | null;
+  taxInvoiceDate: Date | string | null;
+  requestedAt: Date | string;
+};
+
+export type CrmJobInvoiceCandidate = {
+  id: string;
+  jobNumber: string;
+  customerName: string;
+  currentStep?: string | null;
+  accountingTaxDocuments?: unknown;
+  accountingClosedAt?: Date | string | null;
+  createdAt?: Date | string | null;
+  quotation?: { invoiceNumber?: string | null } | null;
+  paymentTasks?: Array<{
+    invoiceNumber?: string | null;
+    invoiceDate?: Date | string | null;
+    note?: string | null;
+  }>;
+  repairDeliveries?: Array<{
+    accountingInvoiceNo?: string | null;
+  }>;
+  repairOrder?: {
+    invoiceNo?: string | null;
+  } | null;
+  stepLogs?: Array<{
+    step?: string | null;
+    note?: string | null;
+    completedAt?: Date | string | null;
+  }>;
+};
+
+export type JobAccountingDocumentSummary = {
+  taxInvoices: string[];
+  receipts: string[];
+  taxInvoiceEntries: Array<{ token: string; date: Date | string | null }>;
+  earliestInvoiceDate: Date | null;
+  hasExplicitDocDate: boolean;
+};
+
+/**
+ * Single authoritative extractor for tax invoice and receipt numbers recorded by Accounting on a Job.
+ */
+export function extractJobAccountingDocumentSummary(
+  job: Omit<CrmJobInvoiceCandidate, 'id' | 'jobNumber' | 'customerName'>
+): JobAccountingDocumentSummary {
+  const taxInvoiceSet = new Set<string>();
+  const taxInvoices: string[] = [];
+  const receiptSet = new Set<string>();
+  const receipts: string[] = [];
+  const taxInvoiceEntries: Array<{ token: string; date: Date | string | null }> = [];
+
+  const pushToken = (
+    raw: string | null | undefined,
+    entryDate: Date | string | null,
+    opts?: { receiptOnly?: boolean; excludeReceipt?: boolean; strictPrefix?: boolean }
+  ) => {
+    if (!raw) return;
+    const parts = String(raw)
+      .split(/[,;\n\r]+/)
+      .map((s) => s.trim())
+      .filter((s) => s && s !== '-');
+
+    for (const part of parts) {
+      if (NON_INVOICE_STEP_NOTES.has(part)) continue;
+      if (/^(ดำเนินการอัตโนมัติ|ตีกลับ|ยกเลิก)/.test(part)) continue;
+
+      const isReceipt = /^RE[-/]?\d/i.test(part);
+      if (isReceipt) {
+        const key = normalizeTaxInvoiceTokenKey(part);
+        if (!receiptSet.has(key)) {
+          receiptSet.add(key);
+          receipts.push(part);
+        }
+        if (opts?.excludeReceipt) continue;
+      }
+      if (opts?.receiptOnly && !isReceipt) continue;
+
+      if (opts?.strictPrefix) {
+        if (!/^[A-Za-z]{2,6}[-/]?\d{3,}/.test(part)) continue;
+      } else {
+        if (!/([A-Za-z]{1,6}[-/]?\d{3,}|\b\d{5,}\b)/.test(part)) continue;
+      }
+
+      if (!isReceipt) {
+        const key = normalizeTaxInvoiceTokenKey(part);
+        if (!taxInvoiceSet.has(key)) {
+          taxInvoiceSet.add(key);
+          taxInvoices.push(part);
+          taxInvoiceEntries.push({ token: part, date: entryDate });
+        }
+      }
+    }
+  };
+
+  const fallbackCloseDate = job.accountingClosedAt || job.createdAt || null;
+  const accountingDocs = parseAccountingTaxDocuments(job.accountingTaxDocuments);
+  for (const doc of accountingDocs) {
+    const docDate = doc.docDate || fallbackCloseDate;
+    if (doc.docType === 'RECEIPT') {
+      const key = normalizeTaxInvoiceTokenKey(doc.docNumber);
+      if (!receiptSet.has(key)) {
+        receiptSet.add(key);
+        receipts.push(doc.docNumber);
+      }
+    } else if (doc.docType === 'TAX_INVOICE_RECEIPT') {
+      const key = normalizeTaxInvoiceTokenKey(doc.docNumber);
+      if (!taxInvoiceSet.has(key)) {
+        taxInvoiceSet.add(key);
+        taxInvoices.push(doc.docNumber);
+        taxInvoiceEntries.push({ token: doc.docNumber, date: docDate });
+      }
+      if (!receiptSet.has(key)) {
+        receiptSet.add(key);
+        receipts.push(doc.docNumber);
+      }
+    } else {
+      const key = normalizeTaxInvoiceTokenKey(doc.docNumber);
+      if (!taxInvoiceSet.has(key)) {
+        taxInvoiceSet.add(key);
+        taxInvoices.push(doc.docNumber);
+        taxInvoiceEntries.push({ token: doc.docNumber, date: docDate });
+      }
+    }
+  }
+
+  for (const pt of job.paymentTasks || []) {
+    const ptDate = pt.invoiceDate || fallbackCloseDate;
+    pushToken(pt.invoiceNumber, ptDate, { excludeReceipt: true });
+    pushToken(pt.note, ptDate, { receiptOnly: true });
+  }
+
+  const accountingLogs = (job.stepLogs || []).filter(
+    (l) =>
+      (!l.step || l.step === 'accounting') &&
+      !(typeof l.note === 'string' && l.note.startsWith('ตีกลับ'))
+  );
+  for (const log of accountingLogs) {
+    pushToken(log.note, log.completedAt || fallbackCloseDate);
+  }
+
+  for (const rd of job.repairDeliveries || []) {
+    pushToken(rd.accountingInvoiceNo, fallbackCloseDate, { excludeReceipt: true });
+  }
+
+  if (job.repairOrder?.invoiceNo) {
+    pushToken(job.repairOrder.invoiceNo, fallbackCloseDate, {
+      excludeReceipt: true,
+      strictPrefix: true,
+    });
+  }
+
+  if (job.quotation?.invoiceNumber) {
+    pushToken(job.quotation.invoiceNumber, fallbackCloseDate, {
+      excludeReceipt: true,
+      strictPrefix: true,
+    });
+  }
+
+  let earliestExplicitDate: Date | null = null;
+  for (const doc of accountingDocs) {
+    const d = normalizeDocDate(doc.docDate);
+    if (d && (!earliestExplicitDate || d < earliestExplicitDate)) {
+      earliestExplicitDate = d;
+    }
+  }
+  for (const pt of job.paymentTasks || []) {
+    const d = normalizeDocDate(pt.invoiceDate);
+    if (d && (!earliestExplicitDate || d < earliestExplicitDate)) {
+      earliestExplicitDate = d;
+    }
+  }
+
+  let earliestInvoiceDate: Date | null = earliestExplicitDate;
+  const hasExplicitDocDate = Boolean(earliestExplicitDate);
+  if (!earliestInvoiceDate && job.accountingClosedAt) {
+    earliestInvoiceDate = normalizeDocDate(job.accountingClosedAt);
+  }
+  if (!earliestInvoiceDate && accountingLogs.length > 0) {
+    const sortedAcctDates = accountingLogs
+      .map((l) => normalizeDocDate(l.completedAt))
+      .filter((d): d is Date => Boolean(d))
+      .sort((a, b) => a.getTime() - b.getTime());
+    if (sortedAcctDates.length > 0) {
+      earliestInvoiceDate = sortedAcctDates[0];
+    }
+  }
+
+  return {
+    taxInvoices,
+    receipts,
+    taxInvoiceEntries,
+    earliestInvoiceDate,
+    hasExplicitDocDate,
+  };
+}
+
+export function extractCrmJobTaxInvoiceEntries(job: CrmJobInvoiceCandidate): Array<{
+  token: string;
+  date: Date | string | null;
+}> {
+  return extractJobAccountingDocumentSummary(job).taxInvoiceEntries;
+}
+
+export function findTaxInvoiceDuplicates(params: {
+  candidateTokens: string[];
+  referenceDate: Date | string | null | undefined;
+  excludeRequestId?: string | null;
+  excludeJobId?: string | null;
+  commissionRequests: CommissionDuplicateCandidate[];
+  crmJobs?: CrmJobInvoiceCandidate[];
+}): TaxInvoiceDuplicateMatch[] {
+  const targetTokenMap = new Map<string, string>();
+  for (const tok of params.candidateTokens) {
+    const key = normalizeTaxInvoiceTokenKey(tok);
+    if (key && !targetTokenMap.has(key)) {
+      targetTokenMap.set(key, tok.trim());
+    }
+  }
+  if (targetTokenMap.size === 0) return [];
+
+  const targetMonthKey = getBangkokYearMonthKey(params.referenceDate);
+  const matches: TaxInvoiceDuplicateMatch[] = [];
+  const dedupeKeySet = new Set<string>();
+  const matchedCommissionJobIds = new Set<string>();
+
+  for (const req of params.commissionRequests) {
+    if (params.excludeRequestId && req.id === params.excludeRequestId) continue;
+    if (req.status === 'REJECTED') continue;
+
+    const reqTokens = parseTaxInvoiceTokens(req.taxInvoiceNumbers);
+    const reqRefDate = req.taxInvoiceDate || req.requestedAt;
+    const reqMonthKey = getBangkokYearMonthKey(reqRefDate);
+    const reqMonthLabel = formatThaiMonthYearLabel(reqRefDate);
+
+    for (const reqTok of reqTokens) {
+      const normKey = normalizeTaxInvoiceTokenKey(reqTok);
+      const originalTargetTok = targetTokenMap.get(normKey);
+      if (!originalTargetTok) continue;
+
+      const dedupeKey = `REQ:${req.id}:${normKey}`;
+      if (dedupeKeySet.has(dedupeKey)) continue;
+      dedupeKeySet.add(dedupeKey);
+      matchedCommissionJobIds.add(`${req.jobId}:${normKey}`);
+
+      matches.push({
+        token: originalTargetTok,
+        normalizedToken: normKey,
+        source: 'COMMISSION_REQUEST',
+        relation: classifyInvoiceMonthRelation(targetMonthKey, reqMonthKey),
+        matchedRequestId: req.id,
+        matchedRequestNo: req.requestNo,
+        matchedJobId: req.jobId,
+        matchedJobNumber: req.jobNumber,
+        matchedCustomerName: req.customerName,
+        matchedStatus: COMMISSION_STATUS_LABELS[req.status as CommissionStatus] || req.status,
+        matchedMonthKey: reqMonthKey,
+        matchedMonthLabel: reqMonthLabel,
+        matchedDate: reqRefDate ? new Date(reqRefDate).toISOString() : null,
+      });
+    }
+  }
+
+  for (const job of params.crmJobs || []) {
+    if (params.excludeJobId && job.id === params.excludeJobId) continue;
+    const entries = extractCrmJobTaxInvoiceEntries(job);
+    for (const entry of entries) {
+      const normKey = normalizeTaxInvoiceTokenKey(entry.token);
+      const originalTargetTok = targetTokenMap.get(normKey);
+      if (!originalTargetTok) continue;
+      if (matchedCommissionJobIds.has(`${job.id}:${normKey}`)) continue;
+
+      const jobMonthKey = getBangkokYearMonthKey(entry.date);
+      const dedupeKey = `JOB:${job.id}:${normKey}`;
+      if (dedupeKeySet.has(dedupeKey)) continue;
+      dedupeKeySet.add(dedupeKey);
+
+      matches.push({
+        token: originalTargetTok,
+        normalizedToken: normKey,
+        source: 'CRM_JOB',
+        relation: classifyInvoiceMonthRelation(targetMonthKey, jobMonthKey),
+        matchedRequestId: null,
+        matchedRequestNo: null,
+        matchedJobId: job.id,
+        matchedJobNumber: job.jobNumber,
+        matchedCustomerName: job.customerName,
+        matchedStatus: job.currentStep || 'งานในระบบ CRM',
+        matchedMonthKey: jobMonthKey,
+        matchedMonthLabel: formatThaiMonthYearLabel(entry.date),
+        matchedDate: entry.date ? new Date(entry.date).toISOString() : null,
+      });
+    }
+  }
+
+  const relationOrder: Record<TaxInvoiceDuplicateRelation, number> = {
+    PREVIOUS_MONTH: 0,
+    OTHER_MONTH: 1,
+    SAME_MONTH: 2,
+  };
+  return matches.sort((a, b) => relationOrder[a.relation] - relationOrder[b.relation]);
 }

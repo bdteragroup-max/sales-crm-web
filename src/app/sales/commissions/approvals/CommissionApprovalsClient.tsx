@@ -13,19 +13,24 @@ import {
   X,
   Loader2,
   Users,
+  Calculator,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   calculateCommissionFromProfit,
   CommissionRecipientOption,
   deriveCostFromProfitPct,
   deriveProfitPctFromCost,
+  parseTaxInvoiceTokens,
   resolveEffectiveCommissionSplits,
+  TaxInvoiceDuplicateMatch,
 } from '@/app/lib/salesCommission';
 import CommissionNavHeader from '../components/CommissionNavHeader';
 import {
   CommissionStatusBadge,
   CompanyCodeBadge,
   formatRatePct,
+  formatThaiDate,
   formatThaiDateTime,
   formatThb,
 } from '../components/CommissionUiHelpers';
@@ -33,6 +38,7 @@ import {
   ApprovalDecisionForm,
   CommissionRequestActionTarget,
   PayoutRecordForm,
+  ProfitVerificationForm,
   SplitEditForm,
 } from '../components/CommissionActionForms';
 
@@ -43,7 +49,10 @@ export type CommissionApprovalRow = CommissionRequestActionTarget & {
   requestedByName: string;
   requestedAt: string;
   taxInvoiceNumbers: string | null;
+  taxInvoiceDate: string | null;
+  hasExplicitInvoiceDate?: boolean;
   receiptNumbers: string | null;
+  invoiceDuplicates?: TaxInvoiceDuplicateMatch[];
   jobClosedStatus: string;
   rejectedReason: string | null;
   payoutRefNo: string | null;
@@ -51,6 +60,7 @@ export type CommissionApprovalRow = CommissionRequestActionTarget & {
 };
 
 type ActiveModalState =
+  | { type: 'profit'; item: CommissionApprovalRow }
   | { type: 'decision'; item: CommissionApprovalRow }
   | { type: 'payout'; item: CommissionApprovalRow }
   | { type: 'splits'; item: CommissionApprovalRow }
@@ -86,6 +96,7 @@ export default function CommissionApprovalsClient({
   const [items, setItems] = useState<CommissionApprovalRow[]>(initialItems);
   const [statusTab, setStatusTab] = useState<string>('ACTIONABLE');
   const [search, setSearch] = useState('');
+  const [onlyDuplicateInvoices, setOnlyDuplicateInvoices] = useState(false);
   const [activeModal, setActiveModal] = useState<ActiveModalState>(null);
   const [isReloading, setIsReloading] = useState(false);
   const [drafts, setDrafts] = useState<Record<string, InlineProfitDraft>>({});
@@ -312,12 +323,14 @@ export default function CommissionApprovalsClient({
     let approved = 0;
     let rejected = 0;
     let paid = 0;
+    let duplicateInvoices = 0;
     for (const r of items) {
       if (r.status === 'PENDING_PROFIT_REVIEW' || r.status === 'SUBMITTED') profitReview++;
       else if (r.status === 'PENDING_APPROVAL') pendingApproval++;
       else if (r.status === 'APPROVED') approved++;
       else if (r.status === 'REJECTED') rejected++;
       else if (r.status === 'PAID') paid++;
+      if ((r.invoiceDuplicates || []).length > 0) duplicateInvoices++;
     }
     return {
       profitReview,
@@ -325,6 +338,7 @@ export default function CommissionApprovalsClient({
       approved,
       rejected,
       paid,
+      duplicateInvoices,
       actionable: profitReview + pendingApproval + approved,
     };
   }, [items]);
@@ -332,6 +346,10 @@ export default function CommissionApprovalsClient({
   const filteredItems = useMemo(() => {
     const q = search.trim().toLowerCase();
     return items.filter((r) => {
+      if (onlyDuplicateInvoices && (!r.invoiceDuplicates || r.invoiceDuplicates.length === 0)) {
+        return false;
+      }
+
       if (statusTab === 'ACTIONABLE') {
         if (
           !['SUBMITTED', 'PENDING_PROFIT_REVIEW', 'PENDING_APPROVAL', 'APPROVED'].includes(
@@ -366,7 +384,7 @@ export default function CommissionApprovalsClient({
       }
       return true;
     });
-  }, [items, statusTab, search]);
+  }, [items, statusTab, search, onlyDuplicateInvoices]);
 
   const selectableVisibleIds = filteredItems
     .filter((row) => isRowSelectableForBulkApprove(row))
@@ -523,9 +541,25 @@ export default function CommissionApprovalsClient({
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="text-xs text-slate-500 font-medium tabular-nums">
-              แสดงผล <strong className="text-slate-800">{filteredItems.length}</strong> จากทั้งหมด{' '}
-              <strong className="text-slate-800">{items.length}</strong> คำขอ
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <div className="text-xs text-slate-500 font-medium tabular-nums">
+                แสดงผล <strong className="text-slate-800">{filteredItems.length}</strong> จากทั้งหมด{' '}
+                <strong className="text-slate-800">{items.length}</strong> คำขอ
+              </div>
+              {counts.duplicateInvoices > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setOnlyDuplicateInvoices((prev) => !prev)}
+                  className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-bold border transition-colors ${
+                    onlyDuplicateInvoices
+                      ? 'bg-red-600 text-white border-red-600 shadow-2xs'
+                      : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                  }`}
+                >
+                  <AlertTriangle size={12} />
+                  <span>พบใบกำกับฯ ซ้ำ ({counts.duplicateInvoices})</span>
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-80">
@@ -612,7 +646,7 @@ export default function CommissionApprovalsClient({
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[1080px]">
+            <table className="w-full text-left border-collapse min-w-[1260px]">
               <thead>
                 <tr className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wide whitespace-nowrap">
                   <th className="py-3.5 px-3 w-11 text-center">
@@ -631,6 +665,7 @@ export default function CommissionApprovalsClient({
                   <th className="py-3.5 px-3">เลขคำขอ / Job</th>
                   <th className="py-3.5 px-3">ลูกค้า / สินค้า</th>
                   <th className="py-3.5 px-3">พนักงานขาย / ผู้ยื่น</th>
+                  <th className="py-3.5 px-3">เลขที่ใบกำกับภาษี (บัญชี)</th>
                   <th className="py-3.5 px-3 text-right">ยอด (ไม่รวม VAT)</th>
                   <th className="py-3.5 px-3 text-right">ต้นทุน / % กำไร</th>
                   <th className="py-3.5 px-3 text-right">ค่าคอมฯ</th>
@@ -641,13 +676,14 @@ export default function CommissionApprovalsClient({
               <tbody className="divide-y divide-slate-100 text-xs">
                 {filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-14 text-center text-slate-400 font-medium">
+                    <td colSpan={10} className="py-14 text-center text-slate-400 font-medium">
                       ไม่มีคำขอในสถานะที่เลือก
                     </td>
                   </tr>
                 ) : (
                   filteredItems.map((row) => {
-                    const isEditableProfit =
+                    const isEditableProfit = row.status !== 'PAID';
+                    const canEditSplits =
                       row.status !== 'APPROVED' && row.status !== 'PAID';
                     const canSelectForBulk = isRowSelectableForBulkApprove(row);
                     const isChecked = selectedIds.has(row.id) && canSelectForBulk;
@@ -791,6 +827,97 @@ export default function CommissionApprovalsClient({
                         })()}
                       </td>
 
+                      <td className="py-3.5 px-3 align-middle max-w-[230px]">
+                        {(() => {
+                          const invoiceTokens = parseTaxInvoiceTokens(row.taxInvoiceNumbers);
+                          const receiptTokens = parseTaxInvoiceTokens(row.receiptNumbers);
+                          const dupMatches = row.invoiceDuplicates || [];
+                          const crossMonthMatches = dupMatches.filter(
+                            (m) => m.relation === 'PREVIOUS_MONTH' || m.relation === 'OTHER_MONTH'
+                          );
+                          const sameMonthMatches = dupMatches.filter(
+                            (m) => m.relation === 'SAME_MONTH'
+                          );
+                          const dupTooltip = dupMatches
+                            .map(
+                              (m) =>
+                                `${m.token} (${
+                                  m.relation === 'PREVIOUS_MONTH'
+                                    ? 'ซ้ำเดือนก่อนหน้า'
+                                    : m.relation === 'OTHER_MONTH'
+                                    ? 'ซ้ำเดือนอื่น'
+                                    : 'ซ้ำในเดือนเดียวกัน'
+                                } • ${m.matchedMonthLabel}): ${
+                                  m.matchedRequestNo || m.matchedJobNumber
+                                } - ${m.matchedCustomerName}`
+                            )
+                            .join('\n');
+
+                          return (
+                            <div className="space-y-1">
+                              {invoiceTokens.length > 0 ? (
+                                <div
+                                  className="font-bold text-slate-800 text-[11px] tabular-nums break-words"
+                                  title={invoiceTokens.join(', ')}
+                                >
+                                  {invoiceTokens.join(', ')}
+                                </div>
+                              ) : (
+                                <div className="text-[11px] text-slate-400 font-medium">
+                                  ยังไม่มีเลขใบกำกับภาษีจากบัญชี
+                                </div>
+                              )}
+
+                              {invoiceTokens.length === 0 && receiptTokens.length > 0 && (
+                                <div
+                                  className="text-[10px] text-slate-500 tabular-nums truncate"
+                                  title={`ใบเสร็จ: ${receiptTokens.join(', ')}`}
+                                >
+                                  ใบเสร็จ: {receiptTokens.join(', ')}
+                                </div>
+                              )}
+
+                              {row.taxInvoiceDate && (
+                                <div className="text-[10px] text-slate-500 tabular-nums">
+                                  {invoiceTokens.length > 0 || row.hasExplicitInvoiceDate
+                                    ? 'วันที่บิล:'
+                                    : 'ปิดบัญชี:'}{' '}
+                                  {formatThaiDate(row.taxInvoiceDate)}
+                                </div>
+                              )}
+
+                              {crossMonthMatches.length > 0 ? (
+                                <div
+                                  title={dupTooltip}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold"
+                                >
+                                  <AlertTriangle size={10} className="shrink-0" />
+                                  <span className="truncate max-w-[180px]">
+                                    ซ้ำ{crossMonthMatches[0].relation === 'PREVIOUS_MONTH' ? 'เดือนก่อนหน้า' : 'เดือนอื่น'} ({crossMonthMatches[0].matchedMonthLabel})
+                                    {crossMonthMatches.length > 1 ? ` +${crossMonthMatches.length - 1}` : ''}
+                                  </span>
+                                </div>
+                              ) : sameMonthMatches.length > 0 ? (
+                                <div
+                                  title={dupTooltip}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold"
+                                >
+                                  <AlertTriangle size={10} className="shrink-0" />
+                                  <span className="truncate max-w-[180px]">
+                                    ซ้ำในเดือน ({sameMonthMatches[0].matchedRequestNo || sameMonthMatches[0].matchedJobNumber})
+                                  </span>
+                                </div>
+                              ) : invoiceTokens.length > 0 ? (
+                                <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[10px] font-semibold">
+                                  <ShieldCheck size={10} className="shrink-0" />
+                                  <span>ไม่ซ้ำข้ามเดือน</span>
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })()}
+                      </td>
+
                       <td className="py-3.5 px-3 align-middle text-right font-bold text-slate-900 tabular-nums whitespace-nowrap">
                         {formatThb(row.salesAmountExVat)}
                       </td>
@@ -875,6 +1002,11 @@ export default function CommissionApprovalsClient({
                             {draft?.error && (
                               <div className="text-[10px] text-red-600 font-semibold max-w-[160px] text-right whitespace-normal">
                                 {draft.error}
+                              </div>
+                            )}
+                            {row.status === 'APPROVED' && (
+                              <div className="text-[10px] text-amber-700 font-semibold">
+                                อนุมัติแล้ว • แก้ไขได้
                               </div>
                             )}
                           </div>
@@ -963,7 +1095,7 @@ export default function CommissionApprovalsClient({
 
                       <td className="py-3.5 px-3 align-middle text-right whitespace-nowrap">
                         <div className="inline-flex items-center justify-end gap-1.5 flex-nowrap">
-                          {isEditableProfit && (
+                          {canEditSplits && (
                             <button
                               type="button"
                               onClick={() => setActiveModal({ type: 'splits', item: row })}
@@ -971,6 +1103,17 @@ export default function CommissionApprovalsClient({
                               className="inline-flex items-center justify-center gap-1 h-8 px-2.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold border border-indigo-200 whitespace-nowrap transition-colors"
                             >
                               <Users size={12} /> แบ่ง %
+                            </button>
+                          )}
+
+                          {row.status === 'APPROVED' && (
+                            <button
+                              type="button"
+                              onClick={() => setActiveModal({ type: 'profit', item: row })}
+                              title="แก้ไขต้นทุน / % กำไร (คำขอที่อนุมัติแล้ว)"
+                              className="inline-flex items-center justify-center gap-1 h-8 px-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-bold border border-amber-200 whitespace-nowrap transition-colors"
+                            >
+                              <Calculator size={12} /> แก้กำไร
                             </button>
                           )}
 
@@ -1028,7 +1171,11 @@ export default function CommissionApprovalsClient({
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-slate-900">
-                  {activeModal.type === 'decision'
+                  {activeModal.type === 'profit'
+                    ? activeModal.item.status === 'APPROVED'
+                      ? 'แก้ไขต้นทุน / % กำไร (คำขอที่อนุมัติแล้ว)'
+                      : 'Step 4: ตรวจสอบต้นทุนและ % กำไร'
+                    : activeModal.type === 'decision'
                     ? 'Step 5: พิจารณาอนุมัติคำขอค่าคอมมิชชั่น'
                     : activeModal.type === 'payout'
                     ? 'Step 6: บันทึกการจ่ายค่าคอมมิชชั่น'
@@ -1050,6 +1197,16 @@ export default function CommissionApprovalsClient({
             </div>
 
             <div className="p-6 max-h-[75vh] overflow-y-auto">
+              {activeModal.type === 'profit' && (
+                <ProfitVerificationForm
+                  item={activeModal.item}
+                  onCancel={() => setActiveModal(null)}
+                  onCompleted={async () => {
+                    setActiveModal(null);
+                    await reloadItems();
+                  }}
+                />
+              )}
               {activeModal.type === 'splits' && (
                 <SplitEditForm
                   item={activeModal.item}

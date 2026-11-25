@@ -18,6 +18,7 @@ import {
   CommissionRecipientOption,
   CommissionSplitItem,
   resolveEffectiveCommissionSplits,
+  TaxInvoiceDuplicateMatch,
 } from '@/app/lib/salesCommission';
 import CommissionNavHeader from '../components/CommissionNavHeader';
 import {
@@ -51,7 +52,9 @@ export type CommissionDetailRecord = {
   requestedAt: string;
   taxInvoiceNumbers: string | null;
   taxInvoiceDate: string | null;
+  hasExplicitInvoiceDate?: boolean;
   receiptNumbers: string | null;
+  invoiceDuplicates?: TaxInvoiceDuplicateMatch[];
   jobClosedStatus: string;
   isJobClosed: boolean;
   salesAmountExVat: number;
@@ -171,7 +174,8 @@ export default function CommissionDetailClient({
   const paymentMethodLabel =
     record.job?.paymentMethod || record.crmSnapshot?.paymentMethod || null;
   const acctLogs = record.crmSnapshot?.accountingLogs || [];
-  const canEditProfit = record.status !== 'APPROVED' && record.status !== 'PAID';
+  const canEditProfit = record.status !== 'PAID';
+  const canEditSplits = record.status !== 'APPROVED' && record.status !== 'PAID';
   const canDecide =
     record.status === 'PENDING_PROFIT_REVIEW' ||
     record.status === 'PENDING_APPROVAL' ||
@@ -323,7 +327,7 @@ export default function CommissionDetailClient({
                       สัดส่วนผู้รับและแบ่งค่าคอมมิชชั่น ({effectiveSplits.length} คน)
                     </span>
                   </div>
-                  {canEditProfit && (
+                  {canEditSplits && (
                     <button
                       type="button"
                       onClick={() => setIsEditingSplits((prev) => !prev)}
@@ -335,7 +339,7 @@ export default function CommissionDetailClient({
                   )}
                 </div>
 
-                {isEditingSplits && canEditProfit ? (
+                {isEditingSplits && canEditSplits ? (
                   <div className="bg-white rounded-xl border border-indigo-100 p-4">
                     <SplitEditForm
                       item={record}
@@ -396,11 +400,14 @@ export default function CommissionDetailClient({
           {/* Left 7 cols: CRM Evidence & Payment Verification */}
           <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs flex flex-col justify-between gap-5">
             <div className="space-y-4">
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2 text-sm font-black text-slate-900">
                   <Receipt size={17} className="text-[#ff2301]" />
                   <span>ข้อมูลอ้างอิงจาก CRM และหลักฐานการรับชำระเงิน</span>
                 </div>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-semibold text-slate-600">
+                  เลขใบกำกับภาษีดึงจากฝ่ายบัญชีอัตโนมัติ
+                </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-slate-50 rounded-xl p-4 border border-slate-200">
@@ -449,6 +456,36 @@ export default function CommissionDetailClient({
                   </div>
                 </div>
               </div>
+
+              {(record.invoiceDuplicates || []).length > 0 && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-900 space-y-1.5">
+                  <div className="font-black flex items-center gap-2">
+                    <AlertTriangle size={15} className="text-red-600 shrink-0" />
+                    <span>
+                      ตรวจพบเลขที่ใบกำกับภาษีซ้ำกับเดือนอื่น/รายการอื่น (
+                      {record.invoiceDuplicates?.length} รายการ)
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {record.invoiceDuplicates?.map((m, idx) => (
+                      <div
+                        key={`${m.normalizedToken}-${m.matchedJobId}-${m.matchedRequestId || idx}`}
+                        className="text-[11px] text-red-800"
+                      >
+                        • <strong>{m.token}</strong> (
+                        {m.relation === 'PREVIOUS_MONTH'
+                          ? 'ซ้ำเดือนก่อนหน้า'
+                          : m.relation === 'OTHER_MONTH'
+                          ? 'ซ้ำเดือนอื่น'
+                          : 'ซ้ำในเดือนเดียวกัน'}{' '}
+                        • {m.matchedMonthLabel}):{' '}
+                        {m.matchedRequestNo ? `${m.matchedRequestNo} / ` : ''}
+                        Job {m.matchedJobNumber} ({m.matchedCustomerName} • {m.matchedStatus})
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* PaymentTask Breakdown - Styled like CRM Payment Tasks */}
               <div>
@@ -707,7 +744,9 @@ export default function CommissionDetailClient({
             {canEditProfit && (
               <div className="bg-white rounded-2xl border border-indigo-200 p-5 shadow-xs space-y-3 flex-1">
                 <h2 className="text-sm font-black text-indigo-950">
-                  Step 4: ตรวจสอบต้นทุน &amp; ยืนยัน % กำไร
+                  {record.status === 'APPROVED'
+                    ? 'Step 4: แก้ไขต้นทุน & % กำไร (คำขออนุมัติแล้ว)'
+                    : 'Step 4: ตรวจสอบต้นทุน & ยืนยัน % กำไร'}
                 </h2>
                 <ProfitVerificationForm item={record} onCompleted={reloadDetail} />
               </div>

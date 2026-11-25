@@ -467,6 +467,10 @@ export async function updatePaymentTaskStatus(taskId: string, status: string, no
   });
 
   await syncFinancialAdjustments(task.jobId);
+  const { syncAccountingInvoicesToCommissionRequests } = await import('@/app/lib/salesCommissionServer');
+  await syncAccountingInvoicesToCommissionRequests(task.jobId);
+  safeRevalidatePath('/sales/commissions/approvals');
+  safeRevalidatePath('/sales/commissions');
   return task;
 }
 
@@ -697,11 +701,15 @@ export async function saveAccountingJobVerification(payload: {
     }
   }
 
+  const { syncAccountingInvoicesToCommissionRequests } = await import('@/app/lib/salesCommissionServer');
+  await syncAccountingInvoicesToCommissionRequests(existingJob.id);
+
   safeRevalidatePath("/accounting");
   safeRevalidatePath("/accounting/dashboard");
   safeRevalidatePath("/jobs");
   safeRevalidatePath("/sales");
   safeRevalidatePath("/sales/commissions");
+  safeRevalidatePath("/sales/commissions/approvals");
   safeRevalidatePath("/pipeline");
 
   return {

@@ -1,7 +1,15 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Calculator, CheckCircle2, XCircle, Banknote, Loader2, AlertTriangle, Users } from 'lucide-react';
+import {
+  Calculator,
+  CheckCircle2,
+  XCircle,
+  Banknote,
+  Loader2,
+  AlertTriangle,
+  Users,
+} from 'lucide-react';
 import {
   calculateCommissionFromProfit,
   CommissionRecipientOption,
@@ -56,6 +64,7 @@ export function ProfitVerificationForm({
   const [error, setError] = useState<string | null>(null);
 
   const isRevision = item.confirmedProfitPct !== null;
+  const isApprovedRevision = item.status === 'APPROVED';
 
   const handleCostChange = (val: string) => {
     setCostInput(val);
@@ -139,6 +148,18 @@ export function ProfitVerificationForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {isApprovedRevision && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 flex items-start gap-2 text-xs text-amber-900">
+          <AlertTriangle size={15} className="shrink-0 mt-0.5 text-amber-600" />
+          <div>
+            <div className="font-bold">คำขอนี้ได้รับการอนุมัติแล้ว (APPROVED)</div>
+            <div className="text-[11px] text-amber-800 mt-0.5">
+              การแก้ไขต้นทุน / % กำไรจะคงสถานะ <strong>อนุมัติแล้ว</strong> คำนวณค่าคอมมิชชั่นและสัดส่วนผู้รับใหม่ให้อัตโนมัติ พร้อมบันทึกประวัติแก้ไข (Audit Log)
+            </div>
+          </div>
+        </div>
+      )}
+
       {item.hasGoodsReturn && (
         <div className="rounded-xl bg-orange-50 border border-orange-200 p-3 flex items-center gap-2 text-xs font-bold text-orange-800">
           <AlertTriangle size={15} className="shrink-0" />
@@ -258,7 +279,7 @@ export function ProfitVerificationForm({
           className="inline-flex items-center justify-center gap-2 w-full h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-colors"
         >
           {isSaving ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-          บันทึก &amp; ยืนยันกำไร
+          {isApprovedRevision ? 'บันทึกแก้ไขกำไร (คงสถานะอนุมัติ)' : 'บันทึก & ยืนยันกำไร'}
         </button>
       </div>
     </form>

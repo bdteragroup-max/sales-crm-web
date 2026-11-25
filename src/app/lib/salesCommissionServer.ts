@@ -7,13 +7,18 @@ import { stringToAdvisoryLockIds } from '@/app/lib/job-utils';
 import { buildThaiPersonNameVariants } from '@/app/lib/personName';
 import {
   canAccessCommissionRequestList,
+  CommissionDuplicateCandidate,
   CommissionRecipientOption,
+  CrmJobInvoiceCandidate,
   CrmJobSourceInput,
   doesJobBelongToSalesUser,
   doesUserMatchSplit,
   EvaluatedCrmCommissionRow,
   evaluateJobForCommission,
+  extractJobAccountingDocumentSummary,
+  findTaxInvoiceDuplicates,
   isCommissionSuperAdmin,
+  parseTaxInvoiceTokens,
   sanitizeCrmCommissionRowForRole,
 } from '@/app/lib/salesCommission';
 
@@ -168,6 +173,11 @@ export const CRM_JOB_COMMISSION_SELECT = {
       id: true,
       deliveryNumber: true,
       accountingInvoiceNo: true,
+    },
+  },
+  repairOrder: {
+    select: {
+      invoiceNo: true,
     },
   },
   goodsReturns: {
@@ -443,6 +453,177 @@ export async function acquireCommissionJobLock(tx: DbTransactionClient, jobId: s
   await acquireCommissionJobLocks(tx, [jobId]);
 }
 
+const ACCOUNTING_JOB_INVOICE_SELECT = {
+  id: true,
+  jobNumber: true,
+  customerName: true,
+  currentStep: true,
+  accountingTaxDocuments: true,
+  accountingClosedAt: true,
+  createdAt: true,
+  quotation: { select: { invoiceNumber: true } },
+  paymentTasks: {
+    select: {
+      invoiceNumber: true,
+      invoiceDate: true,
+      note: true,
+    },
+  },
+  repairDeliveries: {
+    select: { accountingInvoiceNo: true },
+  },
+  repairOrder: {
+    select: { invoiceNo: true },
+  },
+  stepLogs: {
+    where: { step: 'accounting' },
+    orderBy: { completedAt: 'asc' as const },
+    select: {
+      step: true,
+      note: true,
+      completedAt: true,
+    },
+  },
+} satisfies Prisma.JobSelect;
+
+async function loadInvoiceDuplicateCorpus(): Promise<{
+  commissionRequests: CommissionDuplicateCandidate[];
+  crmJobs: CrmJobInvoiceCandidate[];
+}> {
+  const [rawRequests, crmJobs] = await Promise.all([
+    prisma.salesCommissionRequest.findMany({
+      where: {
+        status: { not: 'REJECTED' },
+      },
+      select: {
+        id: true,
+        requestNo: true,
+        jobId: true,
+        jobNumber: true,
+        customerName: true,
+        status: true,
+        taxInvoiceNumbers: true,
+        taxInvoiceDate: true,
+        requestedAt: true,
+      },
+    }),
+    prisma.job.findMany({
+      select: ACCOUNTING_JOB_INVOICE_SELECT,
+    }),
+  ]);
+
+  const crmJobById = new Map(crmJobs.map((job) => [job.id, job]));
+  const commissionRequests: CommissionDuplicateCandidate[] = rawRequests.map((req) => {
+    const linkedJob = crmJobById.get(req.jobId);
+    if (!linkedJob) return req;
+    const summary = extractJobAccountingDocumentSummary(linkedJob);
+    return {
+      ...req,
+      taxInvoiceNumbers: summary.taxInvoices.join(', ') || null,
+      taxInvoiceDate: summary.earliestInvoiceDate || req.taxInvoiceDate,
+    };
+  });
+
+  return { commissionRequests, crmJobs };
+}
+
+function enrichAdminRequestWithAccountingInvoices<
+  T extends {
+    id: string;
+    jobId: string;
+    taxInvoiceNumbers: string | null;
+    taxInvoiceDate: Date | null;
+    receiptNumbers: string | null;
+    requestedAt: Date;
+    job?: Omit<CrmJobInvoiceCandidate, 'id' | 'jobNumber' | 'customerName'> | null;
+  }
+>(
+  item: T,
+  corpus: {
+    commissionRequests: CommissionDuplicateCandidate[];
+    crmJobs: CrmJobInvoiceCandidate[];
+  }
+) {
+  const docSummary = item.job ? extractJobAccountingDocumentSummary(item.job) : null;
+  const resolvedTaxInvoiceNumbers = item.job
+    ? docSummary!.taxInvoices.join(', ') || null
+    : item.taxInvoiceNumbers;
+  const resolvedTaxInvoiceDate = item.job
+    ? docSummary!.earliestInvoiceDate || item.taxInvoiceDate
+    : item.taxInvoiceDate;
+  const hasExplicitInvoiceDate = item.job
+    ? docSummary!.hasExplicitDocDate
+    : Boolean(item.taxInvoiceDate);
+  const resolvedReceiptNumbers = item.job
+    ? docSummary!.receipts.join(', ') || null
+    : item.receiptNumbers;
+  const candidateTokens = item.job
+    ? docSummary!.taxInvoices
+    : parseTaxInvoiceTokens(item.taxInvoiceNumbers);
+
+  const invoiceDuplicates =
+    candidateTokens.length > 0
+      ? findTaxInvoiceDuplicates({
+          candidateTokens,
+          referenceDate: resolvedTaxInvoiceDate || item.requestedAt,
+          excludeRequestId: item.id,
+          excludeJobId: item.jobId,
+          commissionRequests: corpus.commissionRequests,
+          crmJobs: corpus.crmJobs,
+        })
+      : [];
+
+  return {
+    ...item,
+    taxInvoiceNumbers: resolvedTaxInvoiceNumbers,
+    taxInvoiceDate: resolvedTaxInvoiceDate,
+    hasExplicitInvoiceDate,
+    receiptNumbers: resolvedReceiptNumbers,
+    invoiceDuplicates,
+  };
+}
+
+/**
+ * Syncs stored invoice columns on active SalesCommissionRequest records whenever Accounting updates a Job.
+ */
+export async function syncAccountingInvoicesToCommissionRequests(jobId: string): Promise<void> {
+  if (!jobId) return;
+  try {
+    const [job, requests] = await Promise.all([
+      prisma.job.findUnique({
+        where: { id: jobId },
+        select: ACCOUNTING_JOB_INVOICE_SELECT,
+      }),
+      prisma.salesCommissionRequest.findMany({
+        where: {
+          jobId,
+          status: { not: 'REJECTED' },
+        },
+        select: { id: true },
+      }),
+    ]);
+    if (!job || requests.length === 0) return;
+
+    const summary = extractJobAccountingDocumentSummary(job);
+    const nextTaxInvoices = summary.taxInvoices.join(', ') || '-';
+    const nextReceipts = summary.receipts.join(', ') || '-';
+
+    await prisma.salesCommissionRequest.updateMany({
+      where: {
+        jobId,
+        status: { not: 'REJECTED' },
+      },
+      data: {
+        taxInvoiceNumbers: nextTaxInvoices,
+        taxInvoiceDate: summary.earliestInvoiceDate,
+        receiptNumbers: nextReceipts,
+      },
+    });
+  } catch (err) {
+    console.warn('[Commission] syncAccountingInvoicesToCommissionRequests warning:', err);
+  }
+}
+
 export async function fetchAllCommissionRequestsAdmin(filters?: {
   status?: string;
   search?: string;
@@ -473,19 +654,29 @@ export async function fetchAllCommissionRequestsAdmin(filters?: {
     }
   }
 
-  const items = await prisma.salesCommissionRequest.findMany({
-    where,
-    orderBy: { requestedAt: 'desc' },
-    include: {
-      splits: {
-        orderBy: { sortOrder: 'asc' },
+  const [items, corpus] = await Promise.all([
+    prisma.salesCommissionRequest.findMany({
+      where,
+      orderBy: { requestedAt: 'desc' },
+      include: {
+        splits: {
+          orderBy: { sortOrder: 'asc' },
+        },
+        logs: {
+          orderBy: { createdAt: 'desc' },
+          take: 15,
+        },
+        job: {
+          select: ACCOUNTING_JOB_INVOICE_SELECT,
+        },
       },
-      logs: {
-        orderBy: { createdAt: 'desc' },
-        take: 15,
-      },
-    },
-  });
+    }),
+    loadInvoiceDuplicateCorpus(),
+  ]);
+
+  const enrichedItems = items.map((item) =>
+    enrichAdminRequestWithAccountingInvoices(item, corpus)
+  );
 
   const targetSalesperson =
     filters?.salespersonName && filters.salespersonName !== 'ALL'
@@ -493,7 +684,7 @@ export async function fetchAllCommissionRequestsAdmin(filters?: {
       : null;
 
   const q = (filters?.search || '').trim().toLowerCase();
-  const filtered = items.filter((item) => {
+  const filtered = enrichedItems.filter((item) => {
     if (targetSalesperson) {
       const matchesPrimary = item.salespersonName === targetSalesperson;
       const matchesSplit = item.splits.some((s) => s.recipientName === targetSalesperson);
@@ -524,19 +715,24 @@ export async function fetchAllCommissionRequestsAdmin(filters?: {
 }
 
 export async function fetchCommissionRequestDetailAdmin(id: string) {
-  const reqRecord = await prisma.salesCommissionRequest.findUnique({
-    where: { id },
-    include: {
-      splits: {
-        orderBy: { sortOrder: 'asc' },
+  const [reqRecord, corpus] = await Promise.all([
+    prisma.salesCommissionRequest.findUnique({
+      where: { id },
+      include: {
+        splits: {
+          orderBy: { sortOrder: 'asc' },
+        },
+        logs: {
+          orderBy: { createdAt: 'desc' },
+        },
+        job: {
+          select: CRM_JOB_COMMISSION_SELECT,
+        },
       },
-      logs: {
-        orderBy: { createdAt: 'desc' },
-      },
-      job: {
-        select: CRM_JOB_COMMISSION_SELECT,
-      },
-    },
-  });
-  return reqRecord;
+    }),
+    loadInvoiceDuplicateCorpus(),
+  ]);
+  if (!reqRecord) return null;
+
+  return enrichAdminRequestWithAccountingInvoices(reqRecord, corpus);
 }
