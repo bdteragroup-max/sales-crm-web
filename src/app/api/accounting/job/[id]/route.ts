@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/lib/db";
 import { syncProjectInstallmentsToPaymentTasks } from "@/app/actions/projects";
+import { isPlaceholderPaymentTask } from "@/app/lib/accounting-schedule";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,18 +12,24 @@ export async function GET(
   try {
     const { id } = await context.params;
 
-    // Only initialize payment tasks from linked project when the job has no structured tasks yet
-    // (never overwrite or delete payment rounds already configured/updated by Accounting)
-    const linkedProject = await prisma.project.findFirst({
-      where: { jobId: id },
-      select: {
-        id: true,
-        firstPayment: true,
-        installment1: true,
-        installmentsData: true,
-      }
-    });
-    if (linkedProject) {
+    // Only initialize payment tasks from linked project when the job has not been closed/settled by Accounting
+    // and only has empty or untouched placeholder tasks (never overwrite/add rounds to active/closed accounting jobs)
+    const [jobMeta, linkedProject] = await Promise.all([
+      prisma.job.findUnique({
+        where: { id },
+        select: { accountingClosedAt: true, paymentStatus: true },
+      }),
+      prisma.project.findFirst({
+        where: { jobId: id },
+        select: {
+          id: true,
+          firstPayment: true,
+          installment1: true,
+          installmentsData: true,
+        }
+      }),
+    ]);
+    if (linkedProject && jobMeta && !jobMeta.accountingClosedAt && jobMeta.paymentStatus !== 'paid') {
       const existingTasks = await prisma.paymentTask.findMany({
         where: { jobId: id },
         select: {
@@ -33,19 +40,15 @@ export async function GET(
           status: true,
           creditType: true,
           invoiceNumber: true,
+          paidDate: true,
           note: true,
         }
       });
       const isUntouchedPlaceholderOnly =
         existingTasks.length === 0 ||
         (existingTasks.length === 1 &&
-          existingTasks[0].installmentNo === null &&
-          !existingTasks[0].installmentAmount &&
-          (!existingTasks[0].paidAmount || existingTasks[0].paidAmount === 0) &&
-          existingTasks[0].status === 'รอดำเนินการ' &&
-          !existingTasks[0].creditType &&
-          !existingTasks[0].invoiceNumber &&
-          !existingTasks[0].note);
+          isPlaceholderPaymentTask(existingTasks[0]) &&
+          (!existingTasks[0].installmentAmount || Number(existingTasks[0].installmentAmount) === 0));
 
       if (isUntouchedPlaceholderOnly) {
         await syncProjectInstallmentsToPaymentTasks(linkedProject.id);

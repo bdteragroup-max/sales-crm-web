@@ -213,3 +213,95 @@ export function computeDefaultDueDateByPaymentMethod(
   return dueDate;
 }
 
+/**
+ * Checks whether a job's companyCode matches the selected accounting dashboard entity filter (ALL, TG, TE, TP).
+ */
+export function matchesCompanyEntity(
+  companyCode: string | null | undefined,
+  entity: string | null | undefined
+): boolean {
+  const target = (entity || 'ALL').trim().toUpperCase();
+  if (!target || target === 'ALL') return true;
+  const code = (companyCode || '').toUpperCase();
+  if (target === 'TG') return code.includes('TG') || code.includes('GROUP');
+  if (target === 'TE') return code.includes('TE') || code.includes('ELECTRIC');
+  if (target === 'TP') return code.includes('TP') || code.includes('POWER');
+  return code === target;
+}
+
+/**
+ * Resolves the VAT-inclusive billed amount for a single PaymentTask row without double-counting un-amounted multi-installment rounds.
+ */
+export function getPaymentTaskBilledAmount(pt: {
+  installmentAmount?: number | string | null;
+  installmentTotal?: number | null;
+  job?: {
+    project?: {
+      projectValue?: unknown;
+      amountIncludingVat?: unknown;
+    } | null;
+    quotation?: {
+      actualClosingAmount?: unknown;
+      totalAmountBeforeVat?: unknown;
+    } | null;
+  } | null;
+}): number {
+  const instAmt = Number(pt.installmentAmount || 0);
+  if (Number.isFinite(instAmt) && instAmt > 0) {
+    return instAmt;
+  }
+  if (pt.installmentTotal && pt.installmentTotal > 1) {
+    return 0;
+  }
+  const projVal = Number(pt.job?.project?.projectValue || 0);
+  if (Number.isFinite(projVal) && projVal > 0) {
+    return projVal;
+  }
+  const projIncVat = Number(pt.job?.project?.amountIncludingVat || 0);
+  if (Number.isFinite(projIncVat) && projIncVat > 0) {
+    return projIncVat;
+  }
+  const qAmount =
+    Number(pt.job?.quotation?.actualClosingAmount || 0) ||
+    Number(pt.job?.quotation?.totalAmountBeforeVat || 0) ||
+    0;
+  if (Number.isFinite(qAmount) && qAmount > 0) {
+    return qAmount * 1.07;
+  }
+  return 0;
+}
+
+/**
+ * Formats a Date/string to YYYY-MM in Asia/Bangkok calendar timezone.
+ */
+export function getBangkokYearMonth(value: Date | string | null | undefined): string | null {
+  const ymd = toBangkokDateString(value);
+  return ymd ? ymd.slice(0, 7) : null;
+}
+
+/**
+ * Returns the date when a PaymentTask recorded settlement/payment, used for historical month-end AR snapshots.
+ */
+export function getPaymentTaskEffectivePaidDate(task: {
+  paidDate?: Date | string | null;
+  depositPaidDate?: Date | string | null;
+  updatedAt?: Date | string | null;
+  createdAt?: Date | string | null;
+  invoiceDate?: Date | string | null;
+}): Date | null {
+  const raw =
+    task.paidDate ||
+    task.depositPaidDate ||
+    task.invoiceDate ||
+    task.updatedAt ||
+    task.createdAt;
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return null;
+  if (parsed.getUTCFullYear() >= 2400) {
+    parsed.setUTCFullYear(parsed.getUTCFullYear() - 543);
+  }
+  return parsed;
+}
+
+

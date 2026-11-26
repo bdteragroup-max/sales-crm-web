@@ -1,5 +1,4 @@
-import { decrypt } from '@/app/lib/session'
-import { cookies } from 'next/headers'
+import { getUser } from '@/app/lib/dal'
 import prisma from '@/app/lib/db'
 import { teraDb } from '@/app/lib/teraDb'
 import { redirect } from "next/navigation";
@@ -8,24 +7,17 @@ import JobsClientPage from "./JobsClientPage";
 import { buildThaiPersonNameVariants } from "@/app/lib/personName";
 import { isMarketingManager as checkMarketingManager, isSalesOrMarketingManager } from "@/app/lib/roleHelper";
 import { getRecursiveSubordinateEmpIds } from "@/app/lib/subordinates";
+import { pickPrimaryJobLogisticsLinks } from "@/app/lib/logisticsTypes";
 
 export const dynamic = 'force-dynamic';
 
 export default async function JobsPage(props: { searchParams?: Promise<any> | any }) { 
-  const searchParams = props.searchParams ? await props.searchParams : {};
+  const [searchParams, user] = await Promise.all([
+    props.searchParams ? props.searchParams : Promise.resolve({}),
+    getUser(),
+  ]);
   const actionParam = searchParams.action;
   const targetJobId = searchParams.jobId;
-  const session = (await cookies()).get('session')?.value
-  const payload = await decrypt(session)
-  
-  if (!payload?.userId) {
-    redirect('/')
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    include: { employeeSale: true }
-  })
 
   if (!user || !user.isActive) {
     redirect('/')
@@ -49,10 +41,20 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   const isOpsManager = roleStr.includes('warehouse, transport & purchasing manager') || roleStr.includes('ผู้จัดการฝ่ายคลังสินค้า') || roleStr.includes('คลังสินค้า') || roleStr.includes('จัดส่ง') || roleStr.includes('จัดซื้อ') || roleStr.includes('warehouse') || roleStr.includes('transport') || roleStr.includes('purchasing');
   const isManager = isSuperAdmin || isExecutive || isSalesManager || isServiceManager || isMarketingManager || isOpsManager; 
   
-  const teraEmployee = await teraDb.employees.findUnique({
-    where: { emp_id: user.employeeId },
-    include: { departments: true }
-  });
+  const needsTeraDept = !user.employeeSale?.department;
+  const [teraEmployee, subEmpIds] = await Promise.all([
+    needsTeraDept || (!isSuperAdmin && !isExecutive && !isMarketingManager)
+      ? teraDb.employees
+          .findUnique({
+            where: { emp_id: user.employeeId },
+            include: { departments: true },
+          })
+          .catch(() => null)
+      : Promise.resolve(null),
+    isSalesManager && !isSuperAdmin && !isExecutive && !isMarketingManager
+      ? getRecursiveSubordinateEmpIds(user.employeeId)
+      : Promise.resolve<string[]>([]),
+  ]);
   
   const resolvedDept = user.employeeSale?.department || teraEmployee?.departments?.name || "sales";
   const isSalesDept = resolvedDept.toLowerCase().includes('sale') || resolvedDept.toLowerCase().includes('ขาย') || resolvedDept.includes('เซลส์') || resolvedDept.includes('เซลล์');
@@ -66,7 +68,6 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
   } else if (isMarketingManager) {
     whereClause = {}; // Marketing Manager sees all jobs
   } else if (isSalesManager) {
-    const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);
     const teamUsers = await prisma.user.findMany({
       where: { employeeId: { in: subEmpIds }, isActive: true },
       select: {
@@ -122,6 +123,64 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
     orderBy: { dateClosed: "desc" }, 
   }); 
 
+  const jobIds = jobs.map((j) => j.id);
+  const rdToJobMap = new Map<string, string>();
+  for (const j of jobs) {
+    for (const rd of j.repairDeliveries || []) {
+      rdToJobMap.set(rd.id, j.id);
+    }
+  }
+  const rdIds = Array.from(rdToJobMap.keys());
+
+  const rawLogisticsStops =
+    jobIds.length > 0
+      ? await prisma.logisticsTripStop
+          .findMany({
+            where: {
+              trip: { status: { not: "CANCELLED" } },
+              OR: [
+                { jobId: { in: jobIds } },
+                ...(rdIds.length > 0 ? [{ repairDeliveryId: { in: rdIds } }] : []),
+              ],
+            },
+            select: {
+              id: true,
+              stopOrder: true,
+              sourceType: true,
+              jobId: true,
+              repairDeliveryId: true,
+              status: true,
+              checkedInAt: true,
+              deliveredAt: true,
+              receiverName: true,
+              failReason: true,
+              trackingNumber: true,
+              createdAt: true,
+              updatedAt: true,
+              trip: {
+                select: {
+                  id: true,
+                  tripNumber: true,
+                  status: true,
+                  tripDate: true,
+                  departureTime: true,
+                  transportType: true,
+                  vehiclePlate: true,
+                  courierName: true,
+                  driverName: true,
+                },
+              },
+            },
+          })
+          .catch(() => [])
+      : [];
+
+  const jobLogisticsMap = pickPrimaryJobLogisticsLinks(rawLogisticsStops, rdToJobMap);
+  const enrichedJobs = jobs.map((j) => ({
+    ...j,
+    logisticsLink: jobLogisticsMap.get(j.id) ?? null,
+  }));
+
   return (
     <div className="flex h-screen bg-slate-50 text-gray-900 font-ibm-thai overflow-hidden">
       <Sidebar 
@@ -132,7 +191,7 @@ export default async function JobsPage(props: { searchParams?: Promise<any> | an
       />
       <main className="flex-1 flex flex-col overflow-y-auto bg-[#fafbfc]">
         <JobsClientPage 
-          jobs={JSON.parse(JSON.stringify(jobs))} 
+          jobs={JSON.parse(JSON.stringify(enrichedJobs))} 
           isManager={isManager} 
           isExecutive={isExecutive || isSuperAdmin}
           currentUser={user.fullName ?? ""}

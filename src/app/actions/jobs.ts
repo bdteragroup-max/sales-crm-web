@@ -32,6 +32,10 @@ import {
 import {
   evaluateAccountingAmountReconciliation,
   evaluatePaymentTasksLinkState,
+  extractInvoiceTokensFromNote,
+  mergeAccountingTaxDocuments,
+  normalizeAccountingDocDateString,
+  parseAccountingTaxDocuments,
 } from "@/app/lib/accounting-reconciliation";
 
 type DbTransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
@@ -440,7 +444,8 @@ export async function createJobFromQuotation(input: CreateJobInput) {
         sellerName: nonEmptyTrimmed(quotation.salesperson?.fullName) ?? "",
         quotationId,
         paymentMethod: nonEmptyTrimmed(input.paymentMethod),
-        paymentStatus: input.paymentMethod === "จ่ายแล้ว" ? "paid" : "pending",
+        // PaymentTask begins as 'รอดำเนินการ' until Accounting confirms receipt/settlement in /accounting
+        paymentStatus: "pending",
         salesOrderDate: input.salesOrderDate,
         creditTerms: nonEmptyTrimmed(input.creditTerms),
         creditDocsUrl: nonEmptyTrimmed(input.creditDocsUrl),
@@ -893,6 +898,9 @@ export async function confirmJobStep(payload: {
     where: { id: jobId },
     include: {
       paymentTasks: true,
+      stepLogs: {
+        orderBy: { completedAt: "asc" },
+      },
       quotation: {
         select: {
           totalAmountBeforeVat: true,
@@ -908,7 +916,7 @@ export async function confirmJobStep(payload: {
   // ตรวจสอบยอดก่อน VAT และสถานะงวดชำระเงิน (เครดิต/ผ่อนชำระ) ก่อนปิดจบขั้นตอนสุดท้ายของ Job
   const { getNextStep } = await import("@/app/lib/job-workflow")
   const resolvedVariant = variant ?? job.flowVariant ?? undefined
-  const nextStep = getNextStep(job.jobType, stepKey, resolvedVariant)
+  let nextStep = getNextStep(job.jobType, stepKey, resolvedVariant)
   const reconciliation = evaluateAccountingAmountReconciliation({
     accountingVerifiedBeforeVat: job.accountingVerifiedBeforeVat,
     accountingClosedAt: job.accountingClosedAt,
@@ -941,12 +949,72 @@ export async function confirmJobStep(payload: {
     data: { jobId, step: stepKey, completedBy, department, note: note ?? null },
   })
 
+  // ซิงค์เอกสาร/สถานะปิดบัญชีเมื่อกดยืนยันขั้น accounting ใน /jobs
+  // และข้ามขั้น accounting อัตโนมัติเมื่อขั้นก่อนหน้าเสร็จในงานที่บัญชีปิดรับเงินครบไว้ก่อนหน้าแล้ว
+  const extraAccountingJobData: Record<string, unknown> = {};
+  if (stepKey === "accounting") {
+    const tokens = extractInvoiceTokensFromNote(note);
+    if (tokens.length > 0) {
+      const todayIso = normalizeAccountingDocDateString(new Date());
+      const existingDocs = parseAccountingTaxDocuments(job.accountingTaxDocuments);
+      const newDocs = tokens.map((tok, idx) => ({
+        id: `step-${Date.now()}-${idx}-${tok}`,
+        docType: (/^RE[-/]?\d/i.test(tok) ? "RECEIPT" : "TAX_INVOICE") as "RECEIPT" | "TAX_INVOICE",
+        docNumber: tok,
+        docDate: todayIso,
+        note: null,
+      }));
+      const mergedDocs = mergeAccountingTaxDocuments(existingDocs, newDocs);
+      if (mergedDocs.length > existingDocs.length) {
+        extraAccountingJobData.accountingTaxDocuments = mergedDocs;
+      }
+      if (job.paymentTasks.length === 1 && !job.paymentTasks[0].invoiceNumber) {
+        await prisma.paymentTask.update({
+          where: { id: job.paymentTasks[0].id },
+          data: {
+            invoiceNumber: tokens.join(", "),
+            invoiceDate: job.paymentTasks[0].invoiceDate ?? new Date(),
+          },
+        });
+      }
+    }
+    if (paymentLink.allTasksSettled && !job.accountingClosedAt) {
+      extraAccountingJobData.accountingClosedAt = new Date();
+      extraAccountingJobData.accountingClosedBy = completedBy;
+    }
+  } else if (
+    nextStep?.key === "accounting" &&
+    Boolean(job.accountingClosedAt) &&
+    paymentLink.allTasksSettled
+  ) {
+    const hasActiveAcctLog = job.stepLogs.some(
+      (l) => l.step === "accounting" && !(l.note && l.note.startsWith("ตีกลับ"))
+    );
+    if (!hasActiveAcctLog) {
+      const docSummary = paymentLink.linkedDocs.map((d) => d.docNumber).join(", ");
+      await prisma.jobStepLog.create({
+        data: {
+          jobId,
+          step: "accounting",
+          completedBy: job.accountingClosedBy || "ฝ่ายบัญชี",
+          department: "accounting",
+          note: docSummary || "ยืนยันรับเงินและปิดงานบัญชีแล้ว",
+        },
+      });
+    }
+    const stepAfterAccounting = getNextStep(job.jobType, "accounting", resolvedVariant);
+    if (stepAfterAccounting) {
+      nextStep = stepAfterAccounting;
+    }
+  }
+
   // อัปเดต currentStep → step ถัดไป
 
   await prisma.job.update({
     where: { id: jobId },
     data: {
       currentStep: nextStep?.key ?? stepKey, // ถ้าไม่มี next = จบแล้ว
+      ...extraAccountingJobData,
       ...(variant ? { flowVariant: variant } : {}),
       ...(deliveryMethod ? { deliveryMethod } : {}),
       ...(deliveryDate ? { deliveryDate: new Date(deliveryDate) } : {}),
@@ -1082,7 +1150,11 @@ export async function confirmJobStep(payload: {
   const stepInfo = STEP_LABELS[stepKey] || { label: stepKey, dept: department };
   await notifyJobStepUpdate(jobId, stepKey, stepInfo.label, stepInfo.dept);
 
-  revalidatePath("/jobs")
+  revalidatePath("/jobs");
+  if (stepKey === "accounting" || nextStep?.key === "accounting" || job.currentStep === "accounting") {
+    revalidatePath("/accounting");
+    revalidatePath("/accounting/dashboard");
+  }
 }
 
 // ── บัญชีตีกลับ (Reject Step) ──────────────────────────────────────────
@@ -1112,7 +1184,11 @@ export async function rejectJobStep(jobId: string, targetStep: string, note: str
   const stepInfo = STEP_LABELS[targetStep] || { label: targetStep, dept: "Accounting" };
   await notifyJobStepUpdate(jobId, targetStep, `ตีกลับไปที่ ${stepInfo.label}`, stepInfo.dept);
 
-  revalidatePath("/jobs")
+  revalidatePath("/jobs");
+  if (targetStep === "accounting" || job.currentStep === "accounting") {
+    revalidatePath("/accounting");
+    revalidatePath("/accounting/dashboard");
+  }
 }
 
 // ── ดึง step logs ของ job ──────────────────────────────────────

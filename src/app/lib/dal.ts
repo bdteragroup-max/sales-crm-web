@@ -6,6 +6,8 @@ import prisma from '@/app/lib/db'
 import { SessionPayload } from '@/app/lib/definitions'
 import { redirect } from 'next/navigation'
 
+const DEBUG_DAL = process.env.DEBUG_DAL === 'true'
+
 export const verifySession = cache(async () => {
   let cookie: string | undefined
   let session: SessionPayload | null = null
@@ -16,9 +18,9 @@ export const verifySession = cache(async () => {
     console.error('[dal] verifySession decrypt error', err)
   }
 
-  try {
+  if (DEBUG_DAL) {
     console.log('[dal] verifySession', { hasCookie: !!cookie, userId: session?.userId })
-  } catch {}
+  }
 
   if (!session || !session.userId) {
     return { isAuth: false, userId: null }
@@ -34,8 +36,11 @@ export const getUser = cache(async () => {
   let user = null;
   let hasDbError = false;
 
-  // Attempt to fetch user with automatic 1-time retry for transient pool queue delays
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  // Attempt to fetch user with automatic retries for transient pool/network delays
+  const maxAttempts = 3;
+  const retryDelaysMs = [250, 750];
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       user = await prisma.user.findUnique({
         where: {
@@ -54,11 +59,13 @@ export const getUser = cache(async () => {
       })
       hasDbError = false;
       break;
-    } catch (error: any) {
+    } catch (error: unknown) {
       hasDbError = true;
-      console.error(`[dal] getUser error (attempt ${attempt}/2):`, error?.message || error)
-      if (attempt < 2) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+      const errMessage = error instanceof Error ? error.message : String(error);
+      console.error(`[dal] getUser error (attempt ${attempt}/${maxAttempts}):`, errMessage)
+      if (attempt < maxAttempts) {
+        const delayMs = retryDelaysMs[attempt - 1] ?? 500;
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     }
   }
@@ -70,11 +77,15 @@ export const getUser = cache(async () => {
   }
 
   if (!user || !user.isActive) {
-    console.log('[dal] getUser not found or inactive', { userId: session.userId })
+    if (DEBUG_DAL) {
+      console.log('[dal] getUser not found or inactive', { userId: session.userId })
+    }
     // Clear invalid session cookie to prevent infinite redirect loop
     redirect('/api/auth/logout')
   }
 
-  console.log('[dal] getUser found', { id: user.id, email: user.email })
+  if (DEBUG_DAL) {
+    console.log('[dal] getUser found', { id: user.id, email: user.email })
+  }
   return user
 })

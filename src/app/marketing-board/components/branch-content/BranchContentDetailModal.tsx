@@ -166,14 +166,14 @@ export default function BranchContentDetailModal({
 
   const canEditContent = Boolean(
     permissions?.isSystemAdmin ||
-      permissions?.canApprove ||
-      permissions?.canReview ||
-      permissions?.canBranchApprove ||
-      (!permissions?.isMarketingTeam &&
-        !permissions?.canViewAllBranches &&
-        item.status !== 'PENDING_REVIEW' &&
-        item.status !== 'PUBLISHED' &&
-        item.status !== 'CANCELLED')
+    permissions?.canApprove ||
+    permissions?.canReview ||
+    permissions?.canBranchApprove ||
+    (!permissions?.isMarketingTeam &&
+      !permissions?.canViewAllBranches &&
+      item.status !== 'PENDING_REVIEW' &&
+      item.status !== 'PUBLISHED' &&
+      item.status !== 'CANCELLED')
   );
 
   const formatDateTime = (dStr?: string | null) => {
@@ -441,11 +441,10 @@ export default function BranchContentDetailModal({
         {list.map(att => (
           <div
             key={att.localId}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold max-w-full ${
-              att.status === 'error'
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold max-w-full ${att.status === 'error'
                 ? 'bg-red-50 border-red-200 text-red-700'
                 : 'bg-slate-50 border-slate-200 text-slate-800'
-            }`}
+              }`}
           >
             {att.status === 'uploading' && (
               <Loader2 size={12} className="animate-spin text-red-600 shrink-0" />
@@ -730,9 +729,9 @@ export default function BranchContentDetailModal({
     item.status === 'BACKLOG' || item.status === 'IN_PROGRESS' || item.status === 'REVISE';
   const showBranchMgrReview = Boolean(
     permissions?.canBranchApprove &&
-      (item.status === 'PENDING_REVIEW' ||
-        item.status === 'IN_PROGRESS' ||
-        item.status === 'BACKLOG')
+    (item.status === 'PENDING_REVIEW' ||
+      item.status === 'IN_PROGRESS' ||
+      item.status === 'BACKLOG')
   );
   const showHqReview = Boolean(
     permissions?.canReview || permissions?.canRequestRevision || permissions?.canApprove
@@ -747,14 +746,14 @@ export default function BranchContentDetailModal({
     item.status === 'PENDING_REVIEW'
       ? 'กำลังรอผู้จัดการสาขาตรวจสอบเนื้อหาและสื่อก่อนส่งต่อฝ่ายการตลาด'
       : item.status === 'APPROVE_1'
-      ? 'ผู้จัดการสาขาตรวจผ่านแล้ว • กำลังรอฝ่ายการตลาดสำนักงานใหญ่ตรวจอนุมัติ'
-      : item.status === 'APPROVED'
-      ? 'อนุมัติเรียบร้อยแล้ว • สามารถนำลิงก์โพสต์จริงมาบันทึกได้ที่แท็บ 3'
-      : item.status === 'PUBLISHED'
-      ? 'เผยแพร่คอนเทนต์จริงบนโซเชียลมีเดียและปิดงานเรียบร้อยแล้ว'
-      : item.status === 'CANCELLED'
-      ? 'รายการคอนเทนต์นี้ถูกยกเลิกแล้ว'
-      : 'กำลังอยู่ในขั้นตอนเตรียมเนื้อหาและสื่อเพื่อส่งตรวจสอบ';
+        ? 'ผู้จัดการสาขาตรวจผ่านแล้ว • กำลังรอฝ่ายการตลาดสำนักงานใหญ่ตรวจอนุมัติ'
+        : item.status === 'APPROVED'
+          ? 'อนุมัติเรียบร้อยแล้ว • สามารถนำลิงก์โพสต์จริงมาบันทึกได้ที่แท็บ 3'
+          : item.status === 'PUBLISHED'
+            ? 'เผยแพร่คอนเทนต์จริงบนโซเชียลมีเดียและปิดงานเรียบร้อยแล้ว'
+            : item.status === 'CANCELLED'
+              ? 'รายการคอนเทนต์นี้ถูกยกเลิกแล้ว'
+              : 'กำลังอยู่ในขั้นตอนเตรียมเนื้อหาและสื่อเพื่อส่งตรวจสอบ';
 
   const revertPlan = permissions?.canManageReviewers
     ? getBranchContentRevertPlan(item.status, item.reviewSubStatus)
@@ -857,11 +856,10 @@ export default function BranchContentDetailModal({
           <button
             type="button"
             onClick={() => setActiveTab('overview')}
-            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${
-              activeTab === 'overview'
+            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${activeTab === 'overview'
                 ? 'border-red-300 bg-white text-red-600 shadow-xs ring-2 ring-red-500/10'
                 : 'border-slate-200/90 bg-white/80 text-slate-600 hover:text-slate-900 hover:bg-white hover:border-slate-300'
-            }`}
+              }`}
           >
             <Paperclip size={14} className="shrink-0" />
             <span className="truncate">1. เนื้อหาและสื่อพรีวิว ({item.media.length})</span>
@@ -870,11 +868,10 @@ export default function BranchContentDetailModal({
           <button
             type="button"
             onClick={() => setActiveTab('review')}
-            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${
-              activeTab === 'review'
+            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${activeTab === 'review'
                 ? 'border-red-300 bg-white text-red-600 shadow-xs ring-2 ring-red-500/10'
                 : 'border-slate-200/90 bg-white/80 text-slate-600 hover:text-slate-900 hover:bg-white hover:border-slate-300'
-            }`}
+              }`}
           >
             <MessageSquare size={14} className="shrink-0" />
             <span className="truncate">2. ตรวจ • คอมเมนต์ • อนุมัติ ({item.comments.length})</span>
@@ -883,11 +880,10 @@ export default function BranchContentDetailModal({
           <button
             type="button"
             onClick={() => setActiveTab('publish')}
-            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${
-              activeTab === 'publish'
+            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${activeTab === 'publish'
                 ? 'border-red-300 bg-white text-red-600 shadow-xs ring-2 ring-red-500/10'
                 : 'border-slate-200/90 bg-white/80 text-slate-600 hover:text-slate-900 hover:bg-white hover:border-slate-300'
-            }`}
+              }`}
           >
             <Globe size={14} className="shrink-0" />
             <span className="truncate">3. บันทึกผลเผยแพร่จริง</span>
@@ -896,11 +892,10 @@ export default function BranchContentDetailModal({
           <button
             type="button"
             onClick={() => setActiveTab('history')}
-            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${
-              activeTab === 'history'
+            className={`h-10 px-2.5 rounded-xl text-xs font-extrabold border transition-all flex items-center justify-center gap-1.5 min-w-0 ${activeTab === 'history'
                 ? 'border-red-300 bg-white text-red-600 shadow-xs ring-2 ring-red-500/10'
                 : 'border-slate-200/90 bg-white/80 text-slate-600 hover:text-slate-900 hover:bg-white hover:border-slate-300'
-            }`}
+              }`}
           >
             <History size={14} className="shrink-0" />
             <span className="truncate">4. ประวัติ Audit Log ({item.logs.length})</span>
@@ -950,15 +945,14 @@ export default function BranchContentDetailModal({
                   <div className="flex-1 flex flex-col gap-3">
                     {/* Media Stage — Stretches to keep Left & Right columns 100% flush */}
                     <div
-                      className={`flex-1 rounded-xl overflow-hidden border border-slate-200/90 flex items-center justify-center min-h-[280px] ${
-                        activeMedia.fileType === 'VIDEO' ||
-                        activeMedia.mimeType?.startsWith('video/')
+                      className={`flex-1 rounded-xl overflow-hidden border border-slate-200/90 flex items-center justify-center min-h-[280px] ${activeMedia.fileType === 'VIDEO' ||
+                          activeMedia.mimeType?.startsWith('video/')
                           ? 'bg-slate-950'
                           : 'bg-white p-3'
-                      }`}
+                        }`}
                     >
                       {activeMedia.fileType === 'VIDEO' ||
-                      activeMedia.mimeType?.startsWith('video/') ? (
+                        activeMedia.mimeType?.startsWith('video/') ? (
                         <video
                           key={activeMedia.fileUrl}
                           src={activeMedia.fileUrl}
@@ -987,11 +981,10 @@ export default function BranchContentDetailModal({
                             key={m.id}
                             type="button"
                             onClick={() => setSelectedMediaIdx(idx)}
-                            className={`relative w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
-                              idx === selectedMediaIdx
+                            className={`relative w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${idx === selectedMediaIdx
                                 ? 'border-red-600 ring-2 ring-red-200'
                                 : 'border-slate-200 opacity-70 hover:opacity-100'
-                            }`}
+                              }`}
                           >
                             {m.fileType === 'VIDEO' ? (
                               <div className="w-full h-full bg-slate-900 text-white flex items-center justify-center">
@@ -1049,11 +1042,10 @@ export default function BranchContentDetailModal({
                 {/* Latest Review Alert Box */}
                 {item.reviewFeedback && (
                   <div
-                    className={`p-3.5 rounded-2xl border space-y-1 ${
-                      item.status === 'REVISE'
+                    className={`p-3.5 rounded-2xl border space-y-1 ${item.status === 'REVISE'
                         ? 'bg-orange-50 border-orange-200 text-orange-950'
                         : 'bg-purple-50 border-purple-200 text-purple-950'
-                    }`}
+                      }`}
                   >
                     <div className="font-extrabold flex items-center justify-between">
                       <span>
@@ -1291,602 +1283,595 @@ export default function BranchContentDetailModal({
               )}
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-              {/* Left 6 Cols: Unified Status & Workflow Action Card */}
-              <div className="lg:col-span-6 h-full flex flex-col bg-slate-50/80 rounded-2xl p-4 border border-slate-200 gap-3">
-                {/* Shared hidden input for Step 2 / Step 3 review attachments */}
-                {(showBranchMgrReview || showHqReview) && (
-                  <input
-                    ref={reviewFileInputRef}
-                    type="file"
-                    multiple
-                    accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
-                    onChange={e => handleFileInputSelect('review', e)}
-                    className="hidden"
-                  />
-                )}
-
-                {/* Header Row (min-h-[28px] matches Right Comment Header) */}
-                <div className="min-h-[28px] flex items-center justify-between gap-2">
-                  <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-                    <ShieldCheck size={16} className="text-red-600 shrink-0" />
-                    <span>สถานะการตรวจและอนุมัติปัจจุบัน</span>
-                  </h4>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {revertPlan && (
-                      <button
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={handleRevertStage}
-                        title={revertPlan.label}
-                        className="inline-flex items-center gap-1 px-2.5 h-6 rounded-lg bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-[11px] transition-colors disabled:opacity-50"
-                      >
-                        <RotateCcw size={11} />
-                        <span>ย้อนสถานะ</span>
-                      </button>
-                    )}
-                    <span className="inline-flex items-center px-2.5 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-[11px] shrink-0">
-                      Version {item.currentVersion}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Row 1: Symmetrical 2-Column Reviewer & Approver Summary (min-h-[60px] matches Right Composer Bar) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="min-h-[60px] bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/90 flex flex-col justify-center">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-[11px] text-slate-400 font-medium truncate">
-                        ผู้ตรวจเนื้อหา (Marketing)
-                      </span>
-                      {item.reviewedAt && (
-                        <span
-                          className="text-[10px] text-slate-400 shrink-0"
-                          title={formatDateTime(item.reviewedAt)}
-                        >
-                          {formatDateOnly(item.reviewedAt)}
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-bold text-slate-800 mt-0.5 truncate">
-                      {item.reviewerName || 'รอการตรวจสอบ'}
-                    </p>
-                  </div>
-
-                  <div className="min-h-[60px] bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/90 flex flex-col justify-center">
-                    <div className="flex items-center justify-between gap-1.5">
-                      <span className="text-[11px] text-slate-400 font-medium truncate">
-                        ผู้อนุมัติ (ผจก.การตลาด)
-                      </span>
-                      {item.approvedAt && (
-                        <span
-                          className="text-[10px] text-slate-400 shrink-0"
-                          title={formatDateTime(item.approvedAt)}
-                        >
-                          {formatDateOnly(item.approvedAt)}
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-bold text-emerald-700 mt-0.5 truncate">
-                      {item.approvedByName || 'รออนุมัติ'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Row 2: Flex-Fill Workflow Stage / Action Panel (Stretches flush with Right Comments Panel) */}
-                <div className="flex-1 flex flex-col gap-3">
-                  {!hasActiveReviewForm && (
-                    <div className="flex-1 min-h-[92px] bg-white p-3.5 rounded-xl border border-slate-200/90 flex flex-col justify-between gap-2.5">
-                      <div className="grid grid-cols-3 gap-2">
-                        <div
-                          className={`h-8 px-2 rounded-lg border text-[11px] font-bold flex items-center justify-center gap-1 truncate ${
-                            step1Done
-                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                              : 'bg-amber-50 border-amber-300 text-amber-900'
-                          }`}
-                        >
-                          <CheckCircle2 size={12} className="shrink-0" />
-                          <span className="truncate">1. สาขาส่งตรวจ</span>
-                        </div>
-
-                        <div
-                          className={`h-8 px-2 rounded-lg border text-[11px] font-bold flex items-center justify-center gap-1 truncate ${
-                            step2Done
-                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                              : item.status === 'PENDING_REVIEW'
-                              ? 'bg-amber-50 border-amber-300 text-amber-900'
-                              : 'bg-slate-50 border-slate-200 text-slate-400'
-                          }`}
-                        >
-                          <Building2 size={12} className="shrink-0" />
-                          <span className="truncate">2. ผจก.สาขาตรวจ</span>
-                        </div>
-
-                        <div
-                          className={`h-8 px-2 rounded-lg border text-[11px] font-bold flex items-center justify-center gap-1 truncate ${
-                            step3Done
-                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                              : item.status === 'APPROVE_1'
-                              ? 'bg-purple-50 border-purple-300 text-purple-900'
-                              : 'bg-slate-50 border-slate-200 text-slate-400'
-                          }`}
-                        >
-                          <Sparkles size={12} className="shrink-0" />
-                          <span className="truncate">3. การตลาดอนุมัติ</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <Clock size={13} className="text-slate-400 shrink-0" />
-                          <span>{workflowStageMessage}</span>
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 1: Branch Staff Submission Box */}
-                  {showBranchSubmit && (
-                    <div className="flex-1 p-3.5 rounded-xl bg-white border border-red-200 flex flex-col justify-between gap-2.5">
-                      <h4 className="font-extrabold text-red-900 text-xs sm:text-sm flex items-center gap-1.5">
-                        <Send size={15} className="text-red-600 shrink-0" />
-                        <span>ขั้นตอนที่ 1: ส่งงานให้ผู้จัดการสาขาตรวจก่อน (Submit for Branch Review)</span>
-                      </h4>
-                      <textarea
-                        rows={2}
-                        value={submissionNoteInput}
-                        onChange={e => setSubmissionNoteInput(e.target.value)}
-                        placeholder="ระบุหมายเหตุถึงผู้จัดการสาขา / ทีมการตลาด (เช่น แก้ไขแคปชั่นและเปลี่ยนภาพหน้าปกเรียบร้อยแล้วครับ)..."
-                        className="w-full px-3 py-2 bg-slate-50/70 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
-                      />
-                      <button
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={handleSubmitForReview}
-                        className="w-full h-10 rounded-xl bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-sm transition-all flex items-center justify-center gap-2"
-                      >
-                        <Send size={14} />
-                        {item.status === 'REVISE'
-                          ? `ส่งให้ ผจก.สาขาตรวจรอบใหม่ (เป็น Version ${item.currentVersion + 1})`
-                          : `ยืนยันส่งให้ ผจก.สาขาตรวจ (Version ${item.currentVersion})`}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Step 2: Branch Manager Review Workspace (Pending Review -> Forward to Marketing) */}
-                  {showBranchMgrReview && (
-                    <div
-                      onDragOver={e => {
-                        e.preventDefault();
-                        setIsDragOverTarget('review');
-                      }}
-                      onDragLeave={() => setIsDragOverTarget(prev => (prev === 'review' ? null : prev))}
-                      onDrop={e => handleDropFilesToTarget('review', e)}
-                      className={`flex-1 p-3.5 rounded-xl bg-white border flex flex-col justify-between gap-2.5 transition-all ${
-                        isDragOverTarget === 'review'
-                          ? 'border-amber-500 ring-2 ring-amber-200'
-                          : 'border-amber-200'
-                      }`}
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between flex-wrap gap-1">
-                          <h4 className="font-extrabold text-amber-950 text-xs sm:text-sm flex items-center gap-1.5">
-                            <Building2 size={15} className="text-amber-700 shrink-0" />
-                            <span>ขั้นตอนที่ 2: สำหรับผู้จัดการสาขาตรวจ (ส่งต่อการตลาด)</span>
-                          </h4>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900">
-                            ผจก.สาขาตรวจก่อนส่งการตลาด
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-amber-800">
-                          เมื่อผู้จัดการสาขาตรวจสอบเนื้อหาและสื่อแล้ว หากไม่มีแก้ไขเพิ่มเติม กดปุ่ม{' '}
-                          <strong>&ldquo;ส่งต่อการตลาด&rdquo;</strong>{' '}
-                          เพื่อส่งให้ฝ่ายการตลาดสำนักงานใหญ่ตรวจสอบต่อ
-                        </p>
-                      </div>
-
-                      <textarea
-                        rows={2}
-                        value={reviewFeedbackInput}
-                        onChange={e => setReviewFeedbackInput(e.target.value)}
-                        onPaste={e => handlePasteFilesToTarget('review', e)}
-                        placeholder="ความเห็นจากผู้จัดการสาขา (ระบุสิ่งที่ต้องแก้หากส่งกลับ หรือวางรูปด้วย Ctrl+V)..."
-                        className="w-full px-3 py-2 bg-slate-50/70 border border-amber-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      />
-
-                      {renderReviewAttachmentToolbar('amber')}
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <button
-                          type="button"
-                          disabled={isProcessing || isReviewAttachmentUploading}
-                          onClick={() => handleBranchManagerAction('REQUEST_REVISION')}
-                          className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
-                        >
-                          <RotateCcw size={14} />
-                          ส่งกลับให้สาขาแก้ไข (Revise)
-                        </button>
-
-                        <button
-                          type="button"
-                          disabled={isProcessing || isReviewAttachmentUploading}
-                          onClick={() => handleBranchManagerAction('APPROVE_TO_MARKETING')}
-                          className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-purple-600/20 transition-all disabled:opacity-50"
-                        >
-                          <CheckCircle2 size={14} />
-                          ส่งต่อการตลาด
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 3: HQ Marketing Reviewer & Marketing Manager Workspace */}
-                  {showHqReview && permissions && (
-                    <div
-                      onDragOver={e => {
-                        e.preventDefault();
-                        setIsDragOverTarget('review');
-                      }}
-                      onDragLeave={() => setIsDragOverTarget(prev => (prev === 'review' ? null : prev))}
-                      onDrop={e => handleDropFilesToTarget('review', e)}
-                      className={`flex-1 p-3.5 rounded-xl bg-white border flex flex-col justify-between gap-2.5 transition-all ${
-                        isDragOverTarget === 'review'
-                          ? 'border-indigo-500 ring-2 ring-indigo-200'
-                          : 'border-indigo-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between flex-wrap gap-1">
-                        <h4 className="font-extrabold text-indigo-950 text-xs sm:text-sm flex items-center gap-1.5">
-                          <Sparkles size={15} className="text-indigo-600 shrink-0" />
-                          <span>ขั้นตอนที่ 3: สำหรับฝ่ายการตลาดตรวจสอบและอนุมัติ</span>
-                        </h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
-                          สิทธิ์ของคุณ: {permissions.roleLabel}
-                        </span>
-                      </div>
-
-                      <div className="rounded-lg border border-indigo-100 bg-indigo-50/60 px-2.5 py-2 space-y-1.5">
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <span className="text-[11px] font-bold text-indigo-900 flex items-center gap-1">
-                            <User size={12} className="text-indigo-600 shrink-0" />
-                            <span>
-                              ผู้ได้รับมอบหมายจากทีม Marketing
-                              {assignedReviewers.length > 0 ? ` (${assignedReviewers.length} คน)` : ''}
-                            </span>
-                          </span>
-                          {permissions.canManageReviewers && onOpenReviewerModal && (
-                            <button
-                              type="button"
-                              onClick={onOpenReviewerModal}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-indigo-200 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold transition-colors cursor-pointer"
-                            >
-                              <ShieldCheck size={12} />
-                              <span>จัดการผู้ตรวจสอบ</span>
-                            </button>
-                          )}
-                        </div>
-                        {assignedReviewers.length > 0 ? (
-                          <div className="flex flex-wrap gap-1.5">
-                            {assignedReviewers.map((rev) => {
-                              const rights: string[] = [];
-                              if (rev.canReviewComment) rights.push('ตรวจ/คอมเมนต์');
-                              if (rev.canRequestRevision) rights.push('ส่งแก้ไข');
-                              if (rev.canApprove) rights.push('Approve');
-                              return (
-                                <span
-                                  key={rev.userId}
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-indigo-200 text-[10px] font-semibold text-indigo-900"
-                                  title={`${rev.employeeId} · ${rev.role}`}
-                                >
-                                  <span className="font-bold">{rev.fullName}</span>
-                                  {rights.length > 0 && (
-                                    <span className="text-indigo-600">({rights.join(', ')})</span>
-                                  )}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p className="text-[11px] text-amber-800 bg-amber-50/90 border border-amber-200 rounded px-2 py-1 font-medium">
-                            ยังไม่ได้มอบหมายให้ role Marketing คนใด (สิทธิ์เริ่มต้น: ดูอย่างเดียว)
-                          </p>
-                        )}
-                      </div>
-
-                      <textarea
-                        rows={3}
-                        value={reviewFeedbackInput}
-                        onChange={e => setReviewFeedbackInput(e.target.value)}
-                        onPaste={e => handlePasteFilesToTarget('review', e)}
-                        placeholder="พิมพ์ Feedback จุดที่ต้องให้สาขาแก้ไข หรือวางรูป/แคปหน้าจอด้วย Ctrl+V..."
-                        className="w-full px-3.5 py-2.5 bg-slate-50/70 border border-indigo-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
-
-                      {renderReviewAttachmentToolbar('indigo')}
-
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {/* Request Revision Button (Requires explicit Request Revision permission) */}
-                          {permissions.canRequestRevision && (
-                            <button
-                              type="button"
-                              disabled={isProcessing || isReviewAttachmentUploading}
-                              onClick={() => handleReviewerAction('REQUEST_REVISION')}
-                              className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
-                            >
-                              <RotateCcw size={14} />
-                              ส่งกลับให้สาขาแก้ไข (Revise)
-                            </button>
-                          )}
-
-                          {/* Endorse for Manager Approval (For assigned Marketing Reviewer without Approve) */}
-                          {permissions.canReview && !permissions.canApprove && (
-                            <button
-                              type="button"
-                              disabled={isProcessing || isReviewAttachmentUploading}
-                              onClick={() => handleReviewerAction('ENDORSE_FOR_APPROVAL')}
-                              className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
-                            >
-                              <ShieldCheck size={14} />
-                              Marketing ตรวจผ่าน • เสนออนุมัติ
-                            </button>
-                          )}
-
-                          {/* Official Approve Button (Marketing Manager / Superadmin / Explicitly assigned Approver) */}
-                          {permissions.canApprove && (
-                            <button
-                              type="button"
-                              disabled={isProcessing || isReviewAttachmentUploading}
-                              onClick={handleApproverAction}
-                              className="h-10 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50"
-                            >
-                              <CheckCircle2 size={15} />
-                              อนุมัติให้เผยแพร่ (Final Approve)
-                            </button>
-                          )}
-                        </div>
-
-                        {permissions.canApprove &&
-                          permissions.canReview &&
-                          item.reviewSubStatus !== 'ENDORSED_FOR_MARKETING_MANAGER' &&
-                          (item.status === 'APPROVE_1' || item.status === 'PENDING_REVIEW') && (
-                            <button
-                              type="button"
-                              disabled={isProcessing || isReviewAttachmentUploading}
-                              onClick={() => handleReviewerAction('ENDORSE_FOR_APPROVAL')}
-                              className="w-full py-1.5 rounded-lg border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold text-[11px] transition-colors disabled:opacity-50"
-                            >
-                              หรือบันทึกสถานะเป็น &ldquo;Marketing ตรวจเนื้อหาผ่านแล้ว • รอผู้จัดการการตลาดอนุมัติ&rdquo;
-                            </button>
-                          )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Right 6 Cols: Comment History Card (100% Symmetrical Frame & Flush Edges) */}
-              <div className="lg:col-span-6 h-full flex flex-col bg-slate-50/80 rounded-2xl p-4 border border-slate-200 gap-3">
-                {/* Header Row (min-h-[28px] matches Left Status Header) */}
-                <div className="min-h-[28px] flex items-center justify-between gap-2">
-                  <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-                    <MessageSquare size={16} className="text-red-600 shrink-0" />
-                    <span>ประวัติความคิดเห็นและข้อเสนอแนะ</span>
-                  </h4>
-                  <span className="inline-flex items-center px-2.5 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-[11px] shrink-0">
-                    {item.comments.length} รายการ
-                  </span>
-                </div>
-
-                {/* Row 1: Unified Comment Composer Bar with CR-01B Attachments + Ctrl+V & Drop */}
-                {permissions?.canComment ? (
-                  <form
-                    onSubmit={handleAddComment}
-                    onDragOver={e => {
-                      e.preventDefault();
-                      setIsDragOverTarget('comment');
-                    }}
-                    onDragLeave={() => setIsDragOverTarget(prev => (prev === 'comment' ? null : prev))}
-                    onDrop={e => handleDropFilesToTarget('comment', e)}
-                    className={`bg-white p-2.5 rounded-xl border space-y-2 transition-all ${
-                      isDragOverTarget === 'comment'
-                        ? 'border-red-400 ring-2 ring-red-200'
-                        : 'border-slate-200/90'
-                    }`}
-                  >
+                {/* Left 6 Cols: Unified Status & Workflow Action Card */}
+                <div className="lg:col-span-6 h-full flex flex-col bg-slate-50/80 rounded-2xl p-4 border border-slate-200 gap-3">
+                  {/* Shared hidden input for Step 2 / Step 3 review attachments */}
+                  {(showBranchMgrReview || showHqReview) && (
                     <input
-                      ref={commentFileInputRef}
+                      ref={reviewFileInputRef}
                       type="file"
                       multiple
                       accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
-                      onChange={e => handleFileInputSelect('comment', e)}
+                      onChange={e => handleFileInputSelect('review', e)}
                       className="hidden"
                     />
+                  )}
 
-                    <input
-                      type="text"
-                      value={commentInput}
-                      onChange={e => setCommentInput(e.target.value)}
-                      onPaste={e => handlePasteFilesToTarget('comment', e)}
-                      placeholder={`แสดงความคิดเห็น Version ${item.currentVersion}... (หรือวางรูปด้วย Ctrl+V)`}
-                      className="w-full h-10 px-3.5 bg-slate-50/70 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
-                    />
-
-                    {renderStagedAttachmentChips('comment', commentAttachments)}
-
-                    <div className="flex items-center justify-between gap-2 pt-0.5 flex-wrap">
-                      <div className="flex items-center gap-2">
+                  {/* Header Row (min-h-[28px] matches Right Comment Header) */}
+                  <div className="min-h-[28px] flex items-center justify-between gap-2">
+                    <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                      <ShieldCheck size={16} className="text-red-600 shrink-0" />
+                      <span>สถานะการตรวจและอนุมัติปัจจุบัน</span>
+                    </h4>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {revertPlan && (
                         <button
                           type="button"
-                          onClick={() => commentFileInputRef.current?.click()}
-                          disabled={
-                            isProcessing ||
-                            commentAttachments.length >= BRANCH_COMMENT_ATTACHMENT_MAX_COUNT
-                          }
-                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold disabled:opacity-50 transition-colors"
+                          disabled={isProcessing}
+                          onClick={handleRevertStage}
+                          title={revertPlan.label}
+                          className="inline-flex items-center gap-1 px-2.5 h-6 rounded-lg bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-[11px] transition-colors disabled:opacity-50"
                         >
-                          <Paperclip size={13} />
-                          <span>
-                            <Plus size={11} className="inline -mt-0.5" /> แนบไฟล์
-                          </span>
-                          {commentAttachments.length > 0 && (
-                            <span className="text-[10px] text-slate-500">
-                              ({commentAttachments.length}/{BRANCH_COMMENT_ATTACHMENT_MAX_COUNT})
-                            </span>
-                          )}
+                          <RotateCcw size={11} />
+                          <span>ย้อนสถานะ</span>
                         </button>
-                        <span className="text-[10px] text-slate-400 hidden sm:inline">
-                          JPG, PNG, PDF • สูงสุด 4 MB • Ctrl+V / ลากวางได้
-                        </span>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={
-                          isProcessing ||
-                          commentAttachments.some(a => a.status === 'uploading') ||
-                          (!commentInput.trim() &&
-                            commentAttachments.filter(a => a.status === 'uploaded').length === 0)
-                        }
-                        className="h-9 px-4 rounded-lg bg-[#ff2301] hover:bg-red-600 text-white font-bold text-xs shrink-0 disabled:opacity-50 transition-colors"
-                      >
-                        ส่งความคิดเห็น
-                      </button>
+                      )}
+                      <span className="inline-flex items-center px-2.5 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-[11px] shrink-0">
+                        Version {item.currentVersion}
+                      </span>
                     </div>
-                  </form>
-                ) : (
-                  <div className="min-h-[52px] bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/90 flex items-center text-[11px] font-semibold text-slate-500">
-                    บัญชีของคุณอยู่ในสิทธิ์ดูข้อมูลอย่างเดียว (ยังไม่ได้รับมอบหมายสิทธิ์คอมเมนต์และแนบไฟล์)
                   </div>
-                )}
 
-                {/* Row 2: Flush Comment Feed (No pr-1 offset — aligns pixel-for-pixel with Composer Bar) */}
-                <div className="flex-1 flex flex-col gap-2.5 max-h-[380px] overflow-y-auto">
-                  {item.comments.length === 0 ? (
-                    <div className="flex-1 min-h-[92px] flex items-center justify-center text-center p-6 text-slate-400 bg-white rounded-xl border border-slate-200/90">
-                      ยังไม่มีความคิดเห็นในรายการนี้
+                  {/* Row 1: Symmetrical 2-Column Reviewer & Approver Summary (min-h-[60px] matches Right Composer Bar) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="min-h-[60px] bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/90 flex flex-col justify-center">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-[11px] text-slate-400 font-medium truncate">
+                          ผู้ตรวจเนื้อหา (Marketing)
+                        </span>
+                        {item.reviewedAt && (
+                          <span
+                            className="text-[10px] text-slate-400 shrink-0"
+                            title={formatDateTime(item.reviewedAt)}
+                          >
+                            {formatDateOnly(item.reviewedAt)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-bold text-slate-800 mt-0.5 truncate">
+                        {item.reviewerName || 'รอการตรวจสอบ'}
+                      </p>
                     </div>
-                  ) : (
-                    item.comments.map(c => {
-                      const isRev = c.commentType === 'REVISION_REQUEST';
-                      const isEndorse = c.commentType === 'ENDORSEMENT';
-                      const isApp = c.commentType === 'APPROVAL_NOTE';
-                      const attachments = c.attachments || [];
-                      return (
-                        <div
-                          key={c.id}
-                          className={`only:flex-1 p-3.5 rounded-xl border space-y-2 ${
-                            isRev
-                              ? 'bg-orange-50/90 border-orange-200'
-                              : isApp
-                              ? 'bg-emerald-50/90 border-emerald-200'
-                              : isEndorse
-                              ? 'bg-purple-50/90 border-purple-200'
-                              : 'bg-white border-slate-200/90'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-bold text-slate-900">{c.userName}</span>
-                              {c.userRole && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                                  {c.userRole}
-                                </span>
-                              )}
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-white font-mono font-bold">
-                                V{c.version}
-                              </span>
-                            </div>
-                            <span className="text-[10px] text-slate-400 shrink-0">
-                              {formatDateTime(c.createdAt)}
-                            </span>
+
+                    <div className="min-h-[60px] bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/90 flex flex-col justify-center">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-[11px] text-slate-400 font-medium truncate">
+                          ผู้อนุมัติ (ผจก.การตลาด)
+                        </span>
+                        {item.approvedAt && (
+                          <span
+                            className="text-[10px] text-slate-400 shrink-0"
+                            title={formatDateTime(item.approvedAt)}
+                          >
+                            {formatDateOnly(item.approvedAt)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-bold text-emerald-700 mt-0.5 truncate">
+                        {item.approvedByName || 'รออนุมัติ'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Flex-Fill Workflow Stage / Action Panel (Stretches flush with Right Comments Panel) */}
+                  <div className="flex-1 flex flex-col gap-3">
+                    {!hasActiveReviewForm && (
+                      <div className="flex-1 min-h-[92px] bg-white p-3.5 rounded-xl border border-slate-200/90 flex flex-col justify-between gap-2.5">
+                        <div className="grid grid-cols-3 gap-2">
+                          <div
+                            className={`h-8 px-2 rounded-lg border text-[11px] font-bold flex items-center justify-center gap-1 truncate ${step1Done
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                : 'bg-amber-50 border-amber-300 text-amber-900'
+                              }`}
+                          >
+                            <CheckCircle2 size={12} className="shrink-0" />
+                            <span className="truncate">1. สาขาส่งตรวจ</span>
                           </div>
 
-                          {c.message && (
-                            <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">
-                              {c.message}
-                            </p>
-                          )}
+                          <div
+                            className={`h-8 px-2 rounded-lg border text-[11px] font-bold flex items-center justify-center gap-1 truncate ${step2Done
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                : item.status === 'PENDING_REVIEW'
+                                  ? 'bg-amber-50 border-amber-300 text-amber-900'
+                                  : 'bg-slate-50 border-slate-200 text-slate-400'
+                              }`}
+                          >
+                            <Building2 size={12} className="shrink-0" />
+                            <span className="truncate">2. ผจก.สาขาตรวจ</span>
+                          </div>
 
-                          {attachments.length > 0 && (
-                            <div className="pt-1 space-y-1.5">
-                              {attachments.map(att => {
-                                const isImage = att.fileType === 'IMAGE';
-                                const kindLabel = getCommentAttachmentKindLabel(
-                                  att.fileName,
-                                  att.mimeType
-                                );
+                          <div
+                            className={`h-8 px-2 rounded-lg border text-[11px] font-bold flex items-center justify-center gap-1 truncate ${step3Done
+                                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                                : item.status === 'APPROVE_1'
+                                  ? 'bg-purple-50 border-purple-300 text-purple-900'
+                                  : 'bg-slate-50 border-slate-200 text-slate-400'
+                              }`}
+                          >
+                            <Sparkles size={12} className="shrink-0" />
+                            <span className="truncate">3. การตลาดอนุมัติ</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
+                          <span className="flex items-center gap-1.5 font-medium">
+                            <Clock size={13} className="text-slate-400 shrink-0" />
+                            <span>{workflowStageMessage}</span>
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 1: Branch Staff Submission Box */}
+                    {showBranchSubmit && (
+                      <div className="flex-1 p-3.5 rounded-xl bg-white border border-red-200 flex flex-col justify-between gap-2.5">
+                        <h4 className="font-extrabold text-red-900 text-xs sm:text-sm flex items-center gap-1.5">
+                          <Send size={15} className="text-red-600 shrink-0" />
+                          <span>ขั้นตอนที่ 1: ส่งงานให้ผู้จัดการสาขาตรวจก่อน (Submit for Branch Review)</span>
+                        </h4>
+                        <textarea
+                          rows={2}
+                          value={submissionNoteInput}
+                          onChange={e => setSubmissionNoteInput(e.target.value)}
+                          placeholder="ระบุหมายเหตุถึงผู้จัดการสาขา / ทีมการตลาด (เช่น แก้ไขแคปชั่นและเปลี่ยนภาพหน้าปกเรียบร้อยแล้วครับ)..."
+                          className="w-full px-3 py-2 bg-slate-50/70 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                        />
+                        <button
+                          type="button"
+                          disabled={isProcessing}
+                          onClick={handleSubmitForReview}
+                          className="w-full h-10 rounded-xl bg-red-600 hover:bg-red-700 text-white font-extrabold shadow-sm transition-all flex items-center justify-center gap-2"
+                        >
+                          <Send size={14} />
+                          {item.status === 'REVISE'
+                            ? `ส่งให้ ผจก.สาขาตรวจรอบใหม่ (เป็น Version ${item.currentVersion + 1})`
+                            : `ยืนยันส่งให้ ผจก.สาขาตรวจ (Version ${item.currentVersion})`}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Step 2: Branch Manager Review Workspace (Pending Review -> Forward to Marketing) */}
+                    {showBranchMgrReview && (
+                      <div
+                        onDragOver={e => {
+                          e.preventDefault();
+                          setIsDragOverTarget('review');
+                        }}
+                        onDragLeave={() => setIsDragOverTarget(prev => (prev === 'review' ? null : prev))}
+                        onDrop={e => handleDropFilesToTarget('review', e)}
+                        className={`flex-1 p-3.5 rounded-xl bg-white border flex flex-col justify-between gap-2.5 transition-all ${isDragOverTarget === 'review'
+                            ? 'border-amber-500 ring-2 ring-amber-200'
+                            : 'border-amber-200'
+                          }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between flex-wrap gap-1">
+                            <h4 className="font-extrabold text-amber-950 text-xs sm:text-sm flex items-center gap-1.5">
+                              <Building2 size={15} className="text-amber-700 shrink-0" />
+                              <span>ขั้นตอนที่ 2: สำหรับผู้จัดการสาขาตรวจ (ส่งต่อการตลาด)</span>
+                            </h4>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900">
+                              ผจก.สาขาตรวจก่อนส่งการตลาด
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-amber-800">
+                            เมื่อผู้จัดการสาขาตรวจสอบเนื้อหาและสื่อแล้ว หากไม่มีแก้ไขเพิ่มเติม กดปุ่ม{' '}
+                            <strong>&ldquo;ส่งต่อการตลาด&rdquo;</strong>{' '}
+                            เพื่อส่งให้ฝ่ายการตลาดสำนักงานใหญ่ตรวจสอบต่อ
+                          </p>
+                        </div>
+
+                        <textarea
+                          rows={2}
+                          value={reviewFeedbackInput}
+                          onChange={e => setReviewFeedbackInput(e.target.value)}
+                          onPaste={e => handlePasteFilesToTarget('review', e)}
+                          placeholder="ความเห็นจากผู้จัดการสาขา (ระบุสิ่งที่ต้องแก้หากส่งกลับ หรือวางรูปด้วย Ctrl+V)..."
+                          className="w-full px-3 py-2 bg-slate-50/70 border border-amber-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        />
+
+                        {renderReviewAttachmentToolbar('amber')}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          <button
+                            type="button"
+                            disabled={isProcessing || isReviewAttachmentUploading}
+                            onClick={() => handleBranchManagerAction('REQUEST_REVISION')}
+                            className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
+                          >
+                            <RotateCcw size={14} />
+                            ส่งกลับให้สาขาแก้ไข (Revise)
+                          </button>
+
+                          <button
+                            type="button"
+                            disabled={isProcessing || isReviewAttachmentUploading}
+                            onClick={() => handleBranchManagerAction('APPROVE_TO_MARKETING')}
+                            className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-purple-600/20 transition-all disabled:opacity-50"
+                          >
+                            <CheckCircle2 size={14} />
+                            ส่งต่อการตลาด
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Step 3: HQ Marketing Reviewer & Marketing Manager Workspace */}
+                    {showHqReview && permissions && (
+                      <div
+                        onDragOver={e => {
+                          e.preventDefault();
+                          setIsDragOverTarget('review');
+                        }}
+                        onDragLeave={() => setIsDragOverTarget(prev => (prev === 'review' ? null : prev))}
+                        onDrop={e => handleDropFilesToTarget('review', e)}
+                        className={`flex-1 p-3.5 rounded-xl bg-white border flex flex-col justify-between gap-2.5 transition-all ${isDragOverTarget === 'review'
+                            ? 'border-indigo-500 ring-2 ring-indigo-200'
+                            : 'border-indigo-200'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between flex-wrap gap-1">
+                          <h4 className="font-extrabold text-indigo-950 text-xs sm:text-sm flex items-center gap-1.5">
+                            <Sparkles size={15} className="text-indigo-600 shrink-0" />
+                            <span>ขั้นตอนที่ 3: สำหรับฝ่ายการตลาดตรวจสอบและอนุมัติ</span>
+                          </h4>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
+                            สิทธิ์ของคุณ: {permissions.roleLabel}
+                          </span>
+                        </div>
+
+                        <div className="rounded-lg border border-indigo-100 bg-indigo-50/60 px-2.5 py-2 space-y-1.5">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <span className="text-[11px] font-bold text-indigo-900 flex items-center gap-1">
+                              <User size={12} className="text-indigo-600 shrink-0" />
+                              <span>
+                                ผู้ได้รับมอบหมายจากทีม Marketing
+                                {assignedReviewers.length > 0 ? ` (${assignedReviewers.length} คน)` : ''}
+                              </span>
+                            </span>
+                            {permissions.canManageReviewers && onOpenReviewerModal && (
+                              <button
+                                type="button"
+                                onClick={onOpenReviewerModal}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-indigo-200 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold transition-colors cursor-pointer"
+                              >
+                                <ShieldCheck size={12} />
+                                <span>จัดการผู้ตรวจสอบ</span>
+                              </button>
+                            )}
+                          </div>
+                          {assignedReviewers.length > 0 ? (
+                            <div className="flex flex-wrap gap-1.5">
+                              {assignedReviewers.map((rev) => {
+                                const rights: string[] = [];
+                                if (rev.canReviewComment) rights.push('ตรวจ/คอมเมนต์');
+                                if (rev.canRequestRevision) rights.push('ส่งแก้ไข');
+                                if (rev.canApprove) rights.push('Approve');
                                 return (
-                                  <div
-                                    key={att.id}
-                                    className="rounded-xl bg-slate-50/90 border border-slate-200/80 p-2 flex items-center justify-between gap-2.5"
+                                  <span
+                                    key={rev.userId}
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-indigo-200 text-[10px] font-semibold text-indigo-900"
+                                    title={`${rev.employeeId} · ${rev.role}`}
                                   >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                      {isImage ? (
-                                        <button
-                                          type="button"
-                                          onClick={() => setPreviewAttachment(att)}
-                                          className="w-11 h-11 rounded-lg overflow-hidden border border-slate-200 bg-white shrink-0 hover:opacity-90 transition-opacity"
-                                          title="คลิกเพื่อดูภาพขนาดเต็ม"
-                                        >
-                                          <img
-                                            src={att.fileUrl}
-                                            alt={att.fileName}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        </button>
-                                      ) : (
-                                        <button
-                                          type="button"
-                                          onClick={() => setPreviewAttachment(att)}
-                                          className="w-11 h-11 rounded-lg border border-red-200 bg-red-50 text-red-700 flex flex-col items-center justify-center shrink-0 hover:bg-red-100 transition-colors"
-                                          title="คลิกเพื่อดู Preview PDF"
-                                        >
-                                          <FileText size={16} />
-                                          <span className="text-[9px] font-black leading-none mt-0.5">
-                                            PDF
-                                          </span>
-                                        </button>
-                                      )}
-
-                                      <div className="min-w-0">
-                                        <div
-                                          className="text-xs font-bold text-slate-800 truncate"
-                                          title={att.fileName}
-                                        >
-                                          {att.fileName}
-                                        </div>
-                                        <div className="text-[10px] text-slate-500">
-                                          {kindLabel} • {formatAttachmentFileSize(att.fileSize)}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-1.5 shrink-0">
-                                      <button
-                                        type="button"
-                                        onClick={() => setPreviewAttachment(att)}
-                                        className="inline-flex items-center gap-1 px-2 h-7 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-[11px] font-bold text-slate-700 transition-colors"
-                                      >
-                                        <Eye size={12} /> เปิดดู
-                                      </button>
-                                      <a
-                                        href={`${att.fileUrl}?download=1`}
-                                        download={att.fileName}
-                                        className="inline-flex items-center gap-1 px-2 h-7 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-[11px] font-bold text-slate-700 transition-colors"
-                                      >
-                                        <Download size={12} /> โหลด
-                                      </a>
-                                    </div>
-                                  </div>
+                                    <span className="font-bold">{rev.fullName}</span>
+                                    {rights.length > 0 && (
+                                      <span className="text-indigo-600">({rights.join(', ')})</span>
+                                    )}
+                                  </span>
                                 );
                               })}
                             </div>
+                          ) : (
+                            <p className="text-[11px] text-amber-800 bg-amber-50/90 border border-amber-200 rounded px-2 py-1 font-medium">
+                              ยังไม่ได้มอบหมายให้ role Marketing คนใด (สิทธิ์เริ่มต้น: ดูอย่างเดียว)
+                            </p>
                           )}
                         </div>
-                      );
-                    })
-                  )}
+
+                        <textarea
+                          rows={3}
+                          value={reviewFeedbackInput}
+                          onChange={e => setReviewFeedbackInput(e.target.value)}
+                          onPaste={e => handlePasteFilesToTarget('review', e)}
+                          placeholder="พิมพ์ Feedback จุดที่ต้องให้สาขาแก้ไข หรือวางรูป/แคปหน้าจอด้วย Ctrl+V..."
+                          className="w-full px-3.5 py-2.5 bg-slate-50/70 border border-indigo-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+
+                        {renderReviewAttachmentToolbar('indigo')}
+
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            {/* Request Revision Button (Requires explicit Request Revision permission) */}
+                            {permissions.canRequestRevision && (
+                              <button
+                                type="button"
+                                disabled={isProcessing || isReviewAttachmentUploading}
+                                onClick={() => handleReviewerAction('REQUEST_REVISION')}
+                                className="h-10 px-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
+                              >
+                                <RotateCcw size={14} />
+                                ส่งกลับให้สาขาแก้ไข (Revise)
+                              </button>
+                            )}
+
+                            {/* Endorse for Manager Approval (For assigned Marketing Reviewer without Approve) */}
+                            {permissions.canReview && !permissions.canApprove && (
+                              <button
+                                type="button"
+                                disabled={isProcessing || isReviewAttachmentUploading}
+                                onClick={() => handleReviewerAction('ENDORSE_FOR_APPROVAL')}
+                                className="h-10 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all disabled:opacity-50"
+                              >
+                                <ShieldCheck size={14} />
+                                Marketing ตรวจผ่าน • เสนออนุมัติ
+                              </button>
+                            )}
+
+                            {/* Official Approve Button (Marketing Manager / Superadmin / Explicitly assigned Approver) */}
+                            {permissions.canApprove && (
+                              <button
+                                type="button"
+                                disabled={isProcessing || isReviewAttachmentUploading}
+                                onClick={handleApproverAction}
+                                className="h-10 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all disabled:opacity-50"
+                              >
+                                <CheckCircle2 size={15} />
+                                อนุมัติให้เผยแพร่ (Final Approve)
+                              </button>
+                            )}
+                          </div>
+
+                          {permissions.canApprove &&
+                            permissions.canReview &&
+                            item.reviewSubStatus !== 'ENDORSED_FOR_MARKETING_MANAGER' &&
+                            (item.status === 'APPROVE_1' || item.status === 'PENDING_REVIEW') && (
+                              <button
+                                type="button"
+                                disabled={isProcessing || isReviewAttachmentUploading}
+                                onClick={() => handleReviewerAction('ENDORSE_FOR_APPROVAL')}
+                                className="w-full py-1.5 rounded-lg border border-purple-300 bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold text-[11px] transition-colors disabled:opacity-50"
+                              >
+                                หรือบันทึกสถานะเป็น &ldquo;Marketing ตรวจเนื้อหาผ่านแล้ว • รอผู้จัดการการตลาดอนุมัติ&rdquo;
+                              </button>
+                            )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+
+                {/* Right 6 Cols: Comment History Card (100% Symmetrical Frame & Flush Edges) */}
+                <div className="lg:col-span-6 h-full flex flex-col bg-slate-50/80 rounded-2xl p-4 border border-slate-200 gap-3">
+                  {/* Header Row (min-h-[28px] matches Left Status Header) */}
+                  <div className="min-h-[28px] flex items-center justify-between gap-2">
+                    <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                      <MessageSquare size={16} className="text-red-600 shrink-0" />
+                      <span>ประวัติความคิดเห็นและข้อเสนอแนะ</span>
+                    </h4>
+                    <span className="inline-flex items-center px-2.5 h-6 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-[11px] shrink-0">
+                      {item.comments.length} รายการ
+                    </span>
+                  </div>
+
+                  {/* Row 1: Unified Comment Composer Bar with CR-01B Attachments + Ctrl+V & Drop */}
+                  {permissions?.canComment ? (
+                    <form
+                      onSubmit={handleAddComment}
+                      onDragOver={e => {
+                        e.preventDefault();
+                        setIsDragOverTarget('comment');
+                      }}
+                      onDragLeave={() => setIsDragOverTarget(prev => (prev === 'comment' ? null : prev))}
+                      onDrop={e => handleDropFilesToTarget('comment', e)}
+                      className={`bg-white p-2.5 rounded-xl border space-y-2 transition-all ${isDragOverTarget === 'comment'
+                          ? 'border-red-400 ring-2 ring-red-200'
+                          : 'border-slate-200/90'
+                        }`}
+                    >
+                      <input
+                        ref={commentFileInputRef}
+                        type="file"
+                        multiple
+                        accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                        onChange={e => handleFileInputSelect('comment', e)}
+                        className="hidden"
+                      />
+
+                      <input
+                        type="text"
+                        value={commentInput}
+                        onChange={e => setCommentInput(e.target.value)}
+                        onPaste={e => handlePasteFilesToTarget('comment', e)}
+                        placeholder={`แสดงความคิดเห็น Version ${item.currentVersion}... (หรือวางรูปด้วย Ctrl+V)`}
+                        className="w-full h-10 px-3.5 bg-slate-50/70 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
+
+                      {renderStagedAttachmentChips('comment', commentAttachments)}
+
+                      <div className="flex items-center justify-between gap-2 pt-0.5 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => commentFileInputRef.current?.click()}
+                            disabled={
+                              isProcessing ||
+                              commentAttachments.length >= BRANCH_COMMENT_ATTACHMENT_MAX_COUNT
+                            }
+                            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold disabled:opacity-50 transition-colors"
+                          >
+                            <Paperclip size={13} />
+                            <span>
+                              <Plus size={11} className="inline -mt-0.5" /> แนบไฟล์
+                            </span>
+                            {commentAttachments.length > 0 && (
+                              <span className="text-[10px] text-slate-500">
+                                ({commentAttachments.length}/{BRANCH_COMMENT_ATTACHMENT_MAX_COUNT})
+                              </span>
+                            )}
+                          </button>
+                          <span className="text-[10px] text-slate-400 hidden sm:inline">
+                            JPG, PNG, PDF • สูงสุด 4 MB • Ctrl+V / ลากวางได้
+                          </span>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={
+                            isProcessing ||
+                            commentAttachments.some(a => a.status === 'uploading') ||
+                            (!commentInput.trim() &&
+                              commentAttachments.filter(a => a.status === 'uploaded').length === 0)
+                          }
+                          className="h-9 px-4 rounded-lg bg-[#ff2301] hover:bg-red-600 text-white font-bold text-xs shrink-0 disabled:opacity-50 transition-colors"
+                        >
+                          ส่งความคิดเห็น
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="min-h-[52px] bg-white px-3.5 py-2.5 rounded-xl border border-slate-200/90 flex items-center text-[11px] font-semibold text-slate-500">
+                      บัญชีของคุณอยู่ในสิทธิ์ดูข้อมูลอย่างเดียว (ยังไม่ได้รับมอบหมายสิทธิ์คอมเมนต์และแนบไฟล์)
+                    </div>
+                  )}
+
+                  {/* Row 2: Flush Comment Feed (No pr-1 offset — aligns pixel-for-pixel with Composer Bar) */}
+                  <div className="flex-1 flex flex-col gap-2.5 max-h-[380px] overflow-y-auto">
+                    {item.comments.length === 0 ? (
+                      <div className="flex-1 min-h-[92px] flex items-center justify-center text-center p-6 text-slate-400 bg-white rounded-xl border border-slate-200/90">
+                        ยังไม่มีความคิดเห็นในรายการนี้
+                      </div>
+                    ) : (
+                      item.comments.map(c => {
+                        const isRev = c.commentType === 'REVISION_REQUEST';
+                        const isEndorse = c.commentType === 'ENDORSEMENT';
+                        const isApp = c.commentType === 'APPROVAL_NOTE';
+                        const attachments = c.attachments || [];
+                        return (
+                          <div
+                            key={c.id}
+                            className={`only:flex-1 p-3.5 rounded-xl border space-y-2 ${isRev
+                                ? 'bg-orange-50/90 border-orange-200'
+                                : isApp
+                                  ? 'bg-emerald-50/90 border-emerald-200'
+                                  : isEndorse
+                                    ? 'bg-purple-50/90 border-purple-200'
+                                    : 'bg-white border-slate-200/90'
+                              }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-bold text-slate-900">{c.userName}</span>
+                                {c.userRole && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                                    {c.userRole}
+                                  </span>
+                                )}
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-white font-mono font-bold">
+                                  V{c.version}
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-slate-400 shrink-0">
+                                {formatDateTime(c.createdAt)}
+                              </span>
+                            </div>
+
+                            {c.message && (
+                              <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">
+                                {c.message}
+                              </p>
+                            )}
+
+                            {attachments.length > 0 && (
+                              <div className="pt-1 space-y-1.5">
+                                {attachments.map(att => {
+                                  const isImage = att.fileType === 'IMAGE';
+                                  const kindLabel = getCommentAttachmentKindLabel(
+                                    att.fileName,
+                                    att.mimeType
+                                  );
+                                  return (
+                                    <div
+                                      key={att.id}
+                                      className="rounded-xl bg-slate-50/90 border border-slate-200/80 p-2 flex items-center justify-between gap-2.5"
+                                    >
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        {isImage ? (
+                                          <button
+                                            type="button"
+                                            onClick={() => setPreviewAttachment(att)}
+                                            className="w-11 h-11 rounded-lg overflow-hidden border border-slate-200 bg-white shrink-0 hover:opacity-90 transition-opacity"
+                                            title="คลิกเพื่อดูภาพขนาดเต็ม"
+                                          >
+                                            <img
+                                              src={att.fileUrl}
+                                              alt={att.fileName}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </button>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={() => setPreviewAttachment(att)}
+                                            className="w-11 h-11 rounded-lg border border-red-200 bg-red-50 text-red-700 flex flex-col items-center justify-center shrink-0 hover:bg-red-100 transition-colors"
+                                            title="คลิกเพื่อดู Preview PDF"
+                                          >
+                                            <FileText size={16} />
+                                            <span className="text-[9px] font-black leading-none mt-0.5">
+                                              PDF
+                                            </span>
+                                          </button>
+                                        )}
+
+                                        <div className="min-w-0">
+                                          <div
+                                            className="text-xs font-bold text-slate-800 truncate"
+                                            title={att.fileName}
+                                          >
+                                            {att.fileName}
+                                          </div>
+                                          <div className="text-[10px] text-slate-500">
+                                            {kindLabel} • {formatAttachmentFileSize(att.fileSize)}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-center gap-1.5 shrink-0">
+                                        <button
+                                          type="button"
+                                          onClick={() => setPreviewAttachment(att)}
+                                          className="inline-flex items-center gap-1 px-2 h-7 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-[11px] font-bold text-slate-700 transition-colors"
+                                        >
+                                          <Eye size={12} /> เปิดดู
+                                        </button>
+                                        <a
+                                          href={`${att.fileUrl}?download=1`}
+                                          download={att.fileName}
+                                          className="inline-flex items-center gap-1 px-2 h-7 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-[11px] font-bold text-slate-700 transition-colors"
+                                        >
+                                          <Download size={12} /> โหลด
+                                        </a>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -2184,4 +2169,3 @@ export default function BranchContentDetailModal({
     </div>
   );
 }
-

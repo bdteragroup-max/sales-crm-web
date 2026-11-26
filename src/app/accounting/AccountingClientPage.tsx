@@ -64,6 +64,7 @@ import {
   evaluateAccountingAmountReconciliation,
   evaluatePaymentTasksLinkState,
   extractAccountingDocsFromPaymentTasks,
+  extractAccountingDocsFromStepLogs,
   findCompletedAccountingStepLog,
   mergeAccountingTaxDocuments,
   parseAccountingTaxDocuments,
@@ -73,6 +74,41 @@ import {
   getPersonIdentityKey,
   isSamePersonName,
 } from "@/app/lib/personName";
+
+function getPrefillInvoiceFromTaskAndJob(
+  task: any,
+  job: any,
+  tasksCount: number,
+  stepLogs?: any[]
+): { invoiceNumber: string; invoiceDate: string } {
+  const rawInv = typeof task?.invoiceNumber === 'string' ? task.invoiceNumber.trim() : '';
+  const normalizeDateInput = (val: unknown): string => {
+    if (!val) return '';
+    const d = new Date(val as any);
+    if (Number.isNaN(d.getTime())) return '';
+    if (d.getUTCFullYear() >= 2500) d.setUTCFullYear(d.getUTCFullYear() - 543);
+    return d.toISOString().slice(0, 10);
+  };
+  if (rawInv) {
+    return {
+      invoiceNumber: rawInv,
+      invoiceDate: normalizeDateInput(task?.invoiceDate),
+    };
+  }
+  if (tasksCount === 1) {
+    const mergedDocs = mergeAccountingTaxDocuments(
+      parseAccountingTaxDocuments(job?.accountingTaxDocuments),
+      extractAccountingDocsFromStepLogs(stepLogs ?? job?.stepLogs)
+    );
+    if (mergedDocs.length > 0) {
+      return {
+        invoiceNumber: mergedDocs.map((d) => d.docNumber).join(', '),
+        invoiceDate: mergedDocs[0].docDate || '',
+      };
+    }
+  }
+  return { invoiceNumber: '', invoiceDate: '' };
+}
 
 function formatDate(d: string | Date | null | undefined) {
   if (!d) return '-';
@@ -124,10 +160,10 @@ function JobDetailModal({
 }: {
   jobId: string,
   onClose: () => void,
-  onConfirmPayment: (id: string, status: string, note: string, invoiceNumber?: string, invoiceDate?: string) => void,
-  onRecordDeposit: (id: string, amount: number, note: string) => void,
+  onConfirmPayment: (id: string, status: string, note: string, invoiceNumber?: string, invoiceDate?: string) => Promise<any> | void,
+  onRecordDeposit: (id: string, amount: number, note: string) => Promise<any> | void,
   onUpdateCreditType: (id: string, creditType: string) => void,
-  onTasksUpdated?: (jobId: string, tasks: any[]) => void,
+  onTasksUpdated?: (jobId: string, tasks: any[], updatedJob?: any) => void,
   onAccountingVerified?: (jobId: string, updatedJob: any) => void,
   isPending: boolean
 }) {
@@ -137,6 +173,7 @@ function JobDetailModal({
   const [depositAmount, setDepositAmount] = useState('');
   const [depositNote, setDepositNote] = useState('');
   const [confirmPaymentModal, setConfirmPaymentModal] = useState<{ id: string, status: string } | null>(null);
+  const [isSubmittingConfirm, setIsSubmittingConfirm] = useState(false);
   const [paymentNote, setPaymentNote] = useState('');
   const [acctVerifiedAmountInput, setAcctVerifiedAmountInput] = useState<string>('');
   const [acctDocs, setAcctDocs] = useState<AccountingTaxDocument[]>([]);
@@ -222,6 +259,7 @@ function JobDetailModal({
       if (res.success && res.paymentTasks) {
         setData((prev: any) => ({
           ...prev,
+          job: res.job ? { ...prev?.job, ...res.job } : prev?.job,
           paymentTasks: res.paymentTasks
         }));
         const taskDocs = extractAccountingDocsFromPaymentTasks(res.paymentTasks);
@@ -232,7 +270,7 @@ function JobDetailModal({
           });
         }
         if (onTasksUpdated) {
-          onTasksUpdated(jobId, res.paymentTasks);
+          onTasksUpdated(jobId, res.paymentTasks, res.job);
         }
         setScheduleModal({ isOpen: false, item: null });
         Swal.fire({
@@ -276,10 +314,11 @@ function JobDetailModal({
         if (res.success && res.paymentTasks) {
           setData((prev: any) => ({
             ...prev,
+            job: res.job ? { ...prev?.job, ...res.job } : prev?.job,
             paymentTasks: res.paymentTasks
           }));
           if (onTasksUpdated) {
-            onTasksUpdated(jobId, res.paymentTasks);
+            onTasksUpdated(jobId, res.paymentTasks, res.job);
           }
           Swal.fire({
             toast: true,
@@ -387,7 +426,7 @@ function JobDetailModal({
         }));
         setIsEditingAcctVerification(false);
         if (res.paymentTasks && onTasksUpdated) {
-          onTasksUpdated(jobId, res.paymentTasks);
+          onTasksUpdated(jobId, res.paymentTasks, res.job);
         }
         if (onAccountingVerified) {
           onAccountingVerified(jobId, res.job);
@@ -800,7 +839,18 @@ function JobDetailModal({
                           <button
                             type="button"
                             disabled={isPending}
-                            onClick={() => setConfirmPaymentModal({ id: pt.id, status: 'ตรวจสอบและบันทึกแล้ว' })}
+                            onClick={() => {
+                              const prefill = getPrefillInvoiceFromTaskAndJob(
+                                pt,
+                                job,
+                                (paymentTasks || []).length,
+                                data?.stepLogs
+                              );
+                              setInvoiceNumber(prefill.invoiceNumber);
+                              setInvoiceDate(prefill.invoiceDate);
+                              setPaymentNote('');
+                              setConfirmPaymentModal({ id: pt.id, status: 'ตรวจสอบและบันทึกแล้ว' });
+                            }}
                             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50"
                           >
                             {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 size={13} />}
@@ -870,7 +920,7 @@ function JobDetailModal({
                 : [];
               const acctStepLog = findCompletedAccountingStepLog(typedStepLogs);
               const isAccountingClosed =
-                paymentLink.canCloseAccounting && Boolean(job.accountingClosedAt || acctStepLog);
+                paymentLink.canCloseAccounting && Boolean(job.accountingClosedAt);
               const closedByLabel = job.accountingClosedBy || acctStepLog?.completedBy || null;
               const closedAtValue = job.accountingClosedAt || acctStepLog?.completedAt || null;
               const savedAmountValue =
@@ -1419,34 +1469,44 @@ function JobDetailModal({
 
               <div className="flex gap-2">
                 <button
+                  disabled={isSubmittingConfirm || isPending}
                   onClick={() => { setShowDepositModal(null); setDepositAmount(''); setDepositNote(''); }}
-                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors"
+                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
                 >
                   ยกเลิก
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const amt = Number(depositAmount);
-                    if (amt > 0 && showDepositModal) {
-                      onRecordDeposit(showDepositModal, amt, depositNote);
+                    if (!(amt > 0) || !showDepositModal || isSubmittingConfirm) return;
+                    setIsSubmittingConfirm(true);
+                    try {
+                      const res = await onRecordDeposit(showDepositModal, amt, depositNote);
+                      if (!(res as any)?.success) return;
+                      const updatedRes = res as any;
                       setData((prev: any) => ({
                         ...prev,
-                        paymentTasks: prev.paymentTasks?.map((pt: any) => pt.id === showDepositModal ? {
+                        job: updatedRes.job ? { ...prev?.job, ...updatedRes.job } : prev?.job,
+                        paymentTasks: prev?.paymentTasks?.map((pt: any) => pt.id === showDepositModal ? {
                           ...pt,
-                          status: 'ชำระมัดจำแล้ว',
-                          paidAmount: amt,
-                          note: depositNote || pt.note
+                          ...(updatedRes.task || {}),
+                          status: updatedRes.task?.status ?? 'ชำระมัดจำแล้ว',
+                          paidAmount: updatedRes.task?.paidAmount ?? amt,
+                          note: updatedRes.task?.note ?? (depositNote || pt.note)
                         } : pt)
                       }));
                       setShowDepositModal(null);
                       setDepositAmount('');
                       setDepositNote('');
+                    } finally {
+                      setIsSubmittingConfirm(false);
                     }
                   }}
-                  disabled={isPending || !depositAmount || Number(depositAmount) <= 0}
-                  className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+                  disabled={isSubmittingConfirm || isPending || !depositAmount || Number(depositAmount) <= 0}
+                  className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
                 >
-                  บันทึกมัดจำ
+                  {isSubmittingConfirm && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>บันทึกมัดจำ</span>
                 </button>
               </div>
             </div>
@@ -1457,7 +1517,11 @@ function JobDetailModal({
         {confirmPaymentModal && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
             <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative border border-slate-200">
-              <button onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
+              <button
+                disabled={isSubmittingConfirm}
+                onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }}
+                className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 disabled:opacity-50"
+              >
                 <X size={20} />
               </button>
               <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
@@ -1500,13 +1564,15 @@ function JobDetailModal({
 
               <div className="flex gap-2">
                 <button
+                  disabled={isSubmittingConfirm}
                   onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }}
-                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors"
+                  className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
                 >
                   ยกเลิก
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    if (isSubmittingConfirm) return;
                     let normalizedInvoiceDate = invoiceDate;
                     if (normalizedInvoiceDate) {
                       const d = new Date(normalizedInvoiceDate);
@@ -1515,46 +1581,65 @@ function JobDetailModal({
                         normalizedInvoiceDate = d.toISOString().slice(0, 10);
                       }
                     }
-                    onConfirmPayment(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, normalizedInvoiceDate);
-                    setData((prev: any) => ({
-                      ...prev,
-                      paymentTasks: prev.paymentTasks?.map((pt: any) => pt.id === confirmPaymentModal.id ? {
-                        ...pt,
-                        status: confirmPaymentModal.status,
-                        note: paymentNote || pt.note,
-                        invoiceNumber: invoiceNumber || pt.invoiceNumber,
-                        invoiceDate: normalizedInvoiceDate ? new Date(normalizedInvoiceDate).toISOString() : pt.invoiceDate,
-                        paidDate: confirmPaymentModal.status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : pt.paidDate
-                      } : pt)
-                    }));
-                    const trimmedInv = invoiceNumber.trim();
-                    if (trimmedInv) {
-                      const docDateStr = normalizedInvoiceDate
-                        ? new Date(normalizedInvoiceDate).toISOString().slice(0, 10)
-                        : null;
-                      const isReceipt = /^RE[-/]?\d/i.test(trimmedInv);
-                      setAcctDocs((prev) => {
-                        const merged = mergeAccountingTaxDocuments(prev, [
-                          {
-                            id: `doc-${Date.now()}-pt`,
-                            docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE_RECEIPT',
-                            docNumber: trimmedInv,
-                            docDate: docDateStr,
-                            note: null,
-                          },
-                        ]);
-                        return merged.length > 0 ? merged : prev;
-                      });
+                    setIsSubmittingConfirm(true);
+                    try {
+                      const res = await onConfirmPayment(
+                        confirmPaymentModal.id,
+                        confirmPaymentModal.status,
+                        paymentNote,
+                        invoiceNumber,
+                        normalizedInvoiceDate
+                      );
+                      if (!(res as any)?.success) return;
+                      const updatedRes = res as any;
+                      setData((prev: any) => ({
+                        ...prev,
+                        job: updatedRes.job ? { ...prev?.job, ...updatedRes.job } : prev?.job,
+                        paymentTasks: Array.isArray(updatedRes.paymentTasks)
+                          ? updatedRes.paymentTasks
+                          : prev?.paymentTasks?.map((pt: any) => pt.id === confirmPaymentModal.id ? {
+                              ...pt,
+                              ...(updatedRes.task || {}),
+                              status: updatedRes.task?.status ?? confirmPaymentModal.status,
+                              note: updatedRes.task?.note ?? (paymentNote || pt.note),
+                              invoiceNumber: updatedRes.task?.invoiceNumber ?? (invoiceNumber || pt.invoiceNumber),
+                              invoiceDate: updatedRes.task?.invoiceDate ?? (normalizedInvoiceDate ? new Date(normalizedInvoiceDate).toISOString() : pt.invoiceDate),
+                              paidDate: updatedRes.task?.paidDate ?? (confirmPaymentModal.status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : pt.paidDate)
+                            } : pt),
+                        stepLogs: Array.isArray(updatedRes.stepLogs) ? updatedRes.stepLogs : prev?.stepLogs,
+                      }));
+                      const serverDocs = parseAccountingTaxDocuments(updatedRes.job?.accountingTaxDocuments);
+                      const trimmedInv = invoiceNumber.trim();
+                      if (serverDocs.length > 0 || trimmedInv) {
+                        const extraDocs: AccountingTaxDocument[] = trimmedInv
+                          ? [{
+                              id: `doc-${Date.now()}-pt`,
+                              docType: /^RE[-/]?\d/i.test(trimmedInv) ? 'RECEIPT' : 'TAX_INVOICE_RECEIPT',
+                              docNumber: trimmedInv,
+                              docDate: normalizedInvoiceDate
+                                ? new Date(normalizedInvoiceDate).toISOString().slice(0, 10)
+                                : null,
+                              note: null,
+                            }]
+                          : [];
+                        setAcctDocs((prev) => {
+                          const merged = mergeAccountingTaxDocuments(prev, [...serverDocs, ...extraDocs]);
+                          return merged.length > 0 ? merged : prev;
+                        });
+                      }
+                      setConfirmPaymentModal(null);
+                      setPaymentNote('');
+                      setInvoiceNumber('');
+                      setInvoiceDate('');
+                    } finally {
+                      setIsSubmittingConfirm(false);
                     }
-                    setConfirmPaymentModal(null);
-                    setPaymentNote('');
-                    setInvoiceNumber('');
-                    setInvoiceDate('');
                   }}
-                  disabled={isPending}
-                  className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+                  disabled={isSubmittingConfirm || isPending}
+                  className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
                 >
-                  ยืนยัน
+                  {isSubmittingConfirm && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>ยืนยัน</span>
                 </button>
               </div>
             </div>
@@ -1801,7 +1886,9 @@ function JobDetailModal({
 
 export default function AccountingClientPage({ tasks: initialTasks }: { tasks: any[] }) {
   const [tasks, setTasks] = useState(initialTasks);
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
+  const [isMutating, setIsMutating] = useState(false);
+  const [isSubmittingModal, setIsSubmittingModal] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1847,17 +1934,59 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
     [tasks]
   );
 
-  const handleUpdate = (id: string, status: string, note: string = "", invoiceNumber?: string, invoiceDate?: string) => {
-    startTransition(async () => {
-      await updatePaymentTaskStatus(id, status, note, invoiceNumber, invoiceDate);
-      setTasks(prev => prev.map(t => t.id === id ? {
-        ...t,
-        status,
-        note: note || t.note,
-        invoiceNumber: invoiceNumber || t.invoiceNumber,
-        invoiceDate: invoiceDate ? new Date(invoiceDate).toISOString() : t.invoiceDate,
-        paidDate: status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : t.paidDate
-      } : t));
+  const handleUpdate = async (id: string, status: string, note: string = "", invoiceNumber?: string, invoiceDate?: string) => {
+    setIsMutating(true);
+    try {
+      const res = await updatePaymentTaskStatus(id, status, note, invoiceNumber, invoiceDate);
+      if (!res?.success) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถบันทึกได้',
+          text: 'การบันทึกสถานะการชำระเงินไม่สำเร็จ',
+          confirmButtonColor: '#e11d48'
+        });
+        return null;
+      }
+
+      setTasks(prev => {
+        const targetJobId = res.job?.id || res.task?.jobId;
+        const sampleJob = prev.find(t => (targetJobId ? t.jobId === targetJobId : t.id === id))?.job;
+        const mergedJob = sampleJob
+          ? {
+              ...sampleJob,
+              ...(res.job || {}),
+              ...(res.stepLogs ? { stepLogs: res.stepLogs } : {}),
+            }
+          : res.job || undefined;
+
+        if (targetJobId && Array.isArray(res.paymentTasks)) {
+          const others = prev.filter(t => t.jobId !== targetJobId);
+          const enriched = res.paymentTasks.map((pt: any) => ({
+            ...pt,
+            job: pt.job ? { ...mergedJob, ...pt.job } : mergedJob,
+          }));
+          return [...others, ...enriched];
+        }
+
+        return prev.map(t => {
+          if (t.id === id) {
+            return {
+              ...t,
+              ...(res.task || {}),
+              status: res.task?.status ?? status,
+              note: res.task?.note ?? (note || t.note),
+              invoiceNumber: res.task?.invoiceNumber ?? (invoiceNumber || t.invoiceNumber),
+              invoiceDate: res.task?.invoiceDate ?? (invoiceDate ? new Date(invoiceDate).toISOString() : t.invoiceDate),
+              paidDate: res.task?.paidDate ?? (status === 'ตรวจสอบและบันทึกแล้ว' ? new Date().toISOString() : t.paidDate),
+              job: mergedJob || t.job,
+            };
+          }
+          if (targetJobId && t.jobId === targetJobId && mergedJob) {
+            return { ...t, job: mergedJob };
+          }
+          return t;
+        });
+      });
 
       Swal.fire({
         toast: true,
@@ -1867,18 +1996,56 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         showConfirmButton: false,
         timer: 1500
       });
-    });
+      return res;
+    } catch (err: any) {
+      console.error('Failed to update payment task status:', err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'ไม่สามารถบันทึกได้',
+        text: err?.message || 'เกิดข้อผิดพลาดในการบันทึกสถานะการชำระเงิน',
+        confirmButtonColor: '#e11d48'
+      });
+      return null;
+    } finally {
+      setIsMutating(false);
+    }
   };
 
-  const handleRecordDeposit = (id: string, amount: number, note: string = "") => {
-    startTransition(async () => {
-      await recordPaymentDeposit(id, amount, note);
-      setTasks(prev => prev.map(t => t.id === id ? {
-        ...t,
-        status: 'ชำระมัดจำแล้ว',
-        paidAmount: amount,
-        note: note || t.note
-      } : t));
+  const handleRecordDeposit = async (id: string, amount: number, note: string = "") => {
+    setIsMutating(true);
+    try {
+      const res = await recordPaymentDeposit(id, amount, note);
+      if (!res?.success) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'ไม่สามารถบันทึกได้',
+          text: 'การบันทึกเงินมัดจำไม่สำเร็จ',
+          confirmButtonColor: '#e11d48'
+        });
+        return null;
+      }
+
+      setTasks(prev => {
+        const targetJobId = res.job?.id || res.task?.jobId;
+        const sampleJob = prev.find(t => (targetJobId ? t.jobId === targetJobId : t.id === id))?.job;
+        const mergedJob = sampleJob && res.job ? { ...sampleJob, ...res.job } : (res.job || sampleJob);
+        return prev.map(t => {
+          if (t.id === id) {
+            return {
+              ...t,
+              ...(res.task || {}),
+              status: res.task?.status ?? 'ชำระมัดจำแล้ว',
+              paidAmount: res.task?.paidAmount ?? amount,
+              note: res.task?.note ?? (note || t.note),
+              job: mergedJob || t.job,
+            };
+          }
+          if (targetJobId && t.jobId === targetJobId && mergedJob) {
+            return { ...t, job: mergedJob };
+          }
+          return t;
+        });
+      });
 
       Swal.fire({
         toast: true,
@@ -1888,7 +2055,19 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
         showConfirmButton: false,
         timer: 1500
       });
-    });
+      return res;
+    } catch (err: any) {
+      console.error('Failed to record deposit:', err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'ไม่สามารถบันทึกได้',
+        text: err?.message || 'เกิดข้อผิดพลาดในการบันทึกเงินมัดจำ',
+        confirmButtonColor: '#e11d48'
+      });
+      return null;
+    } finally {
+      setIsMutating(false);
+    }
   };
 
   const handleUpdateCreditType = async (id: string, creditType: string) => {
@@ -1904,22 +2083,25 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
     }
   };
 
-  const handleTasksUpdated = (jId: string, updatedJobTasks: any[]) => {
+  const handleTasksUpdated = (jId: string, updatedJobTasks: any[], updatedJobMeta?: any) => {
     setTasks(prev => {
       const others = prev.filter(t => t.jobId !== jId);
       const existingSample = prev.find(t => t.jobId === jId);
       const hasInstallments =
         updatedJobTasks.length > 1 ||
         updatedJobTasks.some(t => t.installmentNo !== null && t.installmentNo !== undefined);
-      const updatedSampleJob = existingSample?.job
+      const updatedSampleJob = existingSample?.job || updatedJobMeta
         ? {
-            ...existingSample.job,
-            paymentMethod: hasInstallments ? 'ผ่อนชำระ' : existingSample.job.paymentMethod,
+            ...(existingSample?.job || {}),
+            ...(updatedJobMeta || {}),
+            paymentMethod:
+              updatedJobMeta?.paymentMethod ||
+              (hasInstallments ? 'ผ่อนชำระ' : existingSample?.job?.paymentMethod),
           }
         : undefined;
       const enriched = updatedJobTasks.map(t => ({
         ...t,
-        job: t.job || updatedSampleJob
+        job: t.job ? { ...updatedSampleJob, ...t.job } : updatedSampleJob
       }));
       return [...others, ...enriched];
     });
@@ -2239,7 +2421,7 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
           onUpdateCreditType={handleUpdateCreditType}
           onTasksUpdated={handleTasksUpdated}
           onAccountingVerified={handleAccountingVerified}
-          isPending={isPending}
+          isPending={isPending || isMutating || isSubmittingModal}
         />
       )}
 
@@ -2247,7 +2429,11 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
       {confirmPaymentModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in">
           <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative border border-slate-200 animate-in zoom-in-95">
-            <button onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
+            <button
+              disabled={isSubmittingModal}
+              onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }}
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600 disabled:opacity-50"
+            >
               <X size={20} />
             </button>
             <h3 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
@@ -2290,13 +2476,15 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
             <div className="flex gap-2">
               <button
+                disabled={isSubmittingModal}
                 onClick={() => { setConfirmPaymentModal(null); setPaymentNote(''); setInvoiceNumber(''); setInvoiceDate(''); }}
-                className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors"
+                className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
               >
                 ยกเลิก
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
+                  if (isSubmittingModal) return;
                   let normalizedInvoiceDate = invoiceDate;
                   if (normalizedInvoiceDate) {
                     const d = new Date(normalizedInvoiceDate);
@@ -2305,16 +2493,30 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                       normalizedInvoiceDate = d.toISOString().slice(0, 10);
                     }
                   }
-                  handleUpdate(confirmPaymentModal.id, confirmPaymentModal.status, paymentNote, invoiceNumber, normalizedInvoiceDate);
-                  setConfirmPaymentModal(null);
-                  setPaymentNote('');
-                  setInvoiceNumber('');
-                  setInvoiceDate('');
+                  setIsSubmittingModal(true);
+                  try {
+                    const res = await handleUpdate(
+                      confirmPaymentModal.id,
+                      confirmPaymentModal.status,
+                      paymentNote,
+                      invoiceNumber,
+                      normalizedInvoiceDate
+                    );
+                    if (res?.success) {
+                      setConfirmPaymentModal(null);
+                      setPaymentNote('');
+                      setInvoiceNumber('');
+                      setInvoiceDate('');
+                    }
+                  } finally {
+                    setIsSubmittingModal(false);
+                  }
                 }}
-                disabled={isPending}
-                className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+                disabled={isPending || isMutating || isSubmittingModal}
+                className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
               >
-                ยืนยันรับเงิน
+                {isSubmittingModal && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>ยืนยันรับเงิน</span>
               </button>
             </div>
           </div>
@@ -2928,13 +3130,9 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
                               paymentMethod: group.job?.paymentMethod,
                               creditTerms: group.job?.creditTerms,
                             });
-                            const rowStepLogs = Array.isArray(group.job?.stepLogs)
-                              ? (group.job.stepLogs as AccountingStepLogLike[])
-                              : [];
-                            const rowHasAcctLog = Boolean(findCompletedAccountingStepLog(rowStepLogs));
                             const isRowAcctClosed =
                               rowPaymentLink.canCloseAccounting &&
-                              Boolean(group.job?.accountingClosedAt || rowHasAcctLog);
+                              Boolean(group.job?.accountingClosedAt);
                             if (isRowAcctClosed) {
                               return (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -2983,9 +3181,18 @@ export default function AccountingClientPage({ tasks: initialTasks }: { tasks: a
 
                           {!hasInstallments && !allCompleted && singlePendingTask?.id && (
                             <button
-                              disabled={isPending}
+                              disabled={isPending || isMutating || isSubmittingModal}
                               onClick={() => {
                                 if (singlePendingTask.id) {
+                                  const prefill = getPrefillInvoiceFromTaskAndJob(
+                                    singlePendingTask,
+                                    group.job,
+                                    group.tasks.length,
+                                    group.job?.stepLogs
+                                  );
+                                  setInvoiceNumber(prefill.invoiceNumber);
+                                  setInvoiceDate(prefill.invoiceDate);
+                                  setPaymentNote('');
                                   setConfirmPaymentModal({ id: singlePendingTask.id, status: 'ตรวจสอบและบันทึกแล้ว' });
                                 }
                               }}

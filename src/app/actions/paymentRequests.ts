@@ -45,10 +45,11 @@ function getPool(): Pool {
     }
     const pool = new Pool({
       connectionString: dbUrl,
-      max: 5,
-      idleTimeoutMillis: 20000,
-      connectionTimeoutMillis: 30000,
+      max: 4,
+      idleTimeoutMillis: 15000,
+      connectionTimeoutMillis: 10000,
       keepAlive: true,
+      allowExitOnIdle: true,
     });
     pool.on('error', err => {
       if (

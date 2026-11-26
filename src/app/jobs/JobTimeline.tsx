@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useEffect } from "react"
 import { getSteps, getWorkflow, type StepDef } from "@/app/lib/job-workflow"
-import { evaluatePaymentTasksLinkState } from "@/app/lib/accounting-reconciliation"
+import { evaluatePaymentTasksLinkState, evaluatePrepaidDeliveryBlockReason } from "@/app/lib/accounting-reconciliation"
+import { formatThaiDateSlash, formatThaiTime24Dot, LOGISTICS_STOP_STATUS_META, LOGISTICS_TRIP_STATUS_META, type JobLogisticsLinkInfo } from "@/app/lib/logisticsTypes"
 import { confirmJobStep, rejectJobStep, getPOsByJobName } from "@/app/actions/jobs"
 import { XCircle, Edit2, AlertTriangle } from "lucide-react"
 import { Check, CheckCircle2, Loader2, Briefcase, Package, ShoppingCart, Factory, Wrench, FolderOpen, FileText, Truck, ListPlus, ShieldCheck } from "lucide-react"
@@ -38,6 +39,7 @@ type Props = {
   repairDeliveries?: any[]
   quotationId?: string | null
   accountingMismatchMessage?: string | null
+  logisticsLink?: JobLogisticsLinkInfo | null
 }
 
 const getStepIcon = (key: string, isDone: boolean, isActive: boolean, isFuture: boolean) => {
@@ -59,7 +61,7 @@ const getStepIcon = (key: string, isDone: boolean, isActive: boolean, isFuture: 
 export default function JobTimeline({
   jobId, jobType, currentStep, flowVariant, stepLogs, userName, userDept, userRole, isManager,
   jobNumber, customerName, sellerName, paymentTasks, paymentMethod, creditTerms, installationOrders, repairOrder, project, repairDeliveries,
-  quotationId, accountingMismatchMessage
+  quotationId, accountingMismatchMessage, logisticsLink
 }: Props) {
   const [isPending, startTransition] = useTransition()
   const [showVariantModal, setShowVariantModal] = useState(false)
@@ -310,54 +312,15 @@ export default function JobTimeline({
       return paymentLink.closeBlockReason;
     }
 
-    // ถ้าฝ่ายบัญชีกดยืนยันขั้นตอน "บัญชี" บน Timeline แล้ว ให้แผนกจัดส่งดำเนินการต่อได้ทันที
-    // (เช่น ลูกค้าเครดิต ผ่อนชำระ หรือรอวางบิลตามรอบที่บัญชีรับทราบแล้ว)
-    const accountingIdx = steps.findIndex((s) => s.key === 'accounting');
-    const hasAccountingConfirmed =
-      accountingIdx !== -1 &&
-      currentIdx > accountingIdx &&
-      stepLogs.some((l) => l.step === 'accounting');
-
-    if (hasAccountingConfirmed) return null;
-
-    // Check if any payment task is incomplete
-    const hasIncompletePayment = paymentTasks && paymentTasks.length > 0 
-      ? paymentTasks.some((pt: any) => pt.status !== 'ตรวจสอบและบันทึกแล้ว')
-      : false;
-
-    if (!hasIncompletePayment) return null;
-
-    // Check payment method & terms
-    const resolvedMethod = String(
-      paymentMethod ||
-      paymentTasks?.[0]?.job?.paymentMethod ||
-      paymentTasks?.[0]?.paymentMethod ||
-      ''
-    ).toLowerCase();
-
-    const resolvedCreditTerms = String(creditTerms || '').toLowerCase();
-
-    const hasCreditTask = paymentTasks?.some((pt: any) => 
-      pt.creditType || 
-      (pt.installmentTotal && pt.installmentTotal > 1)
-    );
-
-    const isInstallment = resolvedMethod.includes('ผ่อน') || resolvedMethod.includes('แบ่ง') || resolvedMethod.includes('installment');
-    const isCredit = resolvedMethod.includes('เครดิต') || resolvedMethod.includes('credit') || resolvedCreditTerms !== '' || Boolean(hasCreditTask);
-    const isCOD = resolvedMethod.includes('เก็บเงินหน้างาน') || resolvedMethod.includes('หน้างาน') || resolvedMethod.includes('cod');
-    
-    if (isInstallment || isCredit || isCOD) {
-      // สำหรับลูกค้าเครดิต / ผ่อนชำระ / เก็บเงินหน้างาน ลูกค้าได้รับสินค้าหรือบริการก่อนชำระเงิน
-      // ไม่ระงับขั้นตอนการดำเนินงานหรือการจัดส่ง (ฝ่ายบัญชีรับทราบ/เปิดบิลแล้วในขั้นตอนบัญชี และติดตามการชำระเงินตามรอบเครดิต)
-      return null;
-    } else {
-      // For normal pre-paid jobs, block delivery/store_send until payment is verified, but let Accounting process their step
-      if (['store_send', 'delivery', 'complete'].includes(activeStep.key)) {
-        const status = paymentTasks?.[0]?.status || 'รอดำเนินการ';
-        return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงิน (สถานะ: ${status})`;
-      }
-    }
-    return null;
+    // ถ้าฝ่ายบัญชีกดยืนยันขั้นตอน "บัญชี" บน Timeline แล้ว หรือผ่านเงื่อนไขชำระเงินแล้ว ไม่ระงับการจัดส่ง
+    return evaluatePrepaidDeliveryBlockReason({
+      steps,
+      currentStepKey: activeStep.key,
+      stepLogs,
+      paymentTasks,
+      paymentMethod,
+      creditTerms,
+    });
   })();
 
   const isBlocked = !!blockReasonMessage;
@@ -583,6 +546,62 @@ export default function JobTimeline({
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> 
                   เปิดระบบจัดซื้อ (PO) 
                 </Link>
+              </div>
+            </div>
+          )}
+
+          {(activeStep.key === "delivery" || activeStep.key === "service_return") && logisticsLink && (
+            <div className="mb-4 p-4 rounded-xl border border-sky-200 bg-sky-50/70 text-xs shadow-2xs space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap font-extrabold text-sky-950">
+                  <Truck className="w-4 h-4 text-sky-600" />
+                  <span>ข้อมูลจากฝ่ายขนส่ง (/logistics): ทริป {logisticsLink.tripNumber}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${LOGISTICS_STOP_STATUS_META[logisticsLink.stopStatus]?.badge || LOGISTICS_TRIP_STATUS_META[logisticsLink.tripStatus]?.badge || 'bg-white border-sky-200 text-sky-700'}`}>
+                    {logisticsLink.stopStatus === 'PENDING'
+                      ? LOGISTICS_TRIP_STATUS_META[logisticsLink.tripStatus]?.label
+                      : LOGISTICS_STOP_STATUS_META[logisticsLink.stopStatus]?.label}
+                  </span>
+                </div>
+                <Link
+                  href={`/logistics/trips/${logisticsLink.tripId}`}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-sky-200 text-sky-700 hover:bg-sky-100 font-bold text-[11px] transition-colors"
+                >
+                  เปิดหน้าทริป / ปิด POD
+                </Link>
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-slate-700">
+                <span>
+                  วัน/เวลาแผนทริป:{" "}
+                  <strong>
+                    {formatThaiDateSlash(logisticsLink.tripDate)}
+                    {logisticsLink.departureTime ? ` · ออกรถ ${logisticsLink.departureTime} น.` : ""}
+                  </strong>
+                </span>
+                <span>
+                  {logisticsLink.transportType === "EXTERNAL" && !logisticsLink.driverName
+                    ? "บริษัทขนส่ง: "
+                    : "คนขับ: "}
+                  <strong>{logisticsLink.driverName || logisticsLink.courierName || "-"}</strong>
+                </span>
+                {logisticsLink.vehiclePlate && (
+                  <span>
+                    ทะเบียนรถ: <strong>{logisticsLink.vehiclePlate}</strong>
+                  </span>
+                )}
+                {logisticsLink.deliveredAt && (
+                  <span className="text-emerald-700">
+                    ส่งมอบจริง:{" "}
+                    <strong>
+                      {formatThaiDateSlash(logisticsLink.deliveredAt)}{" "}
+                      {formatThaiTime24Dot(logisticsLink.deliveredAt)} น.
+                    </strong>
+                  </span>
+                )}
+                {logisticsLink.failReason && (
+                  <span className="text-rose-700 font-semibold">
+                    สาเหตุปัญหา: {logisticsLink.failReason}
+                  </span>
+                )}
               </div>
             </div>
           )}

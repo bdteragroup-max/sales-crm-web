@@ -97,6 +97,7 @@ const PURCHASING_ROLE_KEYWORDS = [
 const TRANSPORT_ROLE_KEYWORDS = [
   'ขนส่ง',
   'shipping',
+  'transport',
   'logistics',
   'โลจิสติกส์',
   'driver',

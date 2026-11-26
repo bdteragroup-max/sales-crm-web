@@ -5,12 +5,96 @@ import { teraDb } from '@/app/lib/teraDb';
 import DashboardClientWrapper from '@/app/components/DashboardClientWrapper';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { isSuperUser, isReadOnlyExecutive, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole } from '@/app/lib/roleHelper';
+import { isSuperUser, isReadOnlyExecutive, isMarketingManager as checkMarketingManager, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole, isTransportStaff } from '@/app/lib/roleHelper';
 import { getRecursiveSubordinateEmpIds } from '@/app/lib/subordinates';
 import { buildThaiPersonNameVariants } from '@/app/lib/personName';
 import { calculateQuotationExpiration } from '@/utils/quotation-expiration';
 
 export const dynamic = 'force-dynamic';
+
+const dashboardStaticCache = globalThis as typeof globalThis & {
+  __crmDashboardExpireSweepAt?: number;
+  __crmDashboardProductTypes?: { data: string[]; expiresAt: number };
+  __crmDashboardActiveRepsCount?: { count: number; expiresAt: number };
+};
+const EXPIRE_SWEEP_TTL_MS = 5 * 60 * 1000;
+const STATIC_CACHE_TTL_MS = 60_000;
+
+async function runAutoExpireSweepIfDue(now: Date): Promise<void> {
+  const nowMs = Date.now();
+  if (
+    dashboardStaticCache.__crmDashboardExpireSweepAt &&
+    nowMs - dashboardStaticCache.__crmDashboardExpireSweepAt <= EXPIRE_SWEEP_TTL_MS
+  ) {
+    return;
+  }
+  dashboardStaticCache.__crmDashboardExpireSweepAt = nowMs;
+  try {
+    const openQuotesToExpire = await prisma.quotation.findMany({
+      where: { status: 'เสนอราคา' },
+      select: {
+        id: true,
+        quotationDate: true,
+        createdAt: true,
+        productType: true,
+        followUp1: true,
+        followUp2: true,
+        followUp3: true,
+        followUp4: true,
+      },
+    });
+
+    const newlyExpiredIds: string[] = [];
+    for (const q of openQuotesToExpire) {
+      if (calculateQuotationExpiration(q, now).isExpired) {
+        newlyExpiredIds.push(q.id);
+      }
+    }
+
+    if (newlyExpiredIds.length > 0) {
+      await prisma.quotation.updateMany({
+        where: { id: { in: newlyExpiredIds } },
+        data: {
+          status: 'หมดอายุ',
+          statusChangedAt: now,
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Failed to auto-expire quotations on dashboard:", err);
+  }
+}
+
+async function getCachedProductTypes(): Promise<string[]> {
+  const cached = dashboardStaticCache.__crmDashboardProductTypes;
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+  const rows = await prisma.quotation.findMany({
+    select: { productType: true },
+    distinct: ['productType'],
+    where: { productType: { not: null } },
+  });
+  const types = rows.map((p) => p.productType).filter(Boolean) as string[];
+  dashboardStaticCache.__crmDashboardProductTypes = {
+    data: types,
+    expiresAt: Date.now() + STATIC_CACHE_TTL_MS,
+  };
+  return types;
+}
+
+async function getCachedActiveRepsCount(): Promise<number> {
+  const cached = dashboardStaticCache.__crmDashboardActiveRepsCount;
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.count;
+  }
+  const count = await prisma.user.count({ where: { isActive: true } });
+  dashboardStaticCache.__crmDashboardActiveRepsCount = {
+    count,
+    expiresAt: Date.now() + STATIC_CACHE_TTL_MS,
+  };
+  return count;
+}
 
 export default async function Dashboard(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined; }>; }) {
   const user = await getUser();
@@ -18,6 +102,10 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   if (isReadOnlyExecutive(user.role)) {
     redirect('/executive/kpi');
+  }
+
+  if (!isSuperUser(user.role) && !isSalesOrMarketingManager(user.role) && isTransportStaff(user.role)) {
+    redirect('/logistics');
   }
 
   const userRoleStr = (user.role || '').toLowerCase();
@@ -186,14 +274,19 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     });
   }
 
-  // Fetch branch info from the HR system's employees table for each rep
+  // Fetch branch, department, and job position info from the HR system's employees table once
   const empIds = salesReps.map((r: any) => r.employeeId).filter(Boolean);
   let hrEmployees: any[] = [];
   if (empIds.length > 0) {
     try {
       hrEmployees = await teraDb.employees.findMany({
         where: { emp_id: { in: empIds } },
-        select: { emp_id: true, branch_id: true }
+        select: {
+          emp_id: true,
+          branch_id: true,
+          departments: true,
+          job_positions: true,
+        }
       });
     } catch (err) {
       console.warn("Failed to fetch hrEmployees branch info from HR database:", err);
@@ -272,42 +365,9 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
 
   });
 
-  // ── Auto-expire open quotations whose validity has ended ──
+  // ── Auto-expire open quotations whose validity has ended (throttled per 5 min) ──
   const now = new Date();
-  try {
-    const openQuotesToExpire = await prisma.quotation.findMany({
-      where: { status: 'เสนอราคา' },
-      select: {
-        id: true,
-        quotationDate: true,
-        createdAt: true,
-        productType: true,
-        followUp1: true,
-        followUp2: true,
-        followUp3: true,
-        followUp4: true,
-      }
-    });
-
-    const newlyExpiredIds: string[] = [];
-    for (const q of openQuotesToExpire) {
-      if (calculateQuotationExpiration(q, now).isExpired) {
-        newlyExpiredIds.push(q.id);
-      }
-    }
-
-    if (newlyExpiredIds.length > 0) {
-      await prisma.quotation.updateMany({
-        where: { id: { in: newlyExpiredIds } },
-        data: {
-          status: 'หมดอายุ',
-          statusChangedAt: now,
-        },
-      });
-    }
-  } catch (err) {
-    console.error("Failed to auto-expire quotations on dashboard:", err);
-  }
+  await runAutoExpireSweepIfDue(now);
 
   // Parallel data fetching for all metrics
   const [
@@ -504,188 +564,214 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   });
   const allProvinces = Array.from(cleanProvincesSet).map(p => ({ province: p })).sort((a, b) => a.province.localeCompare(b.province, 'th'));
 
-  const prevPeriodQuotations = await
-    // 16. Previous Period Quotations for Sales Cycle & Flow Benchmarks
+  const filteredSalesRepsForExpenses = salesReps.filter((r: any) => filterIds.includes(r.id));
+  const hrBranchesForExpenses = Array.from(new Set(filteredSalesRepsForExpenses.map((r: any) => r.hrBranch || 'Head Office')));
+  const expenseFilterStart = new Date(`${filterStartDateStr}T00:00:00.000Z`);
+  const expenseFilterEnd = new Date(`${filterEndDateStr}T00:00:00.000Z`);
+
+  const jobOwnerNames = buildThaiPersonNameVariants(
+    user.fullName,
+    user.employeeSale?.fullName,
+    ...salesReps.flatMap(
+      (r: { fullName?: string | null; employeeSale?: { fullName?: string | null } | null }) => [
+        r.fullName,
+        r.employeeSale?.fullName,
+      ]
+    )
+  );
+  const jobOwnerIds = isManager || isSuper
+    ? Array.from(new Set([...subordinateIds, user.id]))
+    : [user.id];
+
+  // Wave 2A (max 5 concurrent queries to respect DB pool size)
+  const [
+    prevPeriodQuotations,
+    allTimeWonQuotations,
+    sixMonthTargets,
+    teamTelesalesBenchmark,
+    companyClosedQuotations,
+  ] = await Promise.all([
+    // 16 & 19. Previous Period Quotations (Sales Cycle & Flow Benchmarks + MoM overlay)
     prisma.quotation.findMany({
       where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
-      select: { createdAt: true, status: true, billingDate: true, poDate: true, updatedAt: true, totalAmountBeforeVat: true, quotationDate: true }
-    }); const allTimeWonQuotations = await
-      // 17. All-time Won Quotations for Customer Lifetime Analytics (CLV, At-Risk, New vs Existing)
-      prisma.quotation.findMany({
-        where: {
-          salespersonId: { in: filterIds },
-          OR: [
-            { status: 'เปิดบิลแล้ว' },
-            { status: { startsWith: 'PO' } }]
-
-        },
-        select: {
-          id: true,
-          companyId: true,
-          actualClosingAmount: true,
-          totalAmountBeforeVat: true,
-          billingDate: true,
-          createdAt: true,
-          productType: true,
-          salespersonId: true,
-          company: { select: { companyName: true, province: true } }
-        },
-        orderBy: { createdAt: 'asc' }
-      }); const sixMonthTargets = await (
-        // 18. MonthlyTargets for last 6 months (Forecast Accuracy)
-        (prisma as any)['monthlyTarget'] ? (prisma as any)['monthlyTarget'].findMany({
+      select: {
+        createdAt: true,
+        status: true,
+        actualClosingAmount: true,
+        totalAmountBeforeVat: true,
+        billingDate: true,
+        poDate: true,
+        updatedAt: true,
+        quotationDate: true,
+      },
+    }),
+    // 17. All-time Won Quotations for Customer Lifetime Analytics (CLV, At-Risk, New vs Existing)
+    prisma.quotation.findMany({
+      where: {
+        salespersonId: { in: filterIds },
+        OR: [
+          { status: 'เปิดบิลแล้ว' },
+          { status: { startsWith: 'PO' } },
+        ],
+      },
+      select: {
+        id: true,
+        companyId: true,
+        actualClosingAmount: true,
+        totalAmountBeforeVat: true,
+        billingDate: true,
+        createdAt: true,
+        productType: true,
+        salespersonId: true,
+        company: { select: { companyName: true, province: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
+    // 18. MonthlyTargets for last 6 months (Forecast Accuracy)
+    (prisma as any)['monthlyTarget']
+      ? (prisma as any)['monthlyTarget'].findMany({
           where: {
             year: { in: [refYear, refYear - 1] },
+            OR: [{ userId: { in: filterIds } }, { userId: null }],
+          },
+        })
+      : Promise.resolve([]),
+    // 20. Team-wide Telesales Benchmarks
+    prisma.telesale.findMany({
+      where: {
+        OR: [
+          { callDate: { gte: filterStart, lte: filterEnd } },
+          { callDate: null, createdAt: { gte: filterStart, lte: filterEnd } },
+        ],
+        company: provinceCondition ? { province: provinceCondition } : undefined,
+      },
+      select: {
+        companyId: true,
+        callStatus: true,
+        callOutcome: true,
+        forwardTo: true,
+        createdAt: true,
+        callDate: true,
+      },
+    }),
+    // 21. Company-wide Closed Quotations (for sales cycle fallbacks & Win Rate benchmarks, supporting null date fallbacks)
+    prisma.quotation.findMany({
+      where: {
+        OR: [
+          {
+            status: 'เปิดบิลแล้ว',
             OR: [
-              { userId: { in: filterIds } },
-              { userId: null }]
+              { billingDate: { gte: filterStart, lte: filterEnd } },
+              { billingDate: null, poDate: { gte: filterStart, lte: filterEnd } },
+              { billingDate: null, poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
+              { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } },
+            ],
+          },
+          {
+            status: { startsWith: 'PO' },
+            OR: [
+              { poDate: { gte: filterStart, lte: filterEnd } },
+              { poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
+              { poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } },
+            ],
+          },
+          {
+            status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
+            OR: [
+              { quotationDate: { gte: filterStart, lte: filterEnd } },
+              { quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } },
+            ],
+          },
+        ],
+        company: provinceCondition ? { province: provinceCondition } : undefined,
+      },
+      select: {
+        createdAt: true,
+        status: true,
+        billingDate: true,
+        poDate: true,
+        quotationDate: true,
+        updatedAt: true,
+        productType: true,
+      },
+    }),
+  ]);
 
-          }
-        }) : Promise.resolve([])); const prevPeriodHistoryQuotations = await
-          // 19. Previous Period daily quotations for MoM overlay
-          prisma.quotation.findMany({
-            where: getQuotationWhereClause(prevPeriodStart, prevPeriodEnd),
-            select: {
-              createdAt: true,
-              status: true,
-              actualClosingAmount: true,
-              totalAmountBeforeVat: true,
-              billingDate: true,
-              poDate: true,
-              quotationDate: true
-            }
-          }); const teamTelesalesBenchmark = await
-            // 20. Team-wide Telesales Benchmarks
-            prisma.telesale.findMany({
-              where: {
-                OR: [
-                  {
-                    callDate: { gte: filterStart, lte: filterEnd }
-                  },
-                  {
-                    callDate: null,
-                    createdAt: { gte: filterStart, lte: filterEnd }
-                  }],
+  // Share the merged Q16 + Q19 result
+  const prevPeriodHistoryQuotations = prevPeriodQuotations;
 
-                company: provinceCondition ? { province: provinceCondition } : undefined
-              },
-              select: {
-                companyId: true,
-                callStatus: true,
-                callOutcome: true,
-                forwardTo: true,
-                createdAt: true,
-                callDate: true
-              }
-            }); const companyClosedQuotations = await
-              // 21. Company-wide Closed Quotations (for sales cycle fallbacks & Win Rate benchmarks, supporting null date fallbacks)
-              prisma.quotation.findMany({
-                where: {
-                  OR: [
-                    {
-                      status: 'เปิดบิลแล้ว',
-                      OR: [
-                        { billingDate: { gte: filterStart, lte: filterEnd } },
-                        { billingDate: null, poDate: { gte: filterStart, lte: filterEnd } },
-                        { billingDate: null, poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
-                        { billingDate: null, poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
-
-                    },
-                    {
-                      status: { startsWith: 'PO' },
-                      OR: [
-                        { poDate: { gte: filterStart, lte: filterEnd } },
-                        { poDate: null, quotationDate: { gte: filterStart, lte: filterEnd } },
-                        { poDate: null, quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
-
-                    },
-                    {
-                      status: { in: ['ปฏิเสธ-ได้ที่อื่นแล้ว', 'ปฏิเสธ-ยกเลิกสินค้า', 'ปฏิเสธ-สินค้าไม่ตรงตามความต้องการ', 'ปฏิเสธ-อื่นๆ', 'ยกเลิก-Revise'] },
-                      OR: [
-                        { quotationDate: { gte: filterStart, lte: filterEnd } },
-                        { quotationDate: null, updatedAt: { gte: filterStart, lte: filterEnd } }]
-
-                    }],
-
-                  company: provinceCondition ? { province: provinceCondition } : undefined
-                },
-                select: {
-                  createdAt: true,
-                  status: true,
-                  billingDate: true,
-                  poDate: true,
-                  quotationDate: true,
-                  updatedAt: true,
-                  productType: true
-                }
-              }); const telesalesKPIsResult = await
-                // 22. Telesales KPIs
-                prisma.telesalesKPI.findMany({
-                  where: {
-                    month: refMonth + 1,
-                    year: refYear,
-                    OR: [
-                      { userId: { in: filterIds } },
-                      { userId: null }]
-
-                  }
-                }); const ordersAgg = await
-                  // 23. Orders tracking metrics
-                  prisma.order.groupBy({
-                    by: ['status'],
-                    _sum: { value: true },
-                    _count: { id: true },
-                    where: {
-                      company: provinceCondition ? { province: provinceCondition } : undefined,
-                      OR: []
-
-                    }
-                  }); const jobsAgg = await
-
-                    // 24. Jobs tracking metrics
-                    prisma.job.groupBy({
-                      by: ['currentStep'],
-                      _count: { id: true },
-                      where: (() => {
-                        const jobOwnerNames = buildThaiPersonNameVariants(
-                          user.fullName,
-                          user.employeeSale?.fullName,
-                          ...salesReps.flatMap(
-                            (r: { fullName?: string | null; employeeSale?: { fullName?: string | null } | null }) => [
-                              r.fullName,
-                              r.employeeSale?.fullName,
-                            ]
-                          )
-                        );
-                        const jobOwnerIds = isManager || isSuper
-                          ? Array.from(new Set([...subordinateIds, user.id]))
-                          : [user.id];
-                        return {
-                          OR: [
-                            ...(jobOwnerNames.length > 0 ? [{ sellerName: { in: jobOwnerNames } }] : []),
-                            ...(jobOwnerIds.length > 0 ? [{ quotation: { salespersonId: { in: jobOwnerIds } } }] : []),
-                            { sellerName: null },
-                            { sellerName: "" },
-                          ],
-                        };
-                      })()
-                    }); const allActiveQuotations = await
-                      // 25. All Active Quotations (for Aging Deals, independent of date filter)
-                      prisma.quotation.findMany({
-                        where: {
-                          salespersonId: { in: filterIds },
-                          company: provinceCondition ? { province: provinceCondition } : undefined,
-                          status: { in: ['เสนอราคา', 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'รอปิดการขาย (รอชำระเงิน/PO)', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] }
-                        },
-                        include: {
-                          company: true,
-                          salesperson: {
-                            include: {
-                              employeeSale: true
-                            }
-                          }
-                        }
-                      });
+  // Wave 2B (parallelized remaining analytics + cached lookups)
+  const [
+    telesalesKPIsResult,
+    ordersAgg,
+    jobsAgg,
+    allActiveQuotations,
+    branchExpensesRaw,
+    allProductTypes,
+    totalActiveRepsCount,
+  ] = await Promise.all([
+    // 22. Telesales KPIs
+    prisma.telesalesKPI.findMany({
+      where: {
+        month: refMonth + 1,
+        year: refYear,
+        OR: [{ userId: { in: filterIds } }, { userId: null }],
+      },
+    }),
+    // 23. Orders tracking metrics
+    prisma.order.groupBy({
+      by: ['status'],
+      _sum: { value: true },
+      _count: { id: true },
+      where: {
+        company: provinceCondition ? { province: provinceCondition } : undefined,
+        OR: [],
+      },
+    }),
+    // 24. Jobs tracking metrics
+    prisma.job.groupBy({
+      by: ['currentStep'],
+      _count: { id: true },
+      where: {
+        OR: [
+          ...(jobOwnerNames.length > 0 ? [{ sellerName: { in: jobOwnerNames } }] : []),
+          ...(jobOwnerIds.length > 0 ? [{ quotation: { salespersonId: { in: jobOwnerIds } } }] : []),
+          { sellerName: null },
+          { sellerName: "" },
+        ],
+      },
+    }),
+    // 25. All Active Quotations (for Aging Deals, independent of date filter)
+    prisma.quotation.findMany({
+      where: {
+        salespersonId: { in: filterIds },
+        company: provinceCondition ? { province: provinceCondition } : undefined,
+        status: { in: ['เสนอราคา', 'อยู่ระหว่างพิจารณา / รอการตัดสินใจ', 'รอใบประเมินราคา', 'รอจัดทำ PO', 'รอปิดการขาย (รอชำระเงิน/PO)', 'PO แล้วรอสินค้า', 'PO แล้วรอมัดจำ', 'PO แล้วรอเงินโอน'] },
+      },
+      include: {
+        company: true,
+        salesperson: {
+          include: {
+            employeeSale: true,
+          },
+        },
+      },
+    }),
+    // Branch Expenses for filtered reps/branches
+    prisma.branchExpense.findMany({
+      where: {
+        date: { gte: expenseFilterStart, lte: expenseFilterEnd },
+        OR: [
+          { salespersonId: { in: filterIds } },
+          { branch: { in: hrBranchesForExpenses } },
+        ],
+      },
+    }),
+    // All Product Types (cached 60s)
+    getCachedProductTypes(),
+    // Active rep headcount (cached 60s)
+    getCachedActiveRepsCount(),
+  ]);
 
   const activeUnexpiredQuotations = allActiveQuotations.filter((q) => {
     if (q.status === 'หมดอายุ') return false;
@@ -695,13 +781,6 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     }
     return true;
   });
-
-  const allProductTypesRaw = await prisma.quotation.findMany({
-    select: { productType: true },
-    distinct: ['productType'],
-    where: { productType: { not: null } }
-  });
-  const allProductTypes = allProductTypesRaw.map(p => p.productType).filter(Boolean) as string[];
 
   // --- Processing Logic ---
 
@@ -1485,22 +1564,8 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
   // Employee Performance Mapping (Enriched with win rates, sample sizes, and weekly activity trends)
   const todayBkkStr = toBkkDateStr(new Date());
 
-  // Fetch Tera Employees for Job Positions
-  const salesRepsEmpIds = salesReps.map((r: any) => r.employeeId).filter(Boolean);
-  let teraEmployees: any[] = [];
-  if (salesRepsEmpIds.length > 0) {
-    try {
-      teraEmployees = await teraDb.employees.findMany({
-        where: { emp_id: { in: salesRepsEmpIds } },
-        include: {
-          departments: true,
-          job_positions: true
-        }
-      });
-    } catch (err) {
-      console.warn("Failed to fetch employees from HR database:", err);
-    }
-  }
+  // Reuse HR employees data fetched earlier (departments & job_positions already selected)
+  const teraEmployees = hrEmployees;
 
   const employeePerformance = isManager ? salesReps.filter((r: any) => filterIds.includes(r.id)).map((rep: any) => {
     const repQuotes = (historyQuotations as any[]).filter((q) => q.salespersonId === rep.id);
@@ -1566,30 +1631,12 @@ export default async function Dashboard(props: { searchParams: Promise<{ [key: s
     });
   } // end if (isManager && employeePerformance.length > 0)
 
-  // NEW ENHANCEMENTS: Branch/Individual Expenses and Product Group Targets
-  const filteredSalesRepsForExpenses = salesReps.filter((r: any) => filterIds.includes(r.id));
-  const hrBranchesForExpenses = Array.from(new Set(filteredSalesRepsForExpenses.map((r: any) => r.hrBranch || 'Head Office')));
-
-  const expenseFilterStart = new Date(`${filterStartDateStr}T00:00:00.000Z`);
-  const expenseFilterEnd = new Date(`${filterEndDateStr}T00:00:00.000Z`);
-
-  const branchExpensesRaw = await prisma.branchExpense.findMany({
-    where: {
-      date: { gte: expenseFilterStart, lte: expenseFilterEnd },
-      OR: [
-        { salespersonId: { in: filterIds } },
-        { branch: { in: hrBranchesForExpenses } }
-      ]
-    }
-  });
-
+  // NEW ENHANCEMENTS: Branch/Individual Expenses and Product Group Targets (fetched in Wave 2B)
   const branchExpenses = branchExpensesRaw.map(e => ({
     ...e,
     amount: Number(e.amount || 0),
     odometer: e.odometer ? Number(e.odometer) : null
   }));
-
-  const totalActiveRepsCount = await prisma.user.count({ where: { isActive: true } });
 
   const isViewingAll = isManager && salespersonIds.length === 0;
   const headcountProportion = isViewingAll ? 1 : (Math.max(1, filterIds.length) / Math.max(1, totalActiveRepsCount));

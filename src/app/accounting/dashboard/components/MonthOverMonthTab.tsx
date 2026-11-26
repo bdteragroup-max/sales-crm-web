@@ -52,95 +52,150 @@ export default function MonthOverMonthTab({ data }: MonthOverMonthTabProps) {
       {/* 1. Top 4 MoM Summary KPI Cards (Unified Symmetrical Design) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: เงินรับจริง */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="flex items-center justify-between text-slate-500 mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">เงินรับจริงเดือนนี้</span>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                +{monthOverMonth?.cashReceived?.diffPercent || 0}%
-              </span>
+        {(() => {
+          const pct = Number(monthOverMonth?.cashReceived?.diffPercent || 0);
+          const diff = Number(monthOverMonth?.cashReceived?.diff || 0);
+          const isUp = diff >= 0;
+          return (
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-center justify-between text-slate-500 mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                    เงินรับจริง ({monthOverMonth?.referenceMonthLabel || 'เดือนนี้'})
+                  </span>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                    isUp ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {pct >= 0 ? '+' : ''}{pct}%
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-emerald-600 tracking-tight">
+                  ฿{((monthOverMonth?.cashReceived?.current || 0) / 1000000).toFixed(2)} ลบ.
+                </div>
+                <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
+                  {isUp ? (
+                    <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5 text-rose-600" />
+                  )}
+                  <span>
+                    {diff >= 0 ? '+' : '-'}฿{(Math.abs(diff) / 1000000).toFixed(2)} ลบ. จาก{monthOverMonth?.prevMonthLabel || 'เดือนก่อน'}
+                  </span>
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
+                <span>เดือนก่อน ({monthOverMonth?.prevMonthLabel || '-'})</span>
+                <span className="font-semibold text-slate-700">
+                  ฿{((monthOverMonth?.cashReceived?.previous || 0) / 1000000).toFixed(2)} ลบ.
+                </span>
+              </div>
             </div>
-            <div className="text-2xl font-black text-emerald-600 tracking-tight">
-              ฿{(monthOverMonth?.cashReceived?.current / 1000000).toFixed(2)} ลบ.
-            </div>
-            <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
-              <span>+฿{(monthOverMonth?.cashReceived?.diff / 1000000).toFixed(2)} ลบ. จากเดือนก่อน</span>
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
-            <span>เป้าหมายขั้นต่ำ</span>
-            <span className="font-semibold text-slate-700">≥ ฿5.00 ลบ.</span>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* Card 2: Collection Rate */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="flex items-center justify-between text-slate-500 mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Collection Rate</span>
-              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
+        {(() => {
+          const diffRate = Number(monthOverMonth?.collectionRate?.diff || 0);
+          const isUp = diffRate >= 0;
+          return (
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-center justify-between text-slate-500 mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Collection Rate</span>
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-blue-600 tracking-tight">
+                  {monthOverMonth?.collectionRate?.current || 0}%
+                </div>
+                <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
+                  {isUp ? (
+                    <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5 text-rose-600" />
+                  )}
+                  <span>
+                    {diffRate >= 0 ? '+' : ''}{diffRate.toFixed(1)} จุด จากเดือนก่อน ({monthOverMonth?.collectionRate?.previous || 0}%)
+                  </span>
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
+                <span>เป้าหมายการจัดเก็บ</span>
+                <span className="font-semibold text-slate-700">≥ 15.0%</span>
               </div>
             </div>
-            <div className="text-2xl font-black text-blue-600 tracking-tight">
-              {monthOverMonth?.collectionRate?.current || 0}%
-            </div>
-            <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5 text-blue-600" />
-              <span>+{monthOverMonth?.collectionRate?.diff || 1.5} จุด จากเดือนก่อน</span>
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
-            <span>เป้าหมายการจัดเก็บ</span>
-            <span className="font-semibold text-slate-700">≥ 15.0%</span>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* Card 3: ลูกหนี้คงเหลือ */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="flex items-center justify-between text-slate-500 mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">ลูกหนี้คงเหลือรวม</span>
-              <div className="w-8 h-8 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center">
-                <AlertCircle className="w-4 h-4" />
+        {(() => {
+          const diffDebt = Number(monthOverMonth?.outstandingDebt?.diff || 0);
+          return (
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-center justify-between text-slate-500 mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">ลูกหนี้คงเหลือรวม</span>
+                  <div className="w-8 h-8 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center">
+                    <AlertCircle className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 tracking-tight">
+                  ฿{((monthOverMonth?.outstandingDebt?.current || 0) / 1000000).toFixed(2)} ลบ.
+                </div>
+                <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
+                  <span>
+                    {diffDebt >= 0 ? '+' : '-'}฿{(Math.abs(diffDebt) / 1000000).toFixed(2)} ลบ. ({monthOverMonth?.outstandingDebt?.note || 'ตามเกณฑ์'})
+                  </span>
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
+                <span>เดือนก่อน</span>
+                <span className="font-semibold text-slate-700">
+                  ฿{((monthOverMonth?.outstandingDebt?.previous || 0) / 1000000).toFixed(2)} ลบ.
+                </span>
               </div>
             </div>
-            <div className="text-2xl font-black text-slate-900 tracking-tight">
-              ฿{(monthOverMonth?.outstandingDebt?.current / 1000000).toFixed(2)} ลบ.
-            </div>
-            <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
-              <span>+฿{(monthOverMonth?.outstandingDebt?.diff / 1000000).toFixed(2)} ลบ. ({monthOverMonth?.outstandingDebt?.note || 'ตามเกณฑ์'})</span>
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
-            <span>เพดานควบคุม</span>
-            <span className="font-semibold text-slate-700">≤ ฿160 ลบ.</span>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* Card 4: หนี้เกินกำหนด */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div>
-            <div className="flex items-center justify-between text-slate-500 mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">หนี้เกินกำหนดชำระ</span>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                +{monthOverMonth?.overdueDebt?.diffPercent || 5.0}%
-              </span>
+        {(() => {
+          const ovPct = Number(monthOverMonth?.overdueDebt?.diffPercent || 0);
+          const ovDiff = Number(monthOverMonth?.overdueDebt?.diff || 0);
+          const isLower = ovDiff <= 0;
+          return (
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs h-full flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div>
+                <div className="flex items-center justify-between text-slate-500 mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">หนี้เกินกำหนดชำระ</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                    isLower ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {ovPct >= 0 ? '+' : ''}{ovPct}%
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-rose-600 tracking-tight">
+                  ฿{((monthOverMonth?.overdueDebt?.current || 0) / 1000000).toFixed(2)} ลบ.
+                </div>
+                <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
+                  {ovDiff > 0 ? (
+                    <ArrowUpRight className="w-3.5 h-3.5 text-rose-600" />
+                  ) : (
+                    <ArrowDownRight className="w-3.5 h-3.5 text-emerald-600" />
+                  )}
+                  <span>{ovDiff >= 0 ? '+' : '-'}฿{(Math.abs(ovDiff) / 1000000).toFixed(2)} ลบ. จากเดือนก่อน</span>
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
+                <span>เดือนก่อน</span>
+                <span className="font-semibold text-slate-700">
+                  ฿{((monthOverMonth?.overdueDebt?.previous || 0) / 1000000).toFixed(2)} ลบ.
+                </span>
+              </div>
             </div>
-            <div className="text-2xl font-black text-rose-600 tracking-tight">
-              ฿{(monthOverMonth?.overdueDebt?.current / 1000000).toFixed(2)} ลบ.
-            </div>
-            <p className="text-xs text-slate-500 mt-1 font-medium flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5 text-rose-600" />
-              <span>+฿{(monthOverMonth?.overdueDebt?.diff / 1000000).toFixed(2)} ลบ.</span>
-            </p>
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex justify-between items-center">
-            <span>เป้าหมายเฝ้าระวัง</span>
-            <span className="font-semibold text-rose-600">≤ ฿45 ลบ.</span>
-          </div>
-        </div>
+          );
+        })()}
       </div>
 
       {/* 2. 6-Month Trend Chart (แนวโน้ม 6 เดือน) */}
@@ -156,15 +211,18 @@ export default function MonthOverMonthTab({ data }: MonthOverMonthTabProps) {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-medium">
+          <div className="flex items-center gap-4 text-xs font-medium flex-wrap">
             <span className="flex items-center gap-1.5 text-slate-600">
-              <span className="w-3 h-3 rounded-xs bg-[#2563eb]"></span> ลูกหนี้คงเหลือ
+              <span className="w-3 h-3 rounded-xs bg-[#2563eb]"></span> ลูกหนี้คงเหลือ ณ สิ้นเดือน
             </span>
             <span className="flex items-center gap-1.5 text-slate-600">
-              <span className="w-3 h-3 rounded-xs bg-[#dc2626]"></span> หนี้เกินกำหนด
+              <span className="w-3 h-3 rounded-xs bg-[#dc2626]"></span> หนี้เกินกำหนด ณ สิ้นเดือน
             </span>
             <span className="flex items-center gap-1.5 text-slate-600">
-              <span className="w-3 h-3 rounded-xs bg-[#16a34a]"></span> เงินรับจริง
+              <span className="w-3 h-3 rounded-xs bg-[#16a34a]"></span> เงินรับจริง (CRM)
+            </span>
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <span className="w-3 h-3 rounded-xs bg-[#0d9488]"></span> เงินเข้า Bank Statement
             </span>
           </div>
         </div>
@@ -183,9 +241,10 @@ export default function MonthOverMonthTab({ data }: MonthOverMonthTabProps) {
                 formatter={(val: any) => [`฿${Number(val).toFixed(2)} ลบ.`, '']}
                 contentStyle={{ backgroundColor: '#ffffff', borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', fontSize: 12 }}
               />
-              <Bar dataKey="outstandingDebt" name="ลูกหนี้คงเหลือ" fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={32} />
-              <Bar dataKey="overdueDebt" name="หนี้เกินกำหนด" fill="#dc2626" radius={[4, 4, 0, 0]} maxBarSize={32} />
-              <Bar dataKey="cashReceived" name="เงินรับจริง" fill="#16a34a" radius={[4, 4, 0, 0]} maxBarSize={32} />
+              <Bar dataKey="outstandingDebt" name="ลูกหนี้คงเหลือ ณ สิ้นเดือน" fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey="overdueDebt" name="หนี้เกินกำหนด ณ สิ้นเดือน" fill="#dc2626" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey="cashReceived" name="เงินรับจริง (CRM)" fill="#16a34a" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              <Bar dataKey="bankInflow" name="เงินเข้า Bank Statement" fill="#0d9488" radius={[4, 4, 0, 0]} maxBarSize={28} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -196,10 +255,10 @@ export default function MonthOverMonthTab({ data }: MonthOverMonthTabProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              KPI เปรียบเทียบเดือนต่อเดือน (MoM KPI Comparison)
+              KPI เปรียบเทียบเดือนต่อเดือน ({monthOverMonth?.referenceMonthLabel || 'เดือนนี้'} vs {monthOverMonth?.prevMonthLabel || 'เดือนก่อน'})
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              ประเมินเทียบเป้าหมายและสัญญาณเตือนทางการเงิน
+              เปรียบเทียบข้อมูลจริงจากฐานข้อมูลรายเดือน ประเมินเทียบเป้าหมายและสัญญาณเตือนทางการเงิน
             </p>
           </div>
         </div>
@@ -209,8 +268,8 @@ export default function MonthOverMonthTab({ data }: MonthOverMonthTabProps) {
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
               <tr>
                 <th className="py-3 px-3.5">KPI</th>
-                <th className="py-3 px-3.5 text-right">เดือนนี้</th>
-                <th className="py-3 px-3.5 text-right">เดือนก่อน</th>
+                <th className="py-3 px-3.5 text-right">{monthOverMonth?.referenceMonthLabel || 'เดือนนี้'}</th>
+                <th className="py-3 px-3.5 text-right">{monthOverMonth?.prevMonthLabel || 'เดือนก่อน'}</th>
                 <th className="py-3 px-3.5 text-right">ผลต่าง</th>
                 <th className="py-3 px-3.5 text-right">เป้าหมาย</th>
                 <th className="py-3 px-3.5 text-center">สัญญาณ</th>
@@ -222,7 +281,7 @@ export default function MonthOverMonthTab({ data }: MonthOverMonthTabProps) {
                   <td className="py-3 px-3.5 font-bold text-slate-900">{row.kpi}</td>
                   <td className="py-3 px-3.5 text-right font-bold text-slate-900">{row.thisMonth}</td>
                   <td className="py-3 px-3.5 text-right text-slate-600">{row.lastMonth}</td>
-                  <td className={`py-3 px-3.5 text-right font-bold ${row.variance.startsWith('+') && (row.kpi.includes('หนี้') || row.kpi.includes('วัน')) ? 'text-rose-600' : 'text-emerald-600'}`}>
+                  <td className={`py-3 px-3.5 text-right font-bold ${row.isFavorable === false ? 'text-rose-600' : 'text-emerald-600'}`}>
                     {row.variance}
                   </td>
                   <td className="py-3 px-3.5 text-right text-slate-500 font-medium">{row.target}</td>

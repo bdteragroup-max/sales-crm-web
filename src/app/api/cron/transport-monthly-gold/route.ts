@@ -19,6 +19,7 @@ export async function GET(request: Request) {
         isActive: true,
         OR: [
           { role: { contains: 'logistics', mode: 'insensitive' } },
+          { role: { contains: 'โลจิสติกส์', mode: 'insensitive' } },
           { role: { contains: 'shipping', mode: 'insensitive' } },
           { role: { contains: 'transport', mode: 'insensitive' } },
           { role: { contains: 'จัดส่ง', mode: 'insensitive' } },

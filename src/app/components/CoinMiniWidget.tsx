@@ -5,6 +5,11 @@ import Link from 'next/link';
 import { Coins, Loader2 } from 'lucide-react';
 import { getUserCoins } from '@/app/actions/coins';
 
+const ENABLE_COIN_PREFETCH = process.env.NODE_ENV === 'production';
+const COIN_CACHE_KEY = 'crm_gold_balance_v1';
+const COIN_CACHE_TTL_MS = 30_000;
+let inFlightCoinFetch: Promise<number | null> | null = null;
+
 type CoinMiniWidgetProps = {
   isMobile?: boolean;
   isExpanded?: boolean;
@@ -33,28 +38,83 @@ export default function CoinMiniWidget({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchCoins() {
+    let active = true;
+
+    const readCachedBalance = (): number | null => {
       try {
-        const res = await getUserCoins();
-        if (res.success && res.data) {
-          // Find Gold coin (assuming code 'gold' or name 'Gold')
-          const gold = res.data.find((c: any) => 
-            c?.coin_types?.code?.toLowerCase() === 'gold' || 
-            c?.coin_types?.name?.toLowerCase().includes('gold')
-          );
-          if (gold) {
-            setGoldBalance(gold.balance);
-          } else {
-            setGoldBalance(0);
+        const raw = sessionStorage.getItem(COIN_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (
+          parsed &&
+          typeof parsed.balance === 'number' &&
+          typeof parsed.ts === 'number' &&
+          Date.now() - parsed.ts < COIN_CACHE_TTL_MS
+        ) {
+          return parsed.balance;
+        }
+      } catch {
+        // Ignore storage errors
+      }
+      return null;
+    };
+
+    async function fetchCoins() {
+      const cachedBalance = readCachedBalance();
+      if (cachedBalance !== null) {
+        await Promise.resolve();
+        if (active) {
+          setGoldBalance(cachedBalance);
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        if (!inFlightCoinFetch) {
+          inFlightCoinFetch = getUserCoins()
+            .then((res) => {
+              if (res.success && res.data) {
+                const gold = (
+                  res.data as Array<{
+                    coin_types?: { code?: string | null; name?: string | null } | null;
+                    balance?: number | null;
+                  }>
+                ).find(
+                  (c) =>
+                    c?.coin_types?.code?.toLowerCase() === 'gold' ||
+                    c?.coin_types?.name?.toLowerCase().includes('gold')
+                );
+                return gold ? Number(gold.balance || 0) : 0;
+              }
+              return null;
+            })
+            .finally(() => {
+              inFlightCoinFetch = null;
+            });
+        }
+        const nextBalance = await inFlightCoinFetch;
+        if (active && nextBalance !== null) {
+          setGoldBalance(nextBalance);
+          try {
+            sessionStorage.setItem(
+              COIN_CACHE_KEY,
+              JSON.stringify({ balance: nextBalance, ts: Date.now() })
+            );
+          } catch {
+            // Ignore storage errors
           }
         }
       } catch (err) {
         console.error('Failed to fetch coins for widget', err);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
     fetchCoins();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const isActive = activeRoute === '/coins';
@@ -63,7 +123,7 @@ export default function CoinMiniWidget({
     return (
       <Link
         href="/coins"
-        prefetch={true}
+        prefetch={ENABLE_COIN_PREFETCH}
         onClick={onClick}
         className={`w-full p-2.5 rounded-xl flex items-center justify-between transition-all duration-200 border ${
           isActive
@@ -93,7 +153,7 @@ export default function CoinMiniWidget({
   return (
     <Link
       href="/coins"
-      prefetch={true}
+      prefetch={ENABLE_COIN_PREFETCH}
       onMouseEnter={(e) => onMouseEnter?.(e)}
       onMouseLeave={onMouseLeave}
       onClick={onClick}

@@ -35,9 +35,10 @@ function formatCurrency(amount: number | null | undefined) {
 interface DailyCashReceiptTabProps {
   data: any;
   onOpenDrilldown: (item: DrilldownItem) => void;
+  onOpenReconciliation?: () => void;
 }
 
-export default function DailyCashReceiptTab({ data, onOpenDrilldown }: DailyCashReceiptTabProps) {
+export default function DailyCashReceiptTab({ data, onOpenDrilldown, onOpenReconciliation }: DailyCashReceiptTabProps) {
   const [selectedPriority, setSelectedPriority] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -68,39 +69,52 @@ export default function DailyCashReceiptTab({ data, onOpenDrilldown }: DailyCash
   return (
     <div className="space-y-6 pb-12">
       {/* 1. Symmetrical Data Status & Reconciliation Strip */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                สถานะข้อมูลธนาคาร & บัญชี (Data Status)
+                สถานะข้อมูลธนาคาร &amp; บัญชี (Data Status)
               </span>
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
-                พร้อมใช้ตัดสินใจ
+              <span className={`text-[10px] px-2.5 py-0.5 rounded-full border font-bold ${
+                dataStatus?.hasBankStatement
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-amber-50 text-amber-800 border-amber-200'
+              }`}>
+                {dataStatus?.hasBankStatement ? 'เชื่อม Statement แล้ว' : 'รอนำเข้า Statement'}
               </span>
             </div>
             <p className="text-xs text-slate-700 mt-0.5 font-medium">
-              อัปเดตยอดธนาคาร & ระบบบัญชี: <span className="font-bold text-slate-900">{dataStatus?.lastBankSyncTime}</span>
+              อัปเดต Bank Statement: <span className="font-bold text-slate-900">{dataStatus?.lastBankSyncTime}</span>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-            <span className="text-slate-500 block text-[11px]">รอกระทบยอด (Pending Match)</span>
+        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+          <div className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+            <span className="text-slate-500 block text-[11px]">รอกระทบยอดลูกหนี้ (Pending AR)</span>
             <span className="font-bold text-slate-900 text-sm">
-              {dataStatus?.pendingReconciliationCount} รายการ ({formatCurrency(dataStatus?.pendingReconciliationAmount)})
+              {dataStatus?.pendingReconciliationCount || 0} รายการ ({formatCurrency(dataStatus?.pendingReconciliationAmount)})
             </span>
           </div>
-          <div className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-            <span className="text-slate-500 block text-[11px]">เงินโอนไม่ระบุผู้จ่าย (Unmatched)</span>
+          <div className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+            <span className="text-slate-500 block text-[11px]">เงินโอนเข้ายังไม่ระบุผู้จ่าย (Unmatched)</span>
             <span className="font-bold text-amber-600 text-sm">
-              {dataStatus?.unmatchedIncomingCount} ยอด ({formatCurrency(dataStatus?.unmatchedIncomingAmount)})
+              {dataStatus?.unmatchedIncomingCount || 0} ยอด ({formatCurrency(dataStatus?.unmatchedIncomingAmount)})
             </span>
           </div>
+          {onOpenReconciliation && (
+            <button
+              type="button"
+              onClick={onOpenReconciliation}
+              className="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors shadow-xs shrink-0"
+            >
+              นำเข้า Statement / กระทบยอด
+            </button>
+          )}
         </div>
       </div>
 
@@ -415,10 +429,10 @@ export default function DailyCashReceiptTab({ data, onOpenDrilldown }: DailyCash
               ประเมินตามกำหนดนัดหมายและความน่าจะเป็นในการจัดเก็บ
             </p>
           </div>
-          <div className="flex items-center gap-4 text-xs font-medium">
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> ยืนยันแน่นอน (70%)</span>
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span> น่าจะได้รับ (25%)</span>
-            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> มีความเสี่ยง (5%)</span>
+          <div className="flex items-center gap-4 text-xs font-medium flex-wrap">
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> ประวัติดี/มัดจำแล้ว (Confirmed)</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span> รอบเครดิตปกติ (Probable)</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> มีประวัติค้าง/เกินวงเงิน (At Risk)</span>
           </div>
         </div>
 
@@ -426,32 +440,33 @@ export default function DailyCashReceiptTab({ data, onOpenDrilldown }: DailyCash
           {/* 7 Days */}
           <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800">รอบ 7 วันข้างหน้า</span>
+              <span className="text-xs font-bold text-slate-800">รอบ 7 วันข้างหน้า ({receiptForecast?.days7?.count || 0})</span>
               <span className="text-xs font-black text-indigo-600">{formatCurrency(receiptForecast?.days7?.amount)}</span>
             </div>
             <div className="w-full bg-slate-200 h-2.5 rounded-full flex overflow-hidden">
-              <div style={{ width: '70%' }} className="bg-emerald-500" title="ยืนยันแน่นอน" />
-              <div style={{ width: '30%' }} className="bg-blue-500" title="น่าจะได้รับ" />
+              <div style={{ width: `${receiptForecast?.days7?.confirmedPct ?? 0}%` }} className="bg-emerald-500" title="ยืนยันแน่นอน" />
+              <div style={{ width: `${receiptForecast?.days7?.probablePct ?? 0}%` }} className="bg-blue-500" title="น่าจะได้รับ" />
+              <div style={{ width: `${receiptForecast?.days7?.atRiskPct ?? 0}%` }} className="bg-rose-500" title="มีความเสี่ยง" />
             </div>
             <div className="text-[11px] text-slate-500 flex justify-between">
-              <span>ยืนยัน: {formatCurrency(receiptForecast?.days7?.confirmed)}</span>
-              <span>น่าจะได้รับ: {formatCurrency(receiptForecast?.days7?.probable)}</span>
+              <span>มั่นใจสูง ({receiptForecast?.days7?.confirmedPct ?? 0}%): {formatCurrency(receiptForecast?.days7?.confirmed)}</span>
+              <span>เสี่ยง: {formatCurrency(receiptForecast?.days7?.atRisk)}</span>
             </div>
           </div>
 
           {/* 30 Days */}
           <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800">รอบ 30 วันข้างหน้า</span>
+              <span className="text-xs font-bold text-slate-800">รอบ 30 วันข้างหน้า ({receiptForecast?.days30?.count || 0})</span>
               <span className="text-xs font-black text-indigo-600">{formatCurrency(receiptForecast?.days30?.amount)}</span>
             </div>
             <div className="w-full bg-slate-200 h-2.5 rounded-full flex overflow-hidden">
-              <div style={{ width: '60%' }} className="bg-emerald-500" title="ยืนยันแน่นอน" />
-              <div style={{ width: '30%' }} className="bg-blue-500" title="น่าจะได้รับ" />
-              <div style={{ width: '10%' }} className="bg-rose-500" title="มีความเสี่ยง" />
+              <div style={{ width: `${receiptForecast?.days30?.confirmedPct ?? 0}%` }} className="bg-emerald-500" title="ยืนยันแน่นอน" />
+              <div style={{ width: `${receiptForecast?.days30?.probablePct ?? 0}%` }} className="bg-blue-500" title="น่าจะได้รับ" />
+              <div style={{ width: `${receiptForecast?.days30?.atRiskPct ?? 0}%` }} className="bg-rose-500" title="มีความเสี่ยง" />
             </div>
             <div className="text-[11px] text-slate-500 flex justify-between">
-              <span>ยืนยัน: {formatCurrency(receiptForecast?.days30?.confirmed)}</span>
+              <span>มั่นใจสูง ({receiptForecast?.days30?.confirmedPct ?? 0}%): {formatCurrency(receiptForecast?.days30?.confirmed)}</span>
               <span>เสี่ยง: {formatCurrency(receiptForecast?.days30?.atRisk)}</span>
             </div>
           </div>
@@ -459,16 +474,16 @@ export default function DailyCashReceiptTab({ data, onOpenDrilldown }: DailyCash
           {/* 90 Days */}
           <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800">รอบ 90 วันข้างหน้า</span>
+              <span className="text-xs font-bold text-slate-800">รอบ 90 วันข้างหน้า ({receiptForecast?.days90?.count || 0})</span>
               <span className="text-xs font-black text-indigo-600">{formatCurrency(receiptForecast?.days90?.amount)}</span>
             </div>
             <div className="w-full bg-slate-200 h-2.5 rounded-full flex overflow-hidden">
-              <div style={{ width: '50%' }} className="bg-emerald-500" title="ยืนยันแน่นอน" />
-              <div style={{ width: '30%' }} className="bg-blue-500" title="น่าจะได้รับ" />
-              <div style={{ width: '20%' }} className="bg-rose-500" title="มีความเสี่ยง" />
+              <div style={{ width: `${receiptForecast?.days90?.confirmedPct ?? 0}%` }} className="bg-emerald-500" title="ยืนยันแน่นอน" />
+              <div style={{ width: `${receiptForecast?.days90?.probablePct ?? 0}%` }} className="bg-blue-500" title="น่าจะได้รับ" />
+              <div style={{ width: `${receiptForecast?.days90?.atRiskPct ?? 0}%` }} className="bg-rose-500" title="มีความเสี่ยง" />
             </div>
             <div className="text-[11px] text-slate-500 flex justify-between">
-              <span>ยืนยัน: {formatCurrency(receiptForecast?.days90?.confirmed)}</span>
+              <span>มั่นใจสูง ({receiptForecast?.days90?.confirmedPct ?? 0}%): {formatCurrency(receiptForecast?.days90?.confirmed)}</span>
               <span>เสี่ยง: {formatCurrency(receiptForecast?.days90?.atRisk)}</span>
             </div>
           </div>

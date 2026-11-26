@@ -31,11 +31,12 @@ const prismaClientSingleton = () => {
   }
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 10, // Keep combined pool sizes (db + teraDb + paymentRequests) within Supabase connection_limit=20
-    idleTimeoutMillis: 20000, // Keep warm connections briefly to avoid constant TLS re-handshakes
-    connectionTimeoutMillis: 30000, // Allow headroom during cold compile bursts
+    max: 8, // Keep combined pool sizes (db 8 + teraDb 4 + paymentRequests 4 = 16) safely within Supabase connection_limit=20
+    idleTimeoutMillis: 15000, // Recycle idle sockets before PgBouncer/NAT drops them silently
+    connectionTimeoutMillis: 10000, // Fail fast on stalled TCP/TLS handshakes so DAL/callers can retry on a clean socket
     keepAlive: true,
     keepAliveInitialDelayMillis: 5000,
+    allowExitOnIdle: true,
   })
 
   // Prevent unhandled errors on idle clients from terminating the connection or app
@@ -47,7 +48,7 @@ const prismaClientSingleton = () => {
     console.warn('Unexpected error on idle client (primary db pool):', err.message)
   })
 
-  const adapter = new PrismaPg(pool)
+  const adapter = new PrismaPg(pool, { disposeExternalPool: true })
   const client = new PrismaClient({
     adapter,
     log: ['error', 'warn'],
@@ -69,10 +70,20 @@ const hasSolarCleaningModel =
 const hasSalesCommissionModel =
   cachedPrisma &&
   typeof (cachedPrisma as unknown as Record<string, unknown>).salesCommissionRequest !== 'undefined';
+const hasLogisticsModels =
+  cachedPrisma &&
+  typeof (cachedPrisma as unknown as Record<string, unknown>).logisticsTrip !== 'undefined' &&
+  typeof (cachedPrisma as unknown as Record<string, unknown>).logisticsTripStop !== 'undefined';
+const hasBankStatementModels =
+  cachedPrisma &&
+  typeof (cachedPrisma as unknown as Record<string, unknown>).bankStatementBatch !== 'undefined' &&
+  typeof (cachedPrisma as unknown as Record<string, unknown>).bankStatementTransaction !== 'undefined';
 const isCacheCompatible =
   Boolean(hasStockModels) &&
   Boolean(hasSolarCleaningModel) &&
   Boolean(hasSalesCommissionModel) &&
+  Boolean(hasLogisticsModels) &&
+  Boolean(hasBankStatementModels) &&
   hasSurveyExtendedFieldsInRuntime(cachedPrisma) &&
   hasRequisitionExtendedFieldsInRuntime(cachedPrisma);
 

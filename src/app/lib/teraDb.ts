@@ -29,19 +29,23 @@ const prismaClientSingleton = () => {
 
   const pool = new Pool({ 
     connectionString: dbUrl || undefined,
-    max: 5, // Share Supabase connection_limit=20 cleanly with primary Prisma pool
-    idleTimeoutMillis: 20000,
-    connectionTimeoutMillis: 30000,
+    max: 4, // Share Supabase connection_limit=20 cleanly with primary Prisma pool (8) & paymentRequests (4)
+    idleTimeoutMillis: 15000,
+    connectionTimeoutMillis: 10000,
     keepAlive: true,
-    keepAliveInitialDelayMillis: 10000,
+    keepAliveInitialDelayMillis: 5000,
+    allowExitOnIdle: true,
   })
 
   // Prevent unhandled errors on idle clients from terminating the connection or app
   pool.on('error', (err) => {
+    if (err.message.includes('Connection terminated') || err.message.includes('timeout') || err.message.includes('closed')) {
+      return;
+    }
     console.warn('Unexpected error on idle client (teraDb pool):', err.message)
   })
 
-  const adapter = new PrismaPg(pool)
+  const adapter = new PrismaPg(pool, { disposeExternalPool: true })
   return new PrismaClient({ adapter })
 }
 

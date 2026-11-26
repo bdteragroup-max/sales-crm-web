@@ -4,6 +4,11 @@ import prisma from "@/app/lib/db";
 import { revalidatePath } from "next/cache";
 import { generateJobNumber, stringToAdvisoryLockIds } from "@/app/lib/job-utils";
 import { normalizeDateToCE } from "@/utils/thai-date";
+import {
+  hasAccountingInvoiceOrPayment,
+  isPlaceholderPaymentTask,
+} from "@/app/lib/accounting-schedule";
+import { findCompletedAccountingStepLog } from "@/app/lib/accounting-reconciliation";
 
 import type { Prisma } from "../../generated/client";
 
@@ -728,6 +733,9 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
         job: {
           include: {
             paymentTasks: true,
+            stepLogs: {
+              orderBy: { completedAt: "asc" },
+            },
           },
         },
       },
@@ -756,9 +764,39 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
 
     if (!depositItem && installmentList.length === 0) return;
 
-    // Preserve Accounting's custom delivery-lot schedule if Accounting manages this job by delivery rounds
+    // 1) Never inject/re-open tasks on a Job already closed or 100% verified by Accounting
+    if (project.job.accountingClosedAt) return;
+    if (
+      existingTasks.length > 0 &&
+      existingTasks.every((t) => t.status === "ตรวจสอบและบันทึกแล้ว")
+    ) {
+      return;
+    }
+
+    // 2) Preserve Accounting's custom delivery-lot schedule
     const hasAccountingDeliveryLots = existingTasks.some((t) => t.creditType === "DELIVERY");
     if (hasAccountingDeliveryLots) return;
+
+    // 3) Once Accounting has recorded payments, deposits, or invoices (or completed accounting step),
+    // never inject extra project installment tasks over unnumbered/legacy tasks or push paid tasks out of order.
+    const hasActiveAccountingStepLog = Boolean(
+      findCompletedAccountingStepLog(project.job.stepLogs)
+    );
+    const hasAnyPaymentOrInvoice = existingTasks.some((t) => hasAccountingInvoiceOrPayment(t));
+    const hasOnlyPlaceholders =
+      existingTasks.length === 0 || existingTasks.every((t) => isPlaceholderPaymentTask(t));
+
+    if (!hasOnlyPlaceholders && (hasActiveAccountingStepLog || hasAnyPaymentOrInvoice)) {
+      const hasUnnumberedTask = existingTasks.some(
+        (t) => t.installmentNo === null || t.installmentNo === undefined
+      );
+      const hasVerifiedTask = existingTasks.some(
+        (t) => t.status === "ตรวจสอบและบันทึกแล้ว"
+      );
+      if (hasActiveAccountingStepLog || hasUnnumberedTask || hasVerifiedTask) {
+        return;
+      }
+    }
 
     const startDate = project.startDate ? (normalizeDateToCE(project.startDate) || new Date(project.startDate)) : new Date(project.job.createdAt);
     const endDate = project.endDate
@@ -768,10 +806,14 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
         : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000));
     const totalDurationMs = endDate.getTime() - startDate.getTime();
 
-    // 1. Handle Deposit Task
+    // 1. Handle Deposit Task (match any existing deposit/partial task rather than duplicating #0)
     if (depositItem) {
       const existingDepositTask = existingTasks.find(
-        (t) => t.installmentNo === 0 || t.creditType === "DEPOSIT" || (t.status === "ชำระมัดจำแล้ว" && t.installmentNo === null)
+        (t) =>
+          t.installmentNo === 0 ||
+          t.creditType === "DEPOSIT" ||
+          (t.status === "ชำระมัดจำแล้ว" &&
+            !existingTasks.some((other) => other.id !== t.id && (other.installmentNo === 0 || other.creditType === "DEPOSIT")))
       );
 
       if (existingDepositTask) {
@@ -907,9 +949,12 @@ export async function syncProjectInstallmentsToPaymentTasks(projectId: string) {
       });
     }
 
-    // 6. Run unified financial adjustment synchronization
+    // 6. Run unified financial adjustment synchronization (never bounce accountingClosedAt or rewrite project schedule back onto project here)
     const { syncFinancialAdjustments } = await import("@/app/actions/accounting");
-    await syncFinancialAdjustments(jobId);
+    await syncFinancialAdjustments(jobId, {
+      allowReopenAccounting: false,
+      syncProjectSchedule: false,
+    });
   } catch (err) {
     console.error("Error syncing project installments to payment tasks:", err);
   }

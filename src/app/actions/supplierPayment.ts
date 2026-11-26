@@ -90,8 +90,8 @@ export async function syncSupplierPaymentsForPO(poNumber: string) {
     const existingDeposit = po.supplierPaymentTasks.find(t => t.paymentType === 'DEPOSIT');
 
     if (existingDeposit) {
-      // Update if not yet paid
-      if (existingDeposit.status !== 'PAID_VERIFIED') {
+      // Update if not yet paid or cancelled
+      if (existingDeposit.status !== 'PAID_VERIFIED' && existingDeposit.status !== 'CANCELLED') {
         const hasManualDeferredDate = existingDeposit.note?.includes('[เลื่อนชำระ') && isValidBusinessDate(existingDeposit.dueDate);
         const targetDueDate = hasManualDeferredDate ? existingDeposit.dueDate : depositDueDate;
 
@@ -127,9 +127,9 @@ export async function syncSupplierPaymentsForPO(poNumber: string) {
       results.push(created);
     }
   } else {
-    // If deposit is 0, clean up any stale pending deposit task
+    // If deposit is 0, clean up any stale pending deposit task (preserve paid or cancelled audit history)
     const staleDeposit = po.supplierPaymentTasks.find(t => t.paymentType === 'DEPOSIT');
-    if (staleDeposit && staleDeposit.status !== 'PAID_VERIFIED') {
+    if (staleDeposit && staleDeposit.status !== 'PAID_VERIFIED' && staleDeposit.status !== 'CANCELLED') {
       await prisma.supplierPaymentTask.delete({ where: { id: staleDeposit.id } });
     }
   }
@@ -145,7 +145,7 @@ export async function syncSupplierPaymentsForPO(poNumber: string) {
     if (nonDepositTasks.length > 1) {
       // User has custom split installment plan! Preserve it and only sync GR status if needed
       for (const task of nonDepositTasks) {
-        if (task.status !== 'PAID_VERIFIED') {
+        if (task.status !== 'PAID_VERIFIED' && task.status !== 'CANCELLED') {
           const shouldUpdateGR = isGoodsReceived !== task.isGoodsReceived;
           const nextStatus = isGoodsReceived && task.status === 'AWAITING_GR' ? 'PENDING' : task.status;
           if (shouldUpdateGR || nextStatus !== task.status) {
@@ -202,7 +202,7 @@ export async function syncSupplierPaymentsForPO(poNumber: string) {
     const existingBalance = po.supplierPaymentTasks.find(t => t.paymentType === 'FINAL_BALANCE');
 
     if (existingBalance) {
-      if (existingBalance.status !== 'PAID_VERIFIED') {
+      if (existingBalance.status !== 'PAID_VERIFIED' && existingBalance.status !== 'CANCELLED') {
         const hasManualDeferredDate = existingBalance.note?.includes('[เลื่อนชำระ') && isValidBusinessDate(existingBalance.dueDate);
         const targetDueDate = hasManualDeferredDate ? existingBalance.dueDate : balanceDueDate;
 
@@ -242,9 +242,9 @@ export async function syncSupplierPaymentsForPO(poNumber: string) {
       results.push(created);
     }
   } else {
-    // If balance is 0, clean up any stale pending balance task
+    // If balance is 0, clean up any stale pending balance task (never delete paid or cancelled records)
     const staleBalance = po.supplierPaymentTasks.find(t => t.paymentType === 'FINAL_BALANCE');
-    if (staleBalance && staleBalance.status !== 'PAID_VERIFIED') {
+    if (staleBalance && staleBalance.status !== 'PAID_VERIFIED' && staleBalance.status !== 'CANCELLED') {
       await prisma.supplierPaymentTask.delete({ where: { id: staleBalance.id } });
     }
   }

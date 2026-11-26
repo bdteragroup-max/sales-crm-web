@@ -4540,3 +4540,213 @@ model SunwaysReport {
   @@index([status], map: "idx_sunways_status")
   @@map("sunways_reports")
 }
+
+model MarketingContentPlan {
+  id               String                        @id @default(cuid())
+  planYear         Int                           @map("plan_year")
+  planMonth        Int                           @map("plan_month")
+  primaryOwnerId   String                        @map("primary_owner_id")
+  primaryOwnerName String                        @map("primary_owner_name") @db.VarChar(150)
+  title            String                        @db.VarChar(255)
+  contentDetail    String?                       @map("content_detail") @db.Text
+  caption          String?                       @db.Text
+  postDate         String                        @map("post_date") @db.VarChar(10)
+  postTime         String?                       @map("post_time") @db.VarChar(5)
+  channels         Json                          @default("[]")
+  createdById      String                        @map("created_by_id")
+  createdByName    String                        @map("created_by_name") @db.VarChar(150)
+  updatedById      String?                       @map("updated_by_id")
+  updatedByName    String?                       @map("updated_by_name") @db.VarChar(150)
+  createdAt        DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  coOwners         MarketingContentPlanCoOwner[]
+
+  @@index([planYear, planMonth], map: "idx_marketing_content_plans_ym")
+  @@index([primaryOwnerId], map: "idx_marketing_content_plans_owner")
+  @@index([postDate], map: "idx_marketing_content_plans_post_date")
+  @@map("marketing_content_plans")
+}
+
+model MarketingContentPlanCoOwner {
+  id         String               @id @default(cuid())
+  planId     String               @map("plan_id")
+  userId     String               @map("user_id")
+  userName   String               @map("user_name") @db.VarChar(150)
+  employeeId String?              @map("employee_id") @db.VarChar(50)
+  createdAt  DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  plan       MarketingContentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, userId], map: "uq_marketing_content_plan_co_owner")
+  @@index([userId], map: "idx_marketing_content_plan_co_owner_uid")
+  @@map("marketing_content_plan_co_owners")
+}
+
+model LogisticsTrip {
+  id                    String   @id @default(cuid())
+  tripNumber            String   @unique @map("trip_number") @db.VarChar(40)
+  tripDate              DateTime @map("trip_date") @db.Timestamptz(6)
+  departureTime         String?  @map("departure_time") @db.VarChar(10)
+  status                String   @default("PLANNED") @db.VarChar(30)
+  transportType         String   @default("INTERNAL") @map("transport_type") @db.VarChar(20)
+
+  vehicleAssetId        Int?     @map("vehicle_asset_id")
+  vehiclePlate          String?  @map("vehicle_plate") @db.VarChar(60)
+  vehicleName           String?  @map("vehicle_name") @db.VarChar(180)
+  courierName           String?  @map("courier_name") @db.VarChar(150)
+
+  driverUserId          String?  @map("driver_user_id")
+  driverEmployeeId      String?  @map("driver_employee_id") @db.VarChar(40)
+  driverName            String   @map("driver_name") @db.VarChar(150)
+  helperNames           String?  @map("helper_names") @db.Text
+  routeZone             String?  @map("route_zone") @db.VarChar(200)
+  originBranch          String?  @default("BKK-HQ") @map("origin_branch") @db.VarChar(80)
+  planNote              String?  @map("plan_note") @db.Text
+
+  startMileage          Int?     @map("start_mileage")
+  endMileage            Int?     @map("end_mileage")
+  startedAt             DateTime? @map("started_at") @db.Timestamptz(6)
+  closedAt              DateTime? @map("closed_at") @db.Timestamptz(6)
+  closedById            String?  @map("closed_by_id")
+  closedByName          String?  @map("closed_by_name") @db.VarChar(150)
+  closeNote             String?  @map("close_note") @db.Text
+
+  allowancePerDay       Decimal  @default(0) @map("allowance_per_day") @db.Decimal(10, 2)
+  allowanceDays         Decimal  @default(1) @map("allowance_days") @db.Decimal(6, 2)
+  crewCount             Int      @default(1) @map("crew_count")
+  allowanceTotal        Decimal  @default(0) @map("allowance_total") @db.Decimal(12, 2)
+  overnightNights       Int      @default(0) @map("overnight_nights")
+  accommodationAmount   Decimal  @default(0) @map("accommodation_amount") @db.Decimal(12, 2)
+  tollAmount            Decimal  @default(0) @map("toll_amount") @db.Decimal(12, 2)
+  fuelAmount            Decimal  @default(0) @map("fuel_amount") @db.Decimal(12, 2)
+  otherExpenseAmount    Decimal  @default(0) @map("other_expense_amount") @db.Decimal(12, 2)
+  expenseItems          Json     @default("[]") @map("expense_items")
+  totalExpenseAmount    Decimal  @default(0) @map("total_expense_amount") @db.Decimal(12, 2)
+  expenseReceipts       Json     @default("[]") @map("expense_receipts")
+  expenseApprovedStatus String   @default("NONE") @map("expense_approved_status") @db.VarChar(30)
+
+  createdById           String   @map("created_by_id")
+  createdByName         String   @map("created_by_name") @db.VarChar(150)
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  stops                 LogisticsTripStop[]
+
+  @@index([tripDate], map: "idx_logistics_trips_date")
+  @@index([status], map: "idx_logistics_trips_status")
+  @@index([driverUserId], map: "idx_logistics_trips_driver")
+  @@index([vehicleAssetId], map: "idx_logistics_trips_vehicle")
+  @@map("logistics_trips")
+}
+
+model LogisticsTripStop {
+  id                   String        @id @default(cuid())
+  tripId               String        @map("trip_id")
+  stopOrder            Int           @default(1) @map("stop_order")
+  sourceType           String        @default("JOB") @map("source_type") @db.VarChar(30)
+  jobId                String?       @map("job_id")
+  requisitionId        String?       @map("requisition_id")
+  repairDeliveryId     String?       @map("repair_delivery_id")
+  referenceNumber      String?       @map("reference_number") @db.VarChar(80)
+
+  customerName         String        @map("customer_name") @db.VarChar(255)
+  destination          String?       @db.Text
+  province             String?       @db.VarChar(100)
+  contactName          String?       @map("contact_name") @db.VarChar(150)
+  contactPhone         String?       @map("contact_phone") @db.VarChar(60)
+  itemSummary          String?       @map("item_summary") @db.Text
+  targetDate           DateTime?     @map("target_date") @db.Timestamptz(6)
+
+  status               String        @default("PENDING") @db.VarChar(30)
+  deliveryMethod       String        @default("in-house") @map("delivery_method") @db.VarChar(30)
+  courierCompany       String?       @map("courier_company") @db.VarChar(120)
+  trackingNumber       String?       @map("tracking_number") @db.VarChar(120)
+
+  checkedInAt          DateTime?     @map("checked_in_at") @db.Timestamptz(6)
+  gpsLat               Float?        @map("gps_lat")
+  gpsLng               Float?        @map("gps_lng")
+  deliveredAt          DateTime?     @map("delivered_at") @db.Timestamptz(6)
+  receiverName         String?       @map("receiver_name") @db.VarChar(150)
+  receiverSignatureUrl String?       @map("receiver_signature_url") @db.Text
+  podPhotoUrls         Json          @default("[]") @map("pod_photo_urls")
+  podNote              String?       @map("pod_note") @db.Text
+  failReason           String?       @map("fail_reason") @db.Text
+
+  createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  trip                 LogisticsTrip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, stopOrder], map: "idx_logistics_trip_stops_trip")
+  @@index([jobId], map: "idx_logistics_trip_stops_job")
+  @@index([requisitionId], map: "idx_logistics_trip_stops_req")
+  @@index([repairDeliveryId], map: "idx_logistics_trip_stops_rd")
+  @@index([status], map: "idx_logistics_trip_stops_status")
+  @@map("logistics_trip_stops")
+}
+
+model BankStatementBatch {
+  id                String                     @id @default(cuid())
+  batchCode         String                     @unique @map("batch_code") @db.VarChar(40)
+  companyCode       String                     @default("TG") @map("company_code") @db.VarChar(20)
+  bankName          String                     @map("bank_name") @db.VarChar(80)
+  accountNumber     String?                    @map("account_number") @db.VarChar(60)
+  accountName       String?                    @map("account_name") @db.VarChar(180)
+  fileName          String                     @map("file_name") @db.VarChar(255)
+  periodStart       DateTime?                  @map("period_start") @db.Date
+  periodEnd         DateTime?                  @map("period_end") @db.Date
+  totalRows         Int                        @default(0) @map("total_rows")
+  creditRows        Int                        @default(0) @map("credit_rows")
+  debitRows         Int                        @default(0) @map("debit_rows")
+  totalCreditAmount Decimal                    @default(0) @map("total_credit_amount") @db.Decimal(14, 2)
+  totalDebitAmount  Decimal                    @default(0) @map("total_debit_amount") @db.Decimal(14, 2)
+  importedById      String?                    @map("imported_by_id")
+  importedByName    String                     @map("imported_by_name") @db.VarChar(150)
+  importedAt        DateTime                   @default(now()) @map("imported_at") @db.Timestamptz(6)
+  note              String?                    @db.Text
+  transactions      BankStatementTransaction[]
+
+  @@index([companyCode, importedAt(sort: Desc)], map: "idx_bank_statement_batches_company")
+  @@index([periodStart, periodEnd], map: "idx_bank_statement_batches_period")
+  @@map("bank_statement_batches")
+}
+
+model BankStatementTransaction {
+  id                    String             @id @default(cuid())
+  batchId               String             @map("batch_id")
+  companyCode           String             @default("TG") @map("company_code") @db.VarChar(20)
+  bankName              String             @map("bank_name") @db.VarChar(80)
+  accountNumber         String?            @map("account_number") @db.VarChar(60)
+  rowNumber             Int                @map("row_number")
+  transactionDate       DateTime           @map("transaction_date") @db.Timestamptz(6)
+  transactionTime       String?            @map("transaction_time") @db.VarChar(20)
+  txType                String             @map("tx_type") @db.VarChar(20)
+  amount                Decimal            @db.Decimal(14, 2)
+  balanceAfter          Decimal?           @map("balance_after") @db.Decimal(14, 2)
+  channel               String?            @map("channel") @db.VarChar(120)
+  referenceNo           String?            @map("reference_no") @db.VarChar(150)
+  description           String             @db.Text
+  counterpartyName      String?            @map("counterparty_name") @db.VarChar(255)
+  dedupeHash            String             @unique @map("dedupe_hash") @db.VarChar(128)
+  matchStatus           String             @default("UNMATCHED") @map("match_status") @db.VarChar(30)
+  matchConfidence       Int?               @map("match_confidence")
+  matchReason           String?            @map("match_reason") @db.VarChar(255)
+  matchedPaymentTaskId  String?            @map("matched_payment_task_id")
+  matchedSupplierTaskId String?            @map("matched_supplier_task_id")
+  matchedJobId          String?            @map("matched_job_id")
+  matchedJobNumber      String?            @map("matched_job_number") @db.VarChar(50)
+  matchedCustomerName   String?            @map("matched_customer_name") @db.VarChar(255)
+  matchedAt             DateTime?          @map("matched_at") @db.Timestamptz(6)
+  matchedBy             String?            @map("matched_by") @db.VarChar(150)
+  reconcileNote         String?            @map("reconcile_note") @db.Text
+  createdAt             DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  batch                 BankStatementBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId], map: "idx_bank_stmt_tx_batch")
+  @@index([companyCode, transactionDate(sort: Desc)], map: "idx_bank_stmt_tx_company_date")
+  @@index([matchStatus, txType], map: "idx_bank_stmt_tx_status_type")
+  @@index([matchedPaymentTaskId], map: "idx_bank_stmt_tx_pt")
+  @@index([matchedSupplierTaskId], map: "idx_bank_stmt_tx_sp")
+  @@index([matchedJobId], map: "idx_bank_stmt_tx_job")
+  @@map("bank_statement_transactions")
+}

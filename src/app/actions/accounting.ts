@@ -8,8 +8,13 @@ import {
   AccountingTaxDocument,
   evaluateAccountingAmountReconciliation,
   evaluatePaymentTasksLinkState,
+  extractAccountingDocsFromPaymentTasks,
+  extractAccountingDocsFromStepLogs,
+  findCompletedAccountingStepLog,
+  mergeAccountingTaxDocuments,
   parseAccountingTaxDocuments,
 } from "@/app/lib/accounting-reconciliation";
+import { hasAccountingInvoiceOrPayment } from "@/app/lib/accounting-schedule";
 import { getNextStep } from "@/app/lib/job-workflow";
 
 function safeRevalidatePath(path: string) {
@@ -20,10 +25,20 @@ function safeRevalidatePath(path: string) {
   }
 }
 
-export async function syncFinancialAdjustments(jobId: string) {
+export type SyncFinancialAdjustmentsOptions = {
+  /** Only true when Accounting explicitly adds/deletes a schedule item or reverts a task out of verified status */
+  allowReopenAccounting?: boolean;
+  /** Only true when Accounting explicitly adds/edits/deletes payment schedule rounds (never overwrite Project on routine receipt confirmations) */
+  syncProjectSchedule?: boolean;
+};
+
+export async function syncFinancialAdjustments(
+  jobId: string,
+  opts?: SyncFinancialAdjustmentsOptions
+) {
   try {
     // 1. Fetch all PaymentTasks for this job
-    const allTasks = await prisma.paymentTask.findMany({
+    const rawTasks = await prisma.paymentTask.findMany({
       where: { jobId },
       orderBy: [
         { installmentNo: 'asc' },
@@ -32,7 +47,18 @@ export async function syncFinancialAdjustments(jobId: string) {
       ]
     });
 
-    if (allTasks.length === 0) return;
+    if (rawTasks.length === 0) return;
+
+    // Sort in JS so settled/invoiced tasks without installmentNo never sort behind newly added rounds (SQL puts NULL last in ASC)
+    const allTasks = [...rawTasks].sort((a, b) => {
+      const aNo = a.installmentNo ?? (hasAccountingInvoiceOrPayment(a) ? 0.5 : Number.MAX_SAFE_INTEGER);
+      const bNo = b.installmentNo ?? (hasAccountingInvoiceOrPayment(b) ? 0.5 : Number.MAX_SAFE_INTEGER);
+      if (aNo !== bNo) return aNo - bNo;
+      const aDue = a.dueDate ? a.dueDate.getTime() : Number.MAX_SAFE_INTEGER;
+      const bDue = b.dueDate ? b.dueDate.getTime() : Number.MAX_SAFE_INTEGER;
+      if (aDue !== bDue) return aDue - bDue;
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    });
 
     // 2. Identify deposit task vs progress tasks
     const depositTask = allTasks.find(t => t.installmentNo === 0 || t.creditType === 'DEPOSIT');
@@ -50,38 +76,53 @@ export async function syncFinancialAdjustments(jobId: string) {
 
     const totalProgressCount = progressTasks.length;
 
-    // 3. Update deposit task if present
+    // 3. Update deposit task metadata if needed
     if (depositTask) {
-      await prisma.paymentTask.update({
-        where: { id: depositTask.id },
-        data: {
-          installmentNo: 0,
-          installmentTotal: totalProgressCount,
-          creditType: depositTask.creditType || 'DEPOSIT',
-        }
-      });
+      if (
+        depositTask.installmentNo !== 0 ||
+        depositTask.installmentTotal !== totalProgressCount ||
+        !depositTask.creditType
+      ) {
+        await prisma.paymentTask.update({
+          where: { id: depositTask.id },
+          data: {
+            installmentNo: 0,
+            installmentTotal: totalProgressCount,
+            creditType: depositTask.creditType || 'DEPOSIT',
+          }
+        });
+      }
     }
 
-    // 4. Re-sequence progress tasks (1..N) ONLY when job uses a structured installment/delivery schedule
+    // 4. Re-sequence progress tasks (1..N) ONLY when explicitly managing schedule OR filling missing metadata without demoting settled tasks
     if (hasStructuredSchedule) {
       for (let i = 0; i < progressTasks.length; i++) {
         const task = progressTasks[i];
-        const newNo = i + 1;
-        await prisma.paymentTask.update({
-          where: { id: task.id },
-          data: {
-            installmentNo: newNo,
-            installmentTotal: totalProgressCount,
-            ...(task.creditType === null ? { creditType: 'PROGRESS' } : {}),
-          }
-        });
+        const targetNo =
+          opts?.syncProjectSchedule || task.installmentNo === null || task.installmentNo === undefined
+            ? i + 1
+            : task.installmentNo;
+        const needsUpdate =
+          task.installmentNo !== targetNo ||
+          task.installmentTotal !== totalProgressCount ||
+          task.creditType === null;
+        if (needsUpdate) {
+          await prisma.paymentTask.update({
+            where: { id: task.id },
+            data: {
+              installmentNo: targetNo,
+              installmentTotal: totalProgressCount,
+              ...(task.creditType === null ? { creditType: 'PROGRESS' } : {}),
+            }
+          });
+        }
       }
     }
 
     // 5. Update Job payment status, payment method, and next due date
     const updatedTasks = await prisma.paymentTask.findMany({
       where: { jobId },
-      orderBy: [{ installmentNo: 'asc' }, { dueDate: 'asc' }]
+      orderBy: [{ installmentNo: 'asc' }, { dueDate: 'asc' }, { createdAt: 'asc' }]
     });
 
     const allCompleted = updatedTasks.length > 0 && updatedTasks.every(t => t.status === 'ตรวจสอบและบันทึกแล้ว');
@@ -96,7 +137,7 @@ export async function syncFinancialAdjustments(jobId: string) {
     const jobUpdateData: any = {
       paymentStatus: allCompleted ? 'paid' : (hasAnyPaid ? 'partial' : 'unpaid'),
     };
-    if (!allCompleted && existingJobMeta?.accountingClosedAt) {
+    if (opts?.allowReopenAccounting && !allCompleted && existingJobMeta?.accountingClosedAt) {
       jobUpdateData.accountingClosedAt = null;
       jobUpdateData.accountingClosedBy = null;
     }
@@ -125,48 +166,48 @@ export async function syncFinancialAdjustments(jobId: string) {
       }
     }
 
-    // 6. Check if Job is linked to a Project (only sync structured schedules so single legacy tasks don't overwrite Project with amount: 0)
-    const linkedProject = await prisma.project.findFirst({
-      where: { jobId }
-    });
-
-    if (linkedProject && hasStructuredSchedule) {
-      // Reconstruct installmentsData matching Project standard structure
-      const installmentsData: any = {
-        hasDeposit: !!depositTask,
-        deposit: depositTask ? {
-          amount: Number(depositTask.installmentAmount || depositTask.paidAmount || 0),
-          dueDate: depositTask.dueDate ? depositTask.dueDate.toISOString() : undefined,
-          title: depositTask.note || "เงินมัดจำเมื่อเซ็นสัญญา",
-        } : null,
-        installments: progressTasks.map((t, idx) => ({
-          no: idx + 1,
-          title: t.note || `งวดที่ ${idx + 1}`,
-          amount: Number(t.installmentAmount || t.paidAmount || 0),
-          dueDate: t.dueDate ? t.dueDate.toISOString() : undefined,
-        }))
-      };
-
-      const projectUpdateData: any = {
-        installmentsData,
-        firstPayment: depositTask ? Number(depositTask.installmentAmount || depositTask.paidAmount || 0) : null,
-        depositCollectionSchedule: depositTask?.dueDate || null,
-      };
-
-      // Update installment1..12 columns
-      for (let i = 1; i <= 12; i++) {
-        const pTask = progressTasks[i - 1];
-        projectUpdateData[`installment${i}`] = pTask ? Number(pTask.installmentAmount || pTask.paidAmount || 0) : null;
-      }
-
-      await prisma.project.update({
-        where: { id: linkedProject.id },
-        data: projectUpdateData
+    // 6. Sync structured schedule back to linked Project ONLY when Accounting edited the schedule
+    if (opts?.syncProjectSchedule && hasStructuredSchedule) {
+      const linkedProject = await prisma.project.findFirst({
+        where: { jobId }
       });
 
-      safeRevalidatePath('/projects');
-      safeRevalidatePath(`/projects/${linkedProject.id}`);
-      safeRevalidatePath('/projects/dashboard');
+      if (linkedProject) {
+        const installmentsData: any = {
+          hasDeposit: !!depositTask,
+          deposit: depositTask ? {
+            amount: Number(depositTask.installmentAmount || depositTask.paidAmount || 0),
+            dueDate: depositTask.dueDate ? depositTask.dueDate.toISOString() : undefined,
+            title: depositTask.note || "เงินมัดจำเมื่อเซ็นสัญญา",
+          } : null,
+          installments: progressTasks.map((t, idx) => ({
+            no: idx + 1,
+            title: t.note || `งวดที่ ${idx + 1}`,
+            amount: Number(t.installmentAmount || t.paidAmount || 0),
+            dueDate: t.dueDate ? t.dueDate.toISOString() : undefined,
+          }))
+        };
+
+        const projectUpdateData: any = {
+          installmentsData,
+          firstPayment: depositTask ? Number(depositTask.installmentAmount || depositTask.paidAmount || 0) : null,
+          depositCollectionSchedule: depositTask?.dueDate || null,
+        };
+
+        for (let i = 1; i <= 12; i++) {
+          const pTask = progressTasks[i - 1];
+          projectUpdateData[`installment${i}`] = pTask ? Number(pTask.installmentAmount || pTask.paidAmount || 0) : null;
+        }
+
+        await prisma.project.update({
+          where: { id: linkedProject.id },
+          data: projectUpdateData
+        });
+
+        safeRevalidatePath('/projects');
+        safeRevalidatePath(`/projects/${linkedProject.id}`);
+        safeRevalidatePath('/projects/dashboard');
+      }
     }
 
     safeRevalidatePath('/accounting');
@@ -363,17 +404,34 @@ export async function savePaymentScheduleItem(input: SavePaymentScheduleItemInpu
   }
 
   // Synchronize database across all tasks, job, and linked project
-  await syncFinancialAdjustments(jobId);
-
-  const updatedTasks = await prisma.paymentTask.findMany({
-    where: { jobId },
-    orderBy: [
-      { installmentNo: 'asc' },
-      { dueDate: 'asc' }
-    ]
+  await syncFinancialAdjustments(jobId, {
+    allowReopenAccounting: true,
+    syncProjectSchedule: true,
   });
 
-  return { success: true, paymentTasks: updatedTasks };
+  const [updatedTasks, jobMeta] = await Promise.all([
+    prisma.paymentTask.findMany({
+      where: { jobId },
+      orderBy: [
+        { installmentNo: 'asc' },
+        { dueDate: 'asc' },
+        { createdAt: 'asc' },
+      ]
+    }),
+    prisma.job.findUnique({
+      where: { id: jobId },
+      select: {
+        id: true,
+        currentStep: true,
+        paymentStatus: true,
+        paymentMethod: true,
+        accountingClosedAt: true,
+        accountingClosedBy: true,
+      }
+    }),
+  ]);
+
+  return { success: true, job: jobMeta, paymentTasks: updatedTasks };
 }
 
 export async function deletePaymentScheduleItem(taskId: string) {
@@ -429,29 +487,169 @@ export async function deletePaymentScheduleItem(taskId: string) {
   }
 
   // Re-sync all remaining tasks, job, and project
-  await syncFinancialAdjustments(jobId);
-
-  const updatedTasks = await prisma.paymentTask.findMany({
-    where: { jobId },
-    orderBy: [
-      { installmentNo: 'asc' },
-      { dueDate: 'asc' }
-    ]
+  await syncFinancialAdjustments(jobId, {
+    allowReopenAccounting: true,
+    syncProjectSchedule: true,
   });
 
-  return { success: true, paymentTasks: updatedTasks };
+  const [updatedTasks, jobMeta] = await Promise.all([
+    prisma.paymentTask.findMany({
+      where: { jobId },
+      orderBy: [
+        { installmentNo: 'asc' },
+        { dueDate: 'asc' },
+        { createdAt: 'asc' },
+      ]
+    }),
+    prisma.job.findUnique({
+      where: { id: jobId },
+      select: {
+        id: true,
+        currentStep: true,
+        paymentStatus: true,
+        paymentMethod: true,
+        accountingClosedAt: true,
+        accountingClosedBy: true,
+      }
+    }),
+  ]);
+
+  return { success: true, job: jobMeta, paymentTasks: updatedTasks };
 }
 
-export async function updatePaymentTaskStatus(taskId: string, status: string, note?: string, invoiceNumber?: string, invoiceDate?: string | Date) {
+async function reconcileAndCloseJobAccountingIfAllTasksVerified(
+  jobId: string,
+  actorName?: string | null
+) {
+  const job = await prisma.job.findUnique({
+    where: { id: jobId },
+    include: {
+      paymentTasks: {
+        orderBy: [{ installmentNo: 'asc' }, { dueDate: 'asc' }, { createdAt: 'asc' }],
+      },
+      stepLogs: {
+        orderBy: { completedAt: 'asc' },
+      },
+    },
+  });
+
+  if (!job || job.paymentTasks.length === 0) return;
+  const allVerified = job.paymentTasks.every((t) => t.status === 'ตรวจสอบและบันทึกแล้ว');
+  if (!allVerified) return;
+
+  const existingDocs = parseAccountingTaxDocuments(job.accountingTaxDocuments);
+  const taskDocs = extractAccountingDocsFromPaymentTasks(job.paymentTasks);
+  const stepLogDocs = extractAccountingDocsFromStepLogs(job.stepLogs);
+  const mergedDocs = mergeAccountingTaxDocuments(
+    existingDocs,
+    mergeAccountingTaxDocuments(stepLogDocs, taskDocs)
+  );
+
+  const activeAcctLog = findCompletedAccountingStepLog(job.stepLogs);
+  const latestPaidDate = job.paymentTasks.reduce<Date | null>((latest, t) => {
+    if (!t.paidDate) return latest;
+    const d = new Date(t.paidDate);
+    if (Number.isNaN(d.getTime())) return latest;
+    return !latest || d > latest ? d : latest;
+  }, null);
+  const closedBy =
+    job.accountingClosedBy ||
+    activeAcctLog?.completedBy ||
+    actorName ||
+    'ฝ่ายบัญชี';
+  const closedAt = job.accountingClosedAt || latestPaidDate || new Date();
+
+  let nextCurrentStep = job.currentStep;
+  if (job.currentStep === 'accounting') {
+    if (!activeAcctLog) {
+      const docSummary = mergedDocs.map((d) => d.docNumber).join(', ');
+      await prisma.jobStepLog.create({
+        data: {
+          jobId: job.id,
+          step: 'accounting',
+          completedBy: closedBy,
+          department: 'accounting',
+          note: docSummary || 'ยืนยันรับเงินครบถ้วนจากหน้าบัญชี',
+        },
+      });
+    }
+    const nextStep = getNextStep(job.jobType, 'accounting', job.flowVariant ?? undefined);
+    if (nextStep?.key) {
+      nextCurrentStep = nextStep.key;
+    }
+  }
+
+  const jobUpdateData: Prisma.JobUpdateInput = {
+    paymentStatus: 'paid',
+    accountingClosedAt: closedAt,
+    accountingClosedBy: closedBy,
+  };
+  if (nextCurrentStep !== job.currentStep) {
+    jobUpdateData.currentStep = nextCurrentStep;
+  }
+  if (existingDocs.length === 0 && mergedDocs.length > 0) {
+    jobUpdateData.accountingTaxDocuments = mergedDocs as unknown as Prisma.InputJsonValue;
+  }
+
+  await prisma.job.update({
+    where: { id: job.id },
+    data: jobUpdateData,
+  });
+}
+
+export async function updatePaymentTaskStatus(
+  taskId: string,
+  status: string,
+  note?: string,
+  invoiceNumber?: string,
+  invoiceDate?: string | Date
+) {
+  let currentUser: { id: string; fullName: string } | null = null;
+  try {
+    const u = await getUser();
+    if (u) currentUser = { id: u.id, fullName: u.fullName };
+  } catch {}
+
+  const existingTask = await prisma.paymentTask.findUnique({
+    where: { id: taskId },
+    include: {
+      job: {
+        include: {
+          paymentTasks: true,
+          stepLogs: { orderBy: { completedAt: 'asc' } },
+        },
+      },
+    },
+  });
+  if (!existingTask) throw new Error("ไม่พบรายการชำระเงินที่ต้องการอัปเดต");
+
+  const trimmedNote = typeof note === 'string' ? note.trim() : '';
   const dataToUpdate: any = {
     status,
-    note,
-    ...(status === 'ตรวจสอบและบันทึกแล้ว' ? { paidDate: new Date() } : {})
+    note: trimmedNote !== '' ? trimmedNote : existingTask.note,
+    ...(status === 'ตรวจสอบและบันทึกแล้ว'
+      ? {
+          paidDate: existingTask.paidDate ?? new Date(),
+        }
+      : {}),
   };
-  
-  if (invoiceNumber) {
-    dataToUpdate.invoiceNumber = invoiceNumber;
+
+  const trimmedInv = typeof invoiceNumber === 'string' ? invoiceNumber.trim() : '';
+  if (trimmedInv) {
+    dataToUpdate.invoiceNumber = trimmedInv;
+  } else if (status === 'ตรวจสอบและบันทึกแล้ว' && !existingTask.invoiceNumber) {
+    const existingDocs = mergeAccountingTaxDocuments(
+      parseAccountingTaxDocuments(existingTask.job.accountingTaxDocuments),
+      extractAccountingDocsFromStepLogs(existingTask.job.stepLogs)
+    );
+    if (existingTask.job.paymentTasks.length === 1 && existingDocs.length > 0) {
+      dataToUpdate.invoiceNumber = existingDocs.map((d) => d.docNumber).join(', ');
+      if (!invoiceDate && !existingTask.invoiceDate && existingDocs[0].docDate) {
+        dataToUpdate.invoiceDate = new Date(existingDocs[0].docDate);
+      }
+    }
   }
+
   if (invoiceDate) {
     const d = new Date(invoiceDate);
     if (!isNaN(d.getTime()) && d.getFullYear() >= 2500) {
@@ -466,27 +664,97 @@ export async function updatePaymentTaskStatus(taskId: string, status: string, no
     include: { job: true }
   });
 
-  await syncFinancialAdjustments(task.jobId);
+  await syncFinancialAdjustments(task.jobId, {
+    allowReopenAccounting: status !== 'ตรวจสอบและบันทึกแล้ว',
+    syncProjectSchedule: false,
+  });
+
+  if (status === 'ตรวจสอบและบันทึกแล้ว') {
+    await reconcileAndCloseJobAccountingIfAllTasksVerified(task.jobId, currentUser?.fullName);
+  }
+
   const { syncAccountingInvoicesToCommissionRequests } = await import('@/app/lib/salesCommissionServer');
   await syncAccountingInvoicesToCommissionRequests(task.jobId);
+
+  const [latestJob, latestTasks, latestStepLogs] = await Promise.all([
+    prisma.job.findUnique({
+      where: { id: task.jobId },
+      select: {
+        id: true,
+        currentStep: true,
+        paymentStatus: true,
+        paymentMethod: true,
+        accountingClosedAt: true,
+        accountingClosedBy: true,
+        accountingTaxDocuments: true,
+        accountingVerifiedBeforeVat: true,
+        accountingVerificationNote: true,
+      },
+    }),
+    prisma.paymentTask.findMany({
+      where: { jobId: task.jobId },
+      orderBy: [{ installmentNo: 'asc' }, { dueDate: 'asc' }, { createdAt: 'asc' }],
+    }),
+    prisma.jobStepLog.findMany({
+      where: { jobId: task.jobId },
+      orderBy: { completedAt: 'asc' },
+    }),
+  ]);
+
+  safeRevalidatePath('/accounting');
+  safeRevalidatePath('/accounting/dashboard');
+  safeRevalidatePath('/jobs');
+  safeRevalidatePath('/pipeline');
   safeRevalidatePath('/sales/commissions/approvals');
   safeRevalidatePath('/sales/commissions');
-  return task;
+
+  return {
+    success: true,
+    task,
+    job: latestJob,
+    paymentTasks: latestTasks,
+    stepLogs: latestStepLogs,
+  };
 }
 
 export async function recordPaymentDeposit(taskId: string, depositAmount: number, note?: string) {
+  const existingTask = await prisma.paymentTask.findUnique({
+    where: { id: taskId },
+    select: { id: true, note: true, jobId: true },
+  });
+  if (!existingTask) throw new Error("ไม่พบรายการชำระเงิน");
+
+  const trimmedNote = typeof note === 'string' ? note.trim() : '';
   const task = await prisma.paymentTask.update({
     where: { id: taskId },
     data: {
       status: 'ชำระมัดจำแล้ว',
       paidAmount: depositAmount,
-      note,
+      note: trimmedNote !== '' ? trimmedNote : existingTask.note,
     },
     include: { job: true }
   });
 
-  await syncFinancialAdjustments(task.jobId);
-  return task;
+  await syncFinancialAdjustments(task.jobId, {
+    allowReopenAccounting: false,
+    syncProjectSchedule: false,
+  });
+
+  const latestJob = await prisma.job.findUnique({
+    where: { id: task.jobId },
+    select: {
+      id: true,
+      paymentStatus: true,
+      paymentMethod: true,
+      accountingClosedAt: true,
+      accountingClosedBy: true,
+    },
+  });
+
+  safeRevalidatePath('/accounting');
+  safeRevalidatePath('/accounting/dashboard');
+  safeRevalidatePath('/jobs');
+  return { success: true, task, job: latestJob };
 }
 
 export async function updatePaymentTaskCreditType(taskId: string, creditType: string) {
@@ -495,7 +763,10 @@ export async function updatePaymentTaskCreditType(taskId: string, creditType: st
     where: { id: taskId },
     data: { creditType: normalized }
   });
-  await syncFinancialAdjustments(task.jobId);
+  await syncFinancialAdjustments(task.jobId, {
+    allowReopenAccounting: false,
+    syncProjectSchedule: false,
+  });
   return task;
 }
 
@@ -513,7 +784,10 @@ export async function syncAllAccountingTasks() {
   try {
     const { syncProjectInstallmentsToPaymentTasks } = await import('@/app/actions/projects');
     const projectsWithJobs = await prisma.project.findMany({
-      where: { jobId: { not: null } },
+      where: {
+        jobId: { not: null },
+        job: { accountingClosedAt: null },
+      },
       select: { id: true }
     });
     for (const proj of projectsWithJobs) {
@@ -614,27 +888,27 @@ export async function saveAccountingJobVerification(payload: {
     let nextCurrentStep = existingJob.currentStep;
 
     if (shouldCloseAccounting) {
-      const hasAccountingStepLog = existingJob.stepLogs.some(
-        (l) => l.step === "accounting" && (!l.note || !l.note.startsWith("ตีกลับ"))
-      );
-      if (existingJob.currentStep === "accounting" && !hasAccountingStepLog) {
+      const hasAccountingStepLog = Boolean(findCompletedAccountingStepLog(existingJob.stepLogs));
+      if (existingJob.currentStep === "accounting") {
         const nextStep = getNextStep(
           existingJob.jobType,
           "accounting",
           existingJob.flowVariant ?? undefined
         );
-        const docSummary = normalizedDocs.map((d) => d.docNumber).join(", ");
-        const stepNote = [docSummary, nextNote].filter(Boolean).join(" • ") || "ตรวจสอบยอดและปิดงานบัญชี";
+        if (!hasAccountingStepLog) {
+          const docSummary = normalizedDocs.map((d) => d.docNumber).join(", ");
+          const stepNote = [docSummary, nextNote].filter(Boolean).join(" • ") || "ตรวจสอบยอดและปิดงานบัญชี";
 
-        await tx.jobStepLog.create({
-          data: {
-            jobId: existingJob.id,
-            step: "accounting",
-            completedBy: user.fullName,
-            department: "accounting",
-            note: stepNote,
-          },
-        });
+          await tx.jobStepLog.create({
+            data: {
+              jobId: existingJob.id,
+              step: "accounting",
+              completedBy: user.fullName,
+              department: "accounting",
+              note: stepNote,
+            },
+          });
+        }
         if (nextStep?.key) {
           nextCurrentStep = nextStep.key;
         }

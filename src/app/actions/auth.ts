@@ -9,7 +9,7 @@ import bcrypt from 'bcryptjs'
 import prisma from '@/app/lib/db'
 import { teraDb } from '@/app/lib/teraDb'
 import { getUser } from '@/app/lib/dal'
-import { isReadOnlyExecutive } from '@/app/lib/roleHelper'
+import { isReadOnlyExecutive, isTransportStaff, isLogisticsManager } from '@/app/lib/roleHelper'
 
 
 export async function login(state: FormState, formData: FormData) {
@@ -57,6 +57,8 @@ export async function login(state: FormState, formData: FormData) {
           await createSession(existingUser.id);
           if (isReadOnlyExecutive(existingUser.role)) {
             redirectPath = '/executive/kpi';
+          } else if (isTransportStaff(existingUser.role) || isLogisticsManager(existingUser.role)) {
+            redirectPath = '/logistics';
           } else if (existingUser.role === 'อื่นๆ') {
             redirectPath = '/department';
           } else if (existingUser.role.toLowerCase().includes('service') || existingUser.role.toLowerCase().includes('บริการ') || existingUser.role.toLowerCase().includes('ช่าง')) {
@@ -136,6 +138,8 @@ export async function login(state: FormState, formData: FormData) {
       
       if (isReadOnlyExecutive(crmUser.role)) {
         redirectPath = '/executive/kpi';
+      } else if (isTransportStaff(crmUser.role) || isLogisticsManager(crmUser.role)) {
+        redirectPath = '/logistics';
       } else if (isServiceRole) {
         redirectPath = '/service/estimations';
       } else if (crmUser.role === 'อื่นๆ' || isBackofficeRole) {

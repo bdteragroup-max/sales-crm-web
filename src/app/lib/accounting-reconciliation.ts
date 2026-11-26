@@ -205,18 +205,109 @@ export type AccountingStepLogLike = {
   note?: string | null;
 };
 
+const NON_DOC_NOTE_SET = new Set([
+  'ปิดงานสมบูรณ์',
+  'ตรวจสอบเอกสาร ปิดงานเสร็จสมบูรณ์ (Completed)',
+  'ชำระเงินโอน',
+  'ตรวจสอบยอดและปิดงานบัญชี',
+  'ยืนยันรับเงินครบถ้วนจากหน้าบัญชี',
+]);
+
 /**
- * Returns the latest completed (non-rejected) `accounting` step log, if any.
+ * Extracts invoice / receipt tokens (e.g. TG691121009, RE691125001) from an accounting note or document text.
+ */
+export function extractInvoiceTokensFromNote(raw?: string | null): string[] {
+  if (!raw) return [];
+  const seen = new Set<string>();
+  const tokens: string[] = [];
+
+  const parts = String(raw)
+    .split(/[,;\n•|]+/)
+    .map((s) => s.trim())
+    .filter((s) => s && s !== '-');
+
+  for (const part of parts) {
+    if (NON_DOC_NOTE_SET.has(part)) continue;
+    if (/^(ดำเนินการอัตโนมัติ|ตีกลับ|ยกเลิก|ยืนยัน|ปิดงาน|ตรวจสอบ)/.test(part)) continue;
+    if (!/^[A-Za-z]{2,6}[-/]?\d{3,}[A-Za-z0-9-]*$/.test(part)) continue;
+    const key = part.toUpperCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      tokens.push(part);
+    }
+  }
+
+  return tokens;
+}
+
+/**
+ * Converts completed accounting JobStepLog notes into normalized AccountingTaxDocument entries.
+ */
+export function extractAccountingDocsFromStepLogs(
+  stepLogs?: AccountingStepLogLike[] | null
+): AccountingTaxDocument[] {
+  if (!Array.isArray(stepLogs) || stepLogs.length === 0) return [];
+  const extracted: AccountingTaxDocument[] = [];
+  const seenNumbers = new Set<string>();
+
+  for (let i = 0; i < stepLogs.length; i++) {
+    const log = stepLogs[i];
+    if (log?.step !== 'accounting') continue;
+    if (typeof log.note === 'string' && log.note.startsWith('ตีกลับ')) continue;
+    const tokens = extractInvoiceTokensFromNote(log.note);
+    const docDate = normalizeAccountingDocDateString(log.completedAt ?? null);
+    for (const token of tokens) {
+      const key = token.toUpperCase();
+      if (seenNumbers.has(key)) continue;
+      seenNumbers.add(key);
+      const isReceipt = /^RE[-/]?\d/i.test(token);
+      extracted.push({
+        id: `steplog-doc-${log.id || i}-${key}`,
+        docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE',
+        docNumber: token,
+        docDate,
+        note: null,
+      });
+    }
+  }
+
+  return extracted;
+}
+
+/**
+ * Returns the latest completed (non-rejected) `accounting` step log that occurred after any rejection back to `accounting`, if any.
  */
 export function findCompletedAccountingStepLog<T extends AccountingStepLogLike>(
   stepLogs?: T[] | null
 ): T | null {
   if (!Array.isArray(stepLogs) || stepLogs.length === 0) return null;
-  const matches = stepLogs.filter(
-    (log) =>
-      log?.step === 'accounting' &&
-      !(typeof log?.note === 'string' && log.note.startsWith('ตีกลับ'))
-  );
+
+  let latestRejectionMs = -Infinity;
+  let latestRejectionIdx = -1;
+  for (let i = 0; i < stepLogs.length; i++) {
+    const log = stepLogs[i];
+    if (typeof log?.note === 'string' && log.note.startsWith('ตีกลับไปที่ accounting')) {
+      latestRejectionIdx = i;
+      if (log.completedAt) {
+        const ms = new Date(log.completedAt).getTime();
+        if (Number.isFinite(ms) && ms > latestRejectionMs) {
+          latestRejectionMs = ms;
+        }
+      }
+    }
+  }
+
+  const matches = stepLogs.filter((log, idx) => {
+    if (log?.step !== 'accounting') return false;
+    if (typeof log?.note === 'string' && log.note.startsWith('ตีกลับ')) return false;
+    if (latestRejectionIdx === -1) return true;
+    if (latestRejectionMs > -Infinity && log.completedAt) {
+      const ms = new Date(log.completedAt).getTime();
+      if (Number.isFinite(ms)) return ms >= latestRejectionMs;
+    }
+    return idx > latestRejectionIdx;
+  });
+
   if (matches.length === 0) return null;
   return matches[matches.length - 1];
 }
@@ -266,18 +357,32 @@ export function extractAccountingDocsFromPaymentTasks(
     const pt = paymentTasks[i];
     const rawNum = typeof pt?.invoiceNumber === 'string' ? pt.invoiceNumber.trim() : '';
     if (!rawNum || rawNum === '-') continue;
-    const key = rawNum.toUpperCase();
-    if (seenNumbers.has(key)) continue;
-    seenNumbers.add(key);
 
-    const isReceipt = /^RE[-/]?\d/i.test(rawNum);
-    extracted.push({
-      id: `pt-doc-${pt.id || i}`,
-      docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE',
-      docNumber: rawNum,
-      docDate: normalizeAccountingDocDateString(pt.invoiceDate ?? null),
-      note: null,
-    });
+    const parsedTokens = extractInvoiceTokensFromNote(rawNum);
+    const tokens =
+      parsedTokens.length > 0
+        ? parsedTokens
+        : rawNum
+            .split(/[,;\n•|]+/)
+            .map((s) => s.trim())
+            .filter((s) => s && s !== '-');
+
+    const docDate = normalizeAccountingDocDateString(pt.invoiceDate ?? null);
+    for (let tIdx = 0; tIdx < tokens.length; tIdx++) {
+      const token = tokens[tIdx];
+      const key = token.toUpperCase();
+      if (seenNumbers.has(key)) continue;
+      seenNumbers.add(key);
+
+      const isReceipt = /^RE[-/]?\d/i.test(token);
+      extracted.push({
+        id: `pt-doc-${pt.id || i}${tokens.length > 1 ? `-${tIdx}` : ''}`,
+        docType: isReceipt ? 'RECEIPT' : 'TAX_INVOICE',
+        docNumber: token,
+        docDate,
+        note: null,
+      });
+    }
   }
 
   return extracted;
@@ -288,7 +393,7 @@ export function extractAccountingDocsFromPaymentTasks(
  */
 export function mergeAccountingTaxDocuments(
   existingDocs: AccountingTaxDocument[],
-  incomingDocs: AccountingTaxDocument[]
+  ...incomingLists: AccountingTaxDocument[][]
 ): AccountingTaxDocument[] {
   const nonEmptyExisting = (existingDocs || []).filter(
     (d) => typeof d.docNumber === 'string' && d.docNumber.trim() !== ''
@@ -296,17 +401,19 @@ export function mergeAccountingTaxDocuments(
   const existingKeys = new Set(nonEmptyExisting.map((d) => d.docNumber.trim().toUpperCase()));
   const merged = [...nonEmptyExisting];
 
-  for (const doc of incomingDocs || []) {
-    const num = typeof doc.docNumber === 'string' ? doc.docNumber.trim() : '';
-    if (!num) continue;
-    const key = num.toUpperCase();
-    if (existingKeys.has(key)) continue;
-    existingKeys.add(key);
-    merged.push({
-      ...doc,
-      docNumber: num,
-      docDate: normalizeAccountingDocDateString(doc.docDate ?? null),
-    });
+  for (const list of incomingLists) {
+    for (const doc of list || []) {
+      const num = typeof doc.docNumber === 'string' ? doc.docNumber.trim() : '';
+      if (!num) continue;
+      const key = num.toUpperCase();
+      if (existingKeys.has(key)) continue;
+      existingKeys.add(key);
+      merged.push({
+        ...doc,
+        docNumber: num,
+        docDate: normalizeAccountingDocDateString(doc.docDate ?? null),
+      });
+    }
   }
 
   return merged;
@@ -415,4 +522,71 @@ export function evaluatePaymentTasksLinkState(params: {
     linkedDocs,
     closeBlockReason,
   };
+}
+
+/**
+ * Shared guard ensuring pre-paid jobs whose Accounting step has not yet confirmed
+ * still wait for PaymentTask verification before closing the delivery step.
+ */
+export function evaluatePrepaidDeliveryBlockReason(params: {
+  steps: Array<{ key: string }>;
+  currentStepKey: string;
+  stepLogs: Array<{ step: string }>;
+  paymentTasks?: Array<
+    PaymentTaskLinkLike & {
+      paymentMethod?: string | null;
+      job?: { paymentMethod?: string | null } | null;
+    }
+  > | null;
+  paymentMethod?: string | null;
+  creditTerms?: string | null;
+}): string | null {
+  if (!['store_send', 'delivery', 'complete'].includes(params.currentStepKey)) {
+    return null;
+  }
+
+  const accountingIdx = params.steps.findIndex((s) => s.key === 'accounting');
+  const currentIdx = params.steps.findIndex((s) => s.key === params.currentStepKey);
+  const hasAccountingConfirmed =
+    accountingIdx !== -1 &&
+    currentIdx > accountingIdx &&
+    params.stepLogs.some((l) => l.step === 'accounting');
+
+  if (hasAccountingConfirmed) return null;
+
+  const tasks = Array.isArray(params.paymentTasks) ? params.paymentTasks : [];
+  const incompleteTask = tasks.find((pt) => pt?.status !== 'ตรวจสอบและบันทึกแล้ว');
+  if (!incompleteTask) return null;
+
+  const resolvedMethod = String(
+    params.paymentMethod ||
+      tasks[0]?.job?.paymentMethod ||
+      tasks[0]?.paymentMethod ||
+      ''
+  ).toLowerCase();
+  const resolvedCreditTerms = String(params.creditTerms || '').toLowerCase();
+  const hasCreditTask = tasks.some(
+    (pt) => Boolean(pt.creditType) || Boolean(pt.installmentTotal && pt.installmentTotal > 1)
+  );
+
+  const isInstallment =
+    resolvedMethod.includes('ผ่อน') ||
+    resolvedMethod.includes('แบ่ง') ||
+    resolvedMethod.includes('installment');
+  const isCredit =
+    resolvedMethod.includes('เครดิต') ||
+    resolvedMethod.includes('credit') ||
+    resolvedCreditTerms !== '' ||
+    hasCreditTask;
+  const isCOD =
+    resolvedMethod.includes('เก็บเงินหน้างาน') ||
+    resolvedMethod.includes('หน้างาน') ||
+    resolvedMethod.includes('cod');
+
+  if (isInstallment || isCredit || isCOD) {
+    return null;
+  }
+
+  const status = tasks[0]?.status || 'รอดำเนินการ';
+  return `ระงับการดำเนินการชั่วคราว: รอฝ่ายบัญชีตรวจสอบการชำระเงิน (สถานะ: ${status})`;
 }

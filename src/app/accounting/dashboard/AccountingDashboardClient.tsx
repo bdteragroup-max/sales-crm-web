@@ -1,69 +1,75 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import {
-  DollarSign,
   TrendingUp,
-  AlertTriangle,
-  Receipt,
-  ArrowUpRight,
-  ArrowDownRight,
-  Filter,
-  X,
   Briefcase,
   Calendar,
-  RotateCcw,
   Search,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
-  ExternalLink,
-  User,
   Building2,
-  Layers,
-  PieChart as PieChartIcon,
-  BarChart3,
   Clock,
-  CheckCircle2,
-  FileSpreadsheet,
-  Package,
   ShieldAlert,
-  Wallet,
-  Activity
+  Landmark,
+  Loader2,
 } from 'lucide-react';
 import DailyCashReceiptTab from './components/DailyCashReceiptTab';
 import CorporateLoansTab from './components/CorporateLoansTab';
 import MonthOverMonthTab from './components/MonthOverMonthTab';
+import BankReconciliationTab from './components/BankReconciliationTab';
 import FinancialDrilldownModal, { DrilldownItem } from './components/FinancialDrilldownModal';
 
 function formatCurrency(amount: number | null | undefined) {
   if (amount === null || amount === undefined || isNaN(amount)) return '฿0.00';
-  return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 }).format(amount);
+  return new Intl.NumberFormat('th-TH', {
+    style: 'currency',
+    currency: 'THB',
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function getMonthDateRangeYmd(yearMonth: string): { startDate: string; endDate: string } | null {
+  if (!/^\d{4}-\d{2}$/.test(yearMonth)) return null;
+  const [yStr, mStr] = yearMonth.split('-');
+  const lastDay = new Date(Date.UTC(Number(yStr), Number(mStr), 0)).getUTCDate();
+  return {
+    startDate: `${yStr}-${mStr}-01`,
+    endDate: `${yStr}-${mStr}-${String(lastDay).padStart(2, '0')}`,
+  };
 }
 
 interface AccountingDashboardClientProps {
   data: any;
+  bankReconciliation: any;
 }
 
-export default function AccountingDashboardClient({ data }: AccountingDashboardClientProps) {
+type DashboardTabKey = 'daily' | 'loans' | 'mom' | 'reconciliation' | 'projects';
+
+export default function AccountingDashboardClient({
+  data,
+  bankReconciliation,
+}: AccountingDashboardClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isNavigating, startNavigation] = useTransition();
 
   const currentStartDate = searchParams?.get('startDate') || '';
   const currentEndDate = searchParams?.get('endDate') || '';
   const currentEntity = searchParams?.get('entity') || 'ALL';
+  const urlMonth = searchParams?.get('month') || data?.selectedMonth || 'ALL';
+  const urlTab = searchParams?.get('tab') as DashboardTabKey | null;
 
   const [selectedEntity, setSelectedEntity] = useState(currentEntity);
-  const [selectedMonth, setSelectedMonth] = useState('กันยายน 2569');
+  const [selectedMonth, setSelectedMonth] = useState(urlMonth);
+  const [activeTab, setActiveTab] = useState<DashboardTabKey>(
+    urlTab && ['daily', 'loans', 'mom', 'reconciliation', 'projects'].includes(urlTab) ? urlTab : 'daily'
+  );
 
-  // Main Tab Navigation:
-  // 'daily': Section 1: Customer Status and Daily Cash Receipt Dashboard
-  // 'loans': Section 2: Corporate Loans & Customer Risk (Mockup Tab 1)
-  // 'mom': Section 2: Month-over-Month Comparison (Mockup Tab 2)
-  // 'projects': Legacy Ongoing Projects lifecycle
-  const [activeTab, setActiveTab] = useState<'daily' | 'loans' | 'mom' | 'projects'>('daily');
+  useEffect(() => {
+    setSelectedEntity(searchParams?.get('entity') || 'ALL');
+    setSelectedMonth(searchParams?.get('month') || data?.selectedMonth || 'ALL');
+  }, [searchParams, data?.selectedMonth]);
 
   // Drilldown Modal State
   const [drilldownItem, setDrilldownItem] = useState<DrilldownItem | null>(null);
@@ -74,18 +80,57 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
     setIsDrilldownOpen(true);
   };
 
-  const handleEntityChange = (newEntity: string) => {
-    setSelectedEntity(newEntity);
+  const pushFiltersToUrl = (next: { entity?: string; month?: string; tab?: DashboardTabKey }) => {
     const params = new URLSearchParams(searchParams?.toString() || '');
-    if (newEntity === 'ALL') {
-      params.delete('entity');
-    } else {
-      params.set('entity', newEntity);
+
+    if (next.entity !== undefined) {
+      if (next.entity === 'ALL') params.delete('entity');
+      else params.set('entity', next.entity);
     }
-    router.push(`?${params.toString()}`);
+
+    if (next.month !== undefined) {
+      if (next.month === 'ALL' || !next.month) {
+        params.delete('month');
+        params.delete('startDate');
+        params.delete('endDate');
+      } else {
+        params.set('month', next.month);
+        const range = getMonthDateRangeYmd(next.month);
+        if (range) {
+          params.set('startDate', range.startDate);
+          params.set('endDate', range.endDate);
+        }
+      }
+    }
+
+    if (next.tab !== undefined) {
+      params.set('tab', next.tab);
+    }
+
+    const qs = params.toString();
+    startNavigation(() => {
+      router.push(qs ? `/accounting/dashboard?${qs}` : '/accounting/dashboard');
+    });
   };
 
-  // Legacy Project search & filters
+  const handleEntityChange = (newEntity: string) => {
+    setSelectedEntity(newEntity);
+    pushFiltersToUrl({ entity: newEntity });
+  };
+
+  const handleMonthChange = (newMonth: string) => {
+    setSelectedMonth(newMonth);
+    pushFiltersToUrl({ month: newMonth });
+  };
+
+  const handleTabChange = (nextTab: DashboardTabKey) => {
+    setActiveTab(nextTab);
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.set('tab', nextTab);
+    router.replace(`/accounting/dashboard?${params.toString()}`, { scroll: false });
+  };
+
+  // Ongoing Projects filters
   const [projectSearch, setProjectSearch] = useState('');
   const [projectProfitFilter, setProjectProfitFilter] = useState<'ALL' | 'PROFIT' | 'LOSS'>('ALL');
   const [projectPage, setProjectPage] = useState(1);
@@ -120,6 +165,9 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
     projectPage * projectPageSize
   );
 
+  const availableMonths: Array<{ value: string; label: string }> = data?.availableMonths || [];
+  const unmatchedBankCount = data?.dataStatus?.unmatchedIncomingCount || 0;
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-300">
       {/* 1. Header with Entity & Period Filter */}
@@ -127,26 +175,32 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
         <div className="space-y-1">
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight whitespace-nowrap">
-              Dashboard การเงิน & บริหารลูกหนี้การค้า
+              Dashboard การเงิน &amp; บริหารลูกหนี้การค้า
             </h1>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold uppercase tracking-wider border border-blue-200 shrink-0">
-              Executive & Accounting
+              Executive &amp; Accounting
             </span>
+            {data?.periodLabel && (
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+                ช่วงข้อมูล: {data.periodLabel}
+              </span>
+            )}
           </div>
           <p className="text-xs text-slate-500">
-            ภาพรวมลูกหนี้การค้า การรับชำระเงิน การติดตามหนี้รายวัน และการบริหารความเสี่ยงเครดิตกลุ่มบริษัท (TG, TE, TP)
+            ภาพรวมลูกหนี้การค้า การรับชำระเงิน กระทบยอด Bank Statement จริง และการบริหารความเสี่ยงเครดิตกลุ่มบริษัท (TG, TE, TP)
           </p>
         </div>
 
         {/* Right Controls Island */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Entity Selector (รวม 3 บริษัท / TG / TE / TP) */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {/* Entity Selector */}
           <div className="relative flex items-center">
             <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
             <select
               value={selectedEntity}
+              disabled={isNavigating}
               onChange={(e) => handleEntityChange(e.target.value)}
-              className="text-xs font-semibold pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-xl shadow-xs text-slate-800 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer appearance-none"
+              className="text-xs font-semibold pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-xl shadow-xs text-slate-800 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer appearance-none disabled:opacity-60"
             >
               <option value="ALL">รวม 3 บริษัท (TG, TE, TP)</option>
               <option value="TG">TG: บริษัท เทอรา กรุ้ป จำกัด</option>
@@ -156,37 +210,48 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none" />
           </div>
 
-          {/* Month/Year Selector */}
+          {/* Real Month/Year Selector linked to URL & Server Query */}
           <div className="relative flex items-center">
             <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
             <select
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="text-xs font-semibold pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-xl shadow-xs text-slate-800 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer appearance-none"
+              disabled={isNavigating}
+              onChange={(e) => handleMonthChange(e.target.value)}
+              className="text-xs font-semibold pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-xl shadow-xs text-slate-800 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer appearance-none disabled:opacity-60"
             >
-              <option value="กันยายน 2569">กันยายน 2569</option>
-              <option value="สิงหาคม 2569">สิงหาคม 2569</option>
-              <option value="กรกฎาคม 2569">กรกฎาคม 2569</option>
-              <option value="มิถุนายน 2569">มิถุนายน 2569</option>
+              <option value="ALL">ทุกเดือน (ยอดสะสมถึงปัจจุบัน)</option>
+              {availableMonths.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
             </select>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none" />
           </div>
 
-          {/* Compact Live Indicator Capsule with tooltip */}
-          <div 
-            title={data?.dataStatus?.lastBankSyncTime ? `อัปเดตล่าสุด: ${data.dataStatus.lastBankSyncTime}` : 'ข้อมูลล่าสุดในระบบ'}
+          {/* Live Sync / Loading Pill */}
+          <div
+            title={
+              data?.dataStatus?.lastBankSyncTime
+                ? `อัปเดตล่าสุด: ${data.dataStatus.lastBankSyncTime}`
+                : 'ข้อมูลล่าสุดในระบบ'
+            }
             className="text-xs font-medium px-2.5 py-2 bg-slate-50 rounded-xl text-slate-600 border border-slate-200 flex items-center gap-1.5 shadow-xs whitespace-nowrap cursor-help"
           >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="hidden sm:inline">เรียลไทม์</span>
+            {isNavigating ? (
+              <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin shrink-0" />
+            ) : (
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            )}
+            <span className="hidden sm:inline">{isNavigating ? 'กำลังโหลด...' : 'ฐานข้อมูลจริง'}</span>
           </div>
         </div>
       </div>
 
-      {/* 2. Unified Modern Segmented Tab Navigation - Balanced 4-Column Grid */}
-      <div className="bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 shadow-xs">
+      {/* 2. Unified Modern Segmented Tab Navigation (5 Balanced Pills) */}
+      <div className="bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-1.5 shadow-xs">
         <button
-          onClick={() => setActiveTab('daily')}
+          onClick={() => handleTabChange('daily')}
           className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-center ${
             activeTab === 'daily'
               ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
@@ -194,11 +259,28 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
           }`}
         >
           <Clock className={`w-4 h-4 shrink-0 ${activeTab === 'daily' ? 'text-blue-600' : 'text-slate-400'}`} />
-          <span className="truncate">สถานะลูกหนี้ & รับเงินรายวัน (Morning)</span>
+          <span className="truncate">ลูกหนี้ &amp; รับเงินรายวัน</span>
         </button>
 
         <button
-          onClick={() => setActiveTab('loans')}
+          onClick={() => handleTabChange('reconciliation')}
+          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-center ${
+            activeTab === 'reconciliation'
+              ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+          }`}
+        >
+          <Landmark className={`w-4 h-4 shrink-0 ${activeTab === 'reconciliation' ? 'text-blue-600' : 'text-slate-400'}`} />
+          <span className="truncate">กระทบยอด Bank</span>
+          {unmatchedBankCount > 0 && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold shrink-0">
+              {unmatchedBankCount}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => handleTabChange('loans')}
           className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-center ${
             activeTab === 'loans'
               ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
@@ -206,7 +288,7 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
           }`}
         >
           <ShieldAlert className={`w-4 h-4 shrink-0 ${activeTab === 'loans' ? 'text-amber-600' : 'text-slate-400'}`} />
-          <span className="truncate">บริหารความเสี่ยง & วงเงิน</span>
+          <span className="truncate">ความเสี่ยง &amp; วงเงิน</span>
           {data.tradeCreditSummary?.overdueCount > 0 && (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold shrink-0">
               {data.tradeCreditSummary.overdueCount}
@@ -215,7 +297,7 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
         </button>
 
         <button
-          onClick={() => setActiveTab('mom')}
+          onClick={() => handleTabChange('mom')}
           className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-center ${
             activeTab === 'mom'
               ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
@@ -223,11 +305,11 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
           }`}
         >
           <TrendingUp className={`w-4 h-4 shrink-0 ${activeTab === 'mom' ? 'text-emerald-600' : 'text-slate-400'}`} />
-          <span className="truncate">เปรียบเทียบเดือนต่อเดือน (MoM)</span>
+          <span className="truncate">เปรียบเทียบเดือน (MoM)</span>
         </button>
 
         <button
-          onClick={() => setActiveTab('projects')}
+          onClick={() => handleTabChange('projects')}
           className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-center ${
             activeTab === 'projects'
               ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
@@ -235,7 +317,7 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
           }`}
         >
           <Briefcase className={`w-4 h-4 shrink-0 ${activeTab === 'projects' ? 'text-indigo-600' : 'text-slate-400'}`} />
-          <span className="truncate">โครงการ & ประสิทธิภาพ</span>
+          <span className="truncate">โครงการ &amp; กำไร</span>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold shrink-0">
             {ongoingProjects.length}
           </span>
@@ -244,16 +326,37 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
 
       {/* 3. Tab Content Panels */}
       {activeTab === 'daily' && (
-        <DailyCashReceiptTab data={data} onOpenDrilldown={handleOpenDrilldown} />
+        <DailyCashReceiptTab
+          data={data}
+          onOpenDrilldown={handleOpenDrilldown}
+          onOpenReconciliation={() => handleTabChange('reconciliation')}
+        />
+      )}
+
+      {activeTab === 'reconciliation' && (
+        <BankReconciliationTab
+          initialReconciliation={bankReconciliation}
+          selectedEntity={selectedEntity}
+          currentStartDate={
+            /^\d{4}-\d{2}$/.test(selectedMonth)
+              ? getMonthDateRangeYmd(selectedMonth)?.startDate || currentStartDate
+              : currentStartDate
+          }
+          currentEndDate={
+            /^\d{4}-\d{2}$/.test(selectedMonth)
+              ? getMonthDateRangeYmd(selectedMonth)?.endDate || currentEndDate
+              : currentEndDate
+          }
+          onOpenDrilldown={handleOpenDrilldown}
+          onReconcileSuccess={() => router.refresh()}
+        />
       )}
 
       {activeTab === 'loans' && (
         <CorporateLoansTab data={data} onOpenDrilldown={handleOpenDrilldown} />
       )}
 
-      {activeTab === 'mom' && (
-        <MonthOverMonthTab data={data} />
-      )}
+      {activeTab === 'mom' && <MonthOverMonthTab data={data} />}
 
       {activeTab === 'projects' && (
         <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs space-y-4">
@@ -271,7 +374,10 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
             <div className="flex items-center gap-2">
               <select
                 value={projectProfitFilter}
-                onChange={(e: any) => { setProjectProfitFilter(e.target.value); setProjectPage(1); }}
+                onChange={(e: any) => {
+                  setProjectProfitFilter(e.target.value);
+                  setProjectPage(1);
+                }}
                 className="text-xs border border-gray-200 rounded-xl px-3 py-1.5 bg-gray-50"
               >
                 <option value="ALL">ทุกโครงการ ({ongoingProjects.length})</option>
@@ -285,7 +391,10 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
                   type="text"
                   placeholder="ค้นหาชื่อโครงการ, ลูกค้า..."
                   value={projectSearch}
-                  onChange={(e) => { setProjectSearch(e.target.value); setProjectPage(1); }}
+                  onChange={(e) => {
+                    setProjectSearch(e.target.value);
+                    setProjectPage(1);
+                  }}
                   className="text-xs pl-9 pr-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 w-60"
                 />
               </div>
@@ -348,14 +457,14 @@ export default function AccountingDashboardClient({ data }: AccountingDashboardC
               <div className="flex gap-1">
                 <button
                   disabled={projectPage <= 1}
-                  onClick={() => setProjectPage(p => p - 1)}
+                  onClick={() => setProjectPage((p) => p - 1)}
                   className="px-2.5 py-1 rounded border border-gray-200 disabled:opacity-40"
                 >
                   ก่อนหน้า
                 </button>
                 <button
                   disabled={projectPage >= totalProjectPages}
-                  onClick={() => setProjectPage(p => p + 1)}
+                  onClick={() => setProjectPage((p) => p + 1)}
                   className="px-2.5 py-1 rounded border border-gray-200 disabled:opacity-40"
                 >
                   ถัดไป

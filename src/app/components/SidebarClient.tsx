@@ -5,23 +5,15 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard, Users, CalendarDays, Calendar, PhoneCall, Building2,
-  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search, Sun
+  LogOut, TrendingUp, Settings, Bell, Loader2, Menu, X, GitCommit, Briefcase, Wrench, DollarSign, FileText, FileSignature, ExternalLink, ClipboardList, UserSquare, Calculator, FolderOpen, MapPin, ShoppingCart, Package, Boxes, Coins, Kanban, Activity, LifeBuoy, Tv, UserCircle, Layers, Check, Megaphone, ShieldCheck, FileCheck, Receipt, ClipboardCheck, ShieldAlert, RotateCcw, Sparkles, PanelLeftClose, PanelLeftOpen, Search, Sun, Truck
 } from 'lucide-react';
-import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls, isHeadOfSalesAndMarketing, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole } from '@/app/lib/roleHelper';
-import { logout, getMyDepartment } from '@/app/actions/auth';
-import { getPendingPaymentTaskCount } from '@/app/actions/accounting';
-import { getPendingInstallationCount } from '@/app/actions/installationOrders';
-import { getPendingRepairOrderCount } from '@/app/actions/repairOrders';
-import { getPendingOutsourceRepairCount } from '@/app/actions/outsourceRepairs';
-import { getPendingRepairDeliveryCount, getPendingSalesDeliveryAckCount, getPendingAccountingDeliveryCount } from '@/app/actions/repairDeliveries';
-import { getPendingEstimationCount } from '@/app/actions/estimations';
-import { getPendingMarketingRequestCount } from '@/app/actions/marketingRequests';
-import { getUnreadMarketingBoardCount } from '@/app/actions/marketingBoard';
-import { getBranchContentSidebarAccess } from '@/app/actions/branchContent';
-import { getPendingServiceClaimCount } from '@/app/actions/serviceClaims';
-import { getOpenServiceCallCount, getPendingServiceHandoverCount } from '@/app/actions/service-calls';
-import { getPendingProjectSurveyCount } from '@/app/actions/siteSurveys';
-import { getPendingSolarCleaningSignCount } from '@/app/actions/solarCleaning';
+import { isSuperUser, isReadOnlyExecutive, canManageAllPaymentRequests, canViewAllServiceCalls, isHeadOfSalesAndMarketing, isSalesOrMarketingManager, isSalesRepOrSalesManagerRole, isTransportStaff } from '@/app/lib/roleHelper';
+import { logout } from '@/app/actions/auth';
+import {
+  getSidebarBadgeSummary,
+  getSurveyAndCleaningBadges,
+  type SidebarBadgeSummary,
+} from '@/app/actions/sidebarBadges';
 import { canEstimateSurveyRole } from '@/app/lib/surveyMetadata';
 import {
   canSignSolarCleaningAsProjectMgr,
@@ -29,6 +21,10 @@ import {
 } from '@/app/lib/solarCleaningConfig';
 import CoinMiniWidget from './CoinMiniWidget';
 import NotificationBell from './NotificationBell'; // HMR flush
+
+const ENABLE_SIDEBAR_PREFETCH = process.env.NODE_ENV === 'production';
+const SIDEBAR_BADGE_CACHE_TTL_MS = 20_000;
+const SIDEBAR_BADGE_CACHE_PREFIX = 'crm_sidebar_badges_v2:';
 
 type SidebarProps = {
   activeRoute?: string;
@@ -57,6 +53,7 @@ const executiveNav = [
   { icon: Boxes, label: 'ภาพรวมฝ่ายผลิต (Production Dashboard)', href: '/production/dashboard' },
   { icon: Wrench, label: 'ภาพรวมงานบริการ (Service Overview)', href: '/executive/service' },
   { icon: CalendarDays, label: 'ตารางงานช่าง (Technician Schedule)', href: '/technician/schedule' },
+  { icon: Truck, label: 'ศูนย์จัดการขนส่ง & คิวรถ (Logistics)', href: '/logistics' },
 
   // ── 3. Marketing & Commercial ──
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
@@ -173,6 +170,7 @@ const purchasingNav = [
 
 const storeNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
+  { icon: Truck, label: 'ศูนย์จัดการขนส่ง & คิวรถ (Logistics)', href: '/logistics' },
   { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
   { icon: ShieldAlert, label: 'แจ้งสินค้าชำรุดเสียหาย (Damage Report)', href: '/damage-reports' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
@@ -183,6 +181,7 @@ const storeNav = [
 
 const storeAndPurchasingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดสโตร์', href: '/store/dashboard' },
+  { icon: Truck, label: 'ศูนย์จัดการขนส่ง & คิวรถ (Logistics)', href: '/logistics' },
   { icon: ShieldAlert, label: 'แจ้งเคลมสินค้า (Service Claim)', href: '/service/claims' },
   { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
   { icon: ShoppingCart, label: 'รับสินค้า (PO)', href: '/store/receive' },
@@ -191,6 +190,13 @@ const storeAndPurchasingNav = [
   { icon: LayoutDashboard, label: 'แดชบอร์ดจัดซื้อ', href: '/admin/procurement/dashboard' },
   { icon: FileText, label: 'รายการ PR', href: '/admin/procurement/pr' },
   { icon: ClipboardList, label: 'รายการ PO', href: '/admin/procurement/po' },
+];
+
+const logisticsNav = [
+  { icon: Truck, label: 'ศูนย์ขนส่ง & ปิดทริป (Logistics)', href: '/logistics' },
+  { icon: Package, label: 'ใบเบิก/เซ็นรับขนส่ง (Store)', href: '/store/requisitions' },
+  { icon: FileSignature, label: 'ใบส่งมอบงาน (Repair Deliveries)', href: '/repair-deliveries' },
+  { icon: Briefcase, label: 'ระบบคิวงานแผนก', href: '/department' },
 ];
 
 const projectNav = [
@@ -295,7 +301,7 @@ export default function SidebarClient(props: SidebarProps) {
 
   const allNavs = [
     ...executiveNav, ...managerNav, ...repNav, ...serviceNav, ...serviceMgrNav, ...technicianNav,
-    ...purchasingNav, ...storeNav, ...projectNav, ...marketingNav, ...marketingManagerNav, ...productionNav, ...bdNav,
+    ...purchasingNav, ...storeNav, ...logisticsNav, ...projectNav, ...marketingNav, ...marketingManagerNav, ...productionNav, ...bdNav,
     ...commonNav
   ];
   const superAdminNav = Array.from(new Map(allNavs.map(item => [item.href, item])).values());
@@ -357,22 +363,12 @@ export default function SidebarClient(props: SidebarProps) {
     nav = purchasingNav;
   } else if (['warehouse', 'คลังสินค้า', 'store', 'สโตร์'].some(r => roleStr.includes(r))) {
     nav = storeNav;
+  } else if (isTransportStaff(props.userRole)) {
+    nav = logisticsNav;
   } else if (['business development', 'bd', 'พัฒนาธุรกิจ'].some(r => roleStr.includes(r))) {
     nav = bdNav;
-  } else if (['admin', 'ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
-    // Note: If admin needs procurement links, we can assign them purchasingNav or managerNav
-    // But currently admin is grouped here. Let's give admin the purchasingNav as well, 
-    // since we allowed admin in page.tsx
-    if (roleStr === 'admin') {
-      nav = purchasingNav;
-    } else if (['ขนส่ง', 'shipping', 'logistics', 'โลจิสติกส์'].some(r => roleStr.includes(r))) {
-      nav = [
-        ...backofficeNav,
-        { icon: Package, label: 'ใบเบิก/เซ็นรับขนส่ง (Store)', href: '/store/requisitions' },
-      ];
-    } else {
-      nav = backofficeNav; // Back-office non-sales see their own department queue
-    }
+  } else if (roleStr === 'admin' || roleStr === 'แอดมิน') {
+    nav = purchasingNav;
   }
 
   const isBdRole = ['business development', 'bd', 'พัฒนาธุรกิจ'].some(r => roleStr.includes(r));
@@ -544,6 +540,7 @@ function ResponsiveSidebar({
   const [pendingAccountingDeliveryCount, setPendingAccountingDeliveryCount] = useState(0);
   const [pendingProjectSurveyCount, setPendingProjectSurveyCount] = useState(0);
   const [pendingSolarCleaningCount, setPendingSolarCleaningCount] = useState(0);
+  const [pendingLogisticsCount, setPendingLogisticsCount] = useState(0);
 
   const [selectedContext, setSelectedContext] = useState<string>('All (Default)');
   const [isContextSwitcherOpen, setIsContextSwitcherOpen] = useState(false);
@@ -634,72 +631,117 @@ function ResponsiveSidebar({
 
   // Prefetch route bundles only in production so Next.js dev mode does not compile 20+ routes concurrently
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      nav.forEach(({ href }) => {
+    let active = true;
+    if (ENABLE_SIDEBAR_PREFETCH) {
+      baseNav.forEach(({ href }) => {
         router.prefetch(href);
       });
       router.prefetch('/settings');
       router.prefetch('/repair-orders');
     }
 
-    const roleStr = (userRole || '').toLowerCase();
-    const isAccounting = ['accounting', 'บัญชี', 'finance', 'การเงิน', 'ผู้จัดการ'].some(r => roleStr.includes(r));
-    if (isAccounting) {
-      getPendingPaymentTaskCount().then(setUnpaidCount).catch(() => { });
-    }
+    const applyBadgeSummary = (summary: SidebarBadgeSummary) => {
+      setUnpaidCount(summary.unpaidCount);
+      setPendingInstallationCount(summary.pendingInstallationCount);
+      setPendingRepairCount(summary.pendingRepairCount);
+      setPendingOutsourceCount(summary.pendingOutsourceCount);
+      setPendingEstimationCount(summary.pendingEstimationCount);
+      setPendingDeliveryCount(summary.pendingDeliveryCount);
+      setPendingMarketingRequestCount(summary.pendingMarketingRequestCount);
+      setUnreadMarketingBoardCount(summary.unreadMarketingBoardCount);
+      setCanAccessBranchContent(summary.canAccessBranchContent);
+      setPendingBranchContentCount(summary.pendingBranchContentCount);
+      setPendingClaimCount(summary.pendingClaimCount);
+      setOpenServiceCallCount(summary.openServiceCallCount);
+      setPendingServiceHandoverCount(summary.pendingServiceHandoverCount);
+      setPendingSalesDeliveryAckCount(summary.pendingSalesDeliveryAckCount);
+      setPendingAccountingDeliveryCount(summary.pendingAccountingDeliveryCount);
+      setPendingProjectSurveyCount(summary.pendingProjectSurveyCount);
+      setPendingSolarCleaningCount(summary.pendingSolarCleaningCount);
+      setPendingLogisticsCount(summary.pendingLogisticsCount);
+    };
 
-    const isServiceUser = roleStr === 'อื่นๆ' || roleStr.includes('service') || roleStr.includes('technician') || roleStr.includes('บริการ') || roleStr.includes('ซ่อม') || roleStr.includes('ช่าง') || isSalesOrMarketingManager(userRole) || roleStr === 'ผู้บริหาร' || roleStr === 'executive' || roleStr === 'super_admin';
-    if (isServiceUser) {
-      getPendingInstallationCount().then(setPendingInstallationCount).catch(() => { });
-      getPendingRepairOrderCount().then(setPendingRepairCount).catch(() => { });
-      getPendingOutsourceRepairCount().then(setPendingOutsourceCount).catch(() => { });
-      getPendingEstimationCount().then(setPendingEstimationCount).catch(() => { });
-    }
-
-    getPendingRepairDeliveryCount().then(setPendingDeliveryCount).catch(() => { });
-    getPendingMarketingRequestCount().then(setPendingMarketingRequestCount).catch(() => { });
-    getUnreadMarketingBoardCount().then(setUnreadMarketingBoardCount).catch(() => { });
-    getBranchContentSidebarAccess()
-      .then((res) => {
-        setCanAccessBranchContent(res.canAccess);
-        setPendingBranchContentCount(res.pendingCount);
-        if (typeof window !== 'undefined' && userId) {
-          sessionStorage.setItem(`branchContentAccess_${userId}`, String(res.canAccess));
+    const cacheKey = `${SIDEBAR_BADGE_CACHE_PREFIX}${userId || 'anon'}:${userRole || ''}`;
+    let hasFreshCache = false;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem(cacheKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.data && typeof parsed.ts === 'number') {
+            applyBadgeSummary(parsed.data as SidebarBadgeSummary);
+            if (Date.now() - parsed.ts < SIDEBAR_BADGE_CACHE_TTL_MS) {
+              hasFreshCache = true;
+            }
+          }
         }
-      })
-      .catch(() => { });
-    getPendingServiceClaimCount().then(setPendingClaimCount).catch(() => { });
-    if (canViewAllServiceCalls(userRole)) {
-      getOpenServiceCallCount().then(setOpenServiceCallCount).catch(() => { });
+      } catch {
+        // Ignore storage errors
+      }
     }
-    getPendingServiceHandoverCount().then(setPendingServiceHandoverCount).catch(() => { });
-    getPendingSalesDeliveryAckCount().then(setPendingSalesDeliveryAckCount).catch(() => { });
-    getPendingAccountingDeliveryCount().then(setPendingAccountingDeliveryCount).catch(() => { });
+
+    if (!hasFreshCache) {
+      getSidebarBadgeSummary()
+        .then((summary) => {
+          if (!active) return;
+          applyBadgeSummary(summary);
+          if (typeof window !== 'undefined') {
+            try {
+              sessionStorage.setItem(cacheKey, JSON.stringify({ data: summary, ts: Date.now() }));
+              if (userId) {
+                sessionStorage.setItem(`branchContentAccess_${userId}`, String(summary.canAccessBranchContent));
+              }
+            } catch {
+              // Ignore storage errors
+            }
+          }
+        })
+        .catch(() => { });
+    }
+
+    const canTrackSurveyOrSolar =
+      canEstimateSurveyRole(userRole) ||
+      canSignSolarCleaningAsProjectMgr(userRole) ||
+      canSignSolarCleaningAsServiceMgr(userRole);
 
     const refreshProjectSurveyCount = () => {
-      if (canEstimateSurveyRole(userRole)) {
-        getPendingProjectSurveyCount().then(setPendingProjectSurveyCount).catch(() => { });
-      } else {
+      if (!canTrackSurveyOrSolar) {
         setPendingProjectSurveyCount(0);
-      }
-      if (canSignSolarCleaningAsProjectMgr(userRole) || canSignSolarCleaningAsServiceMgr(userRole)) {
-        getPendingSolarCleaningSignCount().then(setPendingSolarCleaningCount).catch(() => { });
-      } else {
         setPendingSolarCleaningCount(0);
+        return;
       }
+      getSurveyAndCleaningBadges()
+        .then((res) => {
+          if (!active) return;
+          setPendingProjectSurveyCount(res.pendingProjectSurveyCount);
+          setPendingSolarCleaningCount(res.pendingSolarCleaningCount);
+          if (typeof window !== 'undefined') {
+            try {
+              const raw = sessionStorage.getItem(cacheKey);
+              if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed?.data) {
+                  parsed.data.pendingProjectSurveyCount = res.pendingProjectSurveyCount;
+                  parsed.data.pendingSolarCleaningCount = res.pendingSolarCleaningCount;
+                  sessionStorage.setItem(cacheKey, JSON.stringify(parsed));
+                }
+              }
+            } catch {
+              // Ignore storage errors
+            }
+          }
+        })
+        .catch(() => { });
     };
-    refreshProjectSurveyCount();
 
     const handleSurveyUpdated = () => refreshProjectSurveyCount();
     window.addEventListener('site-survey-updated', handleSurveyUpdated);
-    const surveyInterval =
-      canEstimateSurveyRole(userRole) ||
-      canSignSolarCleaningAsProjectMgr(userRole) ||
-      canSignSolarCleaningAsServiceMgr(userRole)
-        ? setInterval(refreshProjectSurveyCount, 60000)
-        : null;
+    const surveyInterval = canTrackSurveyOrSolar
+      ? setInterval(refreshProjectSurveyCount, 60000)
+      : null;
 
     return () => {
+      active = false;
       window.removeEventListener('site-survey-updated', handleSurveyUpdated);
       if (surveyInterval) clearInterval(surveyInterval);
     };
@@ -799,6 +841,9 @@ function ResponsiveSidebar({
     if (href === '/projects/solar-cleaning' && pendingSolarCleaningCount > 0) {
       return { count: pendingSolarCleaningCount, color: 'bg-[#ff2301] text-white', pulse: true };
     }
+    if (href === '/logistics' && pendingLogisticsCount > 0) {
+      return { count: pendingLogisticsCount, color: 'bg-orange-600 text-white', pulse: true };
+    }
     return null;
   };
 
@@ -814,9 +859,11 @@ function ResponsiveSidebar({
     ? '/executive/kpi'
     : userRole === 'อื่นๆ'
       ? '/department'
-      : (userRole || '').toLowerCase().includes('project')
-        ? '/jobs'
-        : '/dashboard';
+      : isTransportStaff(userRole) && !['คลังสินค้า', 'จัดซื้อ', 'store', 'purchasing'].some((k) => (userRole || '').toLowerCase().includes(k))
+        ? '/logistics'
+        : (userRole || '').toLowerCase().includes('project')
+          ? '/jobs'
+          : '/dashboard';
 
   if (pathname === '/bd/tickets/tv') return null;
 
@@ -1005,7 +1052,7 @@ function ResponsiveSidebar({
                   <Link
                     key={href}
                     href={href}
-                    prefetch={true}
+                    prefetch={ENABLE_SIDEBAR_PREFETCH}
                     onClick={() => {
                       if (!isActive) {
                         setLoadingHref(href);
@@ -1049,7 +1096,7 @@ function ResponsiveSidebar({
                 <Link
                   key={href}
                   href={href}
-                  prefetch={true}
+                  prefetch={ENABLE_SIDEBAR_PREFETCH}
                   onMouseEnter={(e) => showTooltip(label, e)}
                   onMouseLeave={hideTooltip}
                   onClick={() => {
@@ -1104,7 +1151,7 @@ function ResponsiveSidebar({
           {isExpanded ? (
             <Link
               href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
-              prefetch={true}
+              prefetch={ENABLE_SIDEBAR_PREFETCH}
               onClick={() => {
                 const target = userRole === 'อื่นๆ' ? '/department' : '/jobs';
                 if (activeRoute !== target) {
@@ -1135,7 +1182,7 @@ function ResponsiveSidebar({
             <>
               <Link
                 href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
-                prefetch={true}
+                prefetch={ENABLE_SIDEBAR_PREFETCH}
                 onMouseEnter={(e) =>
                   showTooltip(
                     userRole === 'อื่นๆ'
@@ -1180,7 +1227,7 @@ function ResponsiveSidebar({
             <div className="flex items-center gap-1.5 pt-1">
               <Link
                 href="/settings"
-                prefetch={true}
+                prefetch={ENABLE_SIDEBAR_PREFETCH}
                 onClick={() => {
                   if (activeRoute !== '/settings') {
                     setIsSettingsLoading(true);
@@ -1228,7 +1275,7 @@ function ResponsiveSidebar({
             <div className="flex flex-col items-center gap-2">
               <Link
                 href="/settings"
-                prefetch={true}
+                prefetch={ENABLE_SIDEBAR_PREFETCH}
                 onMouseEnter={(e) => showTooltip(`${userFullName} (${userRole})`, e)}
                 onMouseLeave={hideTooltip}
                 onClick={() => {
@@ -1340,7 +1387,7 @@ function ResponsiveSidebar({
                 <Link
                   key={href}
                   href={href}
-                  prefetch={true}
+                  prefetch={ENABLE_SIDEBAR_PREFETCH}
                   onClick={() => {
                     if (!isActive) {
                       setLoadingHref(href);
@@ -1433,6 +1480,16 @@ function ResponsiveSidebar({
                         {pendingProjectSurveyCount > 99 ? '99+' : pendingProjectSurveyCount}
                       </span>
                     )}
+                    {href === '/projects/solar-cleaning' && pendingSolarCleaningCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-[#ff2301] text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10 animate-pulse">
+                        {pendingSolarCleaningCount > 99 ? '99+' : pendingSolarCleaningCount}
+                      </span>
+                    )}
+                    {href === '/logistics' && pendingLogisticsCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 bg-orange-600 text-white text-[9px] font-black rounded-full flex items-center justify-center border-[1.5px] border-white shadow-sm z-10 animate-pulse">
+                        {pendingLogisticsCount > 99 ? '99+' : pendingLogisticsCount}
+                      </span>
+                    )}
                   </div>
                   <span className="text-[14px] font-sans font-semibold tracking-wide flex-1">{label}</span>
                 </Link>
@@ -1455,7 +1512,7 @@ function ResponsiveSidebar({
 
           <Link
             href={userRole === 'อื่นๆ' ? '/department' : '/jobs'}
-            prefetch={true}
+            prefetch={ENABLE_SIDEBAR_PREFETCH}
             onClick={() => {
               const target = userRole === 'อื่นๆ' ? '/department' : '/jobs';
               if (activeRoute !== target) {
@@ -1481,7 +1538,7 @@ function ResponsiveSidebar({
           {/* Profile Card / Settings Link */}
           <Link
             href="/settings"
-            prefetch={true}
+            prefetch={ENABLE_SIDEBAR_PREFETCH}
             onClick={() => {
               if (activeRoute !== '/settings') {
                 setIsSettingsLoading(true);

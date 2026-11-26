@@ -5,6 +5,22 @@ import { Bell, CheckCircle, Clock } from 'lucide-react';
 import { getUnreadNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/app/actions/notifications';
 import { useRouter } from 'next/navigation';
 
+const NOTIF_CACHE_TTL_MS = 15_000;
+const inFlightNotifRequests = new Map<string, Promise<any[] | null>>();
+
+function getNotifCacheKey(userId: string) {
+  return `crm_unread_notifs_v1:${userId}`;
+}
+
+function writeNotifCache(userId: string, data: any[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(getNotifCacheKey(userId), JSON.stringify({ data, ts: Date.now() }));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 export default function NotificationBell({ userId, isMobile = false, isExpanded = false }: { userId?: string, isMobile?: boolean, isExpanded?: boolean }) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -64,19 +80,56 @@ export default function NotificationBell({ userId, isMobile = false, isExpanded 
 
   useEffect(() => {
     if (!userId) return;
+    let active = true;
+    const cacheKey = getNotifCacheKey(userId);
 
     const fetchNotifications = async () => {
-      const res = await getUnreadNotifications(userId);
-      if (res.success && res.data) {
-        setNotifications(res.data);
+      let req = inFlightNotifRequests.get(userId);
+      if (!req) {
+        req = getUnreadNotifications(userId)
+          .then((res) => (res.success && res.data ? res.data : null))
+          .finally(() => {
+            inFlightNotifRequests.delete(userId);
+          });
+        inFlightNotifRequests.set(userId, req);
+      }
+      const data = await req;
+      if (active && data) {
+        setNotifications(data);
+        writeNotifCache(userId, data);
       }
     };
 
-    fetchNotifications();
+    const hydrateAndFetch = async () => {
+      let hasFreshCache = false;
+      try {
+        const raw = sessionStorage.getItem(cacheKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.data) && typeof parsed.ts === 'number') {
+            hasFreshCache = Date.now() - parsed.ts < NOTIF_CACHE_TTL_MS;
+            await Promise.resolve();
+            if (active) {
+              setNotifications(parsed.data);
+            }
+          }
+        }
+      } catch {
+        // Ignore storage errors
+      }
+      if (!hasFreshCache && active) {
+        await fetchNotifications();
+      }
+    };
+
+    hydrateAndFetch();
 
     // Poll every minute
     const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [userId]);
 
   // Handle outside click
@@ -93,7 +146,11 @@ export default function NotificationBell({ userId, isMobile = false, isExpanded 
   const handleNotificationClick = async (notif: any) => {
     // Mark as read
     await markNotificationAsRead(notif.id);
-    setNotifications(prev => prev.filter(n => n.id !== notif.id));
+    setNotifications(prev => {
+      const next = prev.filter(n => n.id !== notif.id);
+      if (userId) writeNotifCache(userId, next);
+      return next;
+    });
     setIsOpen(false);
 
     if (notif.linkUrl) {
@@ -105,6 +162,7 @@ export default function NotificationBell({ userId, isMobile = false, isExpanded 
     if (!userId) return;
     await markAllNotificationsAsRead(userId);
     setNotifications([]);
+    writeNotifCache(userId, []);
   };
 
   const timeAgo = (dateStr: string) => {

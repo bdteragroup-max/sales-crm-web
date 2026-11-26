@@ -1,6 +1,7 @@
 import { decrypt } from '@/app/lib/session'
 import { cookies } from 'next/headers'
 import prisma from '@/app/lib/db'
+import type { Prisma } from '@/generated/client'
 import { teraDb } from '@/app/lib/teraDb'
 import { redirect } from "next/navigation";
 import Sidebar from '@/app/components/Sidebar';
@@ -55,9 +56,9 @@ export default async function DepartmentPage() {
   const isSalesRole = user.role.toLowerCase().includes('sale') || user.role.toLowerCase().includes('ขาย');
   const isSales = !isSuperAdmin && !isExecutive && (isSalesDept || isSalesRole);
 
-  let whereClause: any = {}; // Default to all jobs for non-sales (like Store, Accounting)
+  let whereClause: Prisma.JobWhereInput = {}; // Default to all jobs for non-sales (Store, Purchasing, Logistics, Accounting)
   
-  if (isSuperAdmin || isExecutive || isMarketingManager) {
+  if (isSuperAdmin || isExecutive || isMarketingManager || (!isSales && !isSalesOrMarketingManager(user.role))) {
     whereClause = {};
   } else if (isManager) {
     const subEmpIds = await getRecursiveSubordinateEmpIds(user.employeeId);

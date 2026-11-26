@@ -1,11 +1,21 @@
 "use server";
 import prisma from "@/app/lib/db";
 import {
-  getBangkokDayDiff,
-  getTaskOverdueDays,
+  getBangkokYearMonth,
+  getPaymentTaskBilledAmount,
+  getPaymentTaskEffectivePaidDate,
   isScheduleTaskSettled,
-  isTaskOverdue,
+  matchesCompanyEntity,
+  toBangkokDateString,
 } from "@/app/lib/accounting-schedule";
+import {
+  buildAvailableMonthOptions,
+  buildRealReceiptForecast,
+  computeArSnapshotAt,
+  formatThaiMonthLabel,
+  getBangkokMonthBounds,
+  shiftYearMonth,
+} from "@/app/lib/accounting-dashboard-calc";
 
 function extractSearchKeywords(project: any) {
   const terms = new Set<string>();
@@ -35,7 +45,6 @@ function extractSearchKeywords(project: any) {
       terms.add(clean);
       primaryKeyword = clean;
 
-      // Extract sub-tokens separated by punctuation / delimiters
       const tokens = clean
         .split(/[-/:\(\)]+/)
         .map((p: string) => p.trim())
@@ -66,13 +75,11 @@ function extractSearchKeywords(project: any) {
     }
   }
 
-  // Cross-reference common normalized project aliases
   const combinedText = `${project.name || ""} ${project.clientName || ""}`.toLowerCase();
   if (combinedText.includes("water treatment") || combinedText.includes("egat")) {
     terms.add("Water Treatment");
     terms.add("EGAT");
   }
-
   if (combinedText.includes("กรมการข้าว")) terms.add("กรมการข้าว");
   if (combinedText.includes("เซนิธ") || combinedText.includes("zenith")) {
     terms.add("เซนิธ");
@@ -112,18 +119,16 @@ function formatThaiDate(d: Date | string | null | undefined): string | null {
   const date = new Date(d);
   if (isNaN(date.getTime())) return null;
 
-  let year = date.getFullYear();
-  // Ensure we get Buddhist Era (BE) year (e.g. 2569), NEVER double-convert to 3112
-  const beYear = year >= 2400 ? year : year + 543;
-
+  const bangkokStr = toBangkokDateString(date);
+  if (!bangkokStr) return null;
+  const [yStr, mStr, dStr] = bangkokStr.split('-');
+  const y = Number(yStr);
+  const beYear = y >= 2400 ? y : y + 543;
   const monthNames = [
     'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
     'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
   ];
-  const day = date.getDate();
-  const month = monthNames[date.getMonth()];
-
-  return `${day} ${month} ${beYear}`;
+  return `${Number(dStr)} ${monthNames[Number(mStr) - 1]} ${beYear}`;
 }
 
 function formatThaiDateTime(d: Date | string | null | undefined): string | null {
@@ -131,47 +136,104 @@ function formatThaiDateTime(d: Date | string | null | undefined): string | null 
   const date = new Date(d);
   if (isNaN(date.getTime())) return null;
 
-  let year = date.getFullYear();
-  const beYear = year >= 2400 ? year : year + 543;
-
+  const formatted = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+  const [datePart, timePart] = formatted.split(' ');
+  const [yStr, mStr, dStr] = datePart.split('-');
+  const y = Number(yStr);
+  const beYear = y >= 2400 ? y : y + 543;
   const monthNames = [
     'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
     'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
   ];
-  const day = date.getDate();
-  const month = monthNames[date.getMonth()];
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  return `${day} ${month} ${beYear} ${hours}:${minutes}`;
+  return `${Number(dStr)} ${monthNames[Number(mStr) - 1]} ${beYear} ${timePart}`;
 }
 
-export async function getAccountingDashboardData(startDate?: string, endDate?: string, entity?: string) {
-  const dateFilter: any = {};
-  if (startDate) dateFilter.gte = new Date(startDate);
-  if (endDate) {
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-    dateFilter.lte = end;
-  }
-  const hasDateFilter = Object.keys(dateFilter).length > 0;
+function formatSignedMillionDiff(diff: number): string {
+  const m = (diff / 1_000_000).toFixed(2);
+  return `${diff >= 0 ? '+' : '-'}฿${Math.abs(Number(m)).toFixed(2)} ลบ.`;
+}
 
-  // Selected Entity Filter (ALL, TG, TE, TP)
+function formatSignedCountDiff(diff: number): string {
+  return `${diff >= 0 ? '+' : ''}${diff}`;
+}
+
+export async function getAccountingDashboardData(
+  startDate?: string,
+  endDate?: string,
+  entity?: string,
+  monthParam?: string
+) {
+  const now = new Date();
+  const currentBangkokYm =
+    getBangkokYearMonth(now) || `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+
+  // Normalize selectedMonth & period range
+  let selectedMonth = 'ALL';
+  if (monthParam && /^\d{4}-\d{2}$/.test(monthParam.trim())) {
+    selectedMonth = monthParam.trim();
+  } else if (monthParam && monthParam.trim().toUpperCase() === 'ALL') {
+    selectedMonth = 'ALL';
+  } else if (startDate && endDate) {
+    const sm = startDate.slice(0, 7);
+    const em = endDate.slice(0, 7);
+    if (/^\d{4}-\d{2}$/.test(sm) && sm === em) {
+      selectedMonth = sm;
+    } else {
+      selectedMonth = 'CUSTOM';
+    }
+  }
+
+  let periodStart: Date | null = null;
+  let periodEnd: Date | null = null;
+  if (/^\d{4}-\d{2}$/.test(selectedMonth)) {
+    const bounds = getBangkokMonthBounds(selectedMonth);
+    periodStart = bounds.start;
+    periodEnd = bounds.end;
+  } else if (startDate || endDate) {
+    periodStart = startDate ? new Date(`${startDate}T00:00:00.000+07:00`) : null;
+    periodEnd = endDate ? new Date(`${endDate}T23:59:59.999+07:00`) : null;
+  }
+
+  const isPeriodFiltered = Boolean(periodStart || periodEnd);
+  const referenceMonthKey = /^\d{4}-\d{2}$/.test(selectedMonth)
+    ? selectedMonth
+    : endDate && /^\d{4}-\d{2}/.test(endDate)
+    ? endDate.slice(0, 7)
+    : currentBangkokYm;
+  const prevMonthKey = shiftYearMonth(referenceMonthKey, -1);
+
+  // For past months, compute point-in-time AR snapshot as of end of that period; otherwise use now
+  const asOfDate =
+    isPeriodFiltered && periodEnd && periodEnd.getTime() < now.getTime()
+      ? periodEnd
+      : now;
+
   const targetEntity = (entity || 'ALL').toUpperCase();
 
-  // Fetch all payment tasks with job & project info
-  const paymentTasks = await prisma.paymentTask.findMany({
-    where: hasDateFilter ? { createdAt: dateFilter } : undefined,
+  // Fetch ALL entity-scoped tasks so historical snapshots, MoM, 6-month trend & point-in-time AR are 100% real
+  const allPaymentTasks = await prisma.paymentTask.findMany({
     include: {
       job: {
         include: {
           quotation: true,
-          project: true
-        }
-      }
+          project: true,
+        },
+      },
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
   });
+
+  const filteredPaymentTasks =
+    targetEntity === 'ALL'
+      ? allPaymentTasks
+      : allPaymentTasks.filter((pt) => matchesCompanyEntity(pt.job?.companyCode, targetEntity));
 
   // Fetch customer credit settings configured by accounting
   let creditSettingsList: any[] = [];
@@ -179,24 +241,25 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
     if ((prisma as any).customerCreditSetting?.findMany) {
       creditSettingsList = await (prisma as any).customerCreditSetting.findMany();
     } else {
-      creditSettingsList = await prisma.$queryRawUnsafe<any[]>(`
-        SELECT 
-          id, 
-          customer_name as "customerName", 
-          tax_id as "taxId", 
-          company_id as "companyId", 
-          credit_limit as "creditLimit", 
-          credit_terms_days as "creditTermsDays", 
-          credit_status as "creditStatus", 
-          billing_cycle_rule as "billingCycleRule", 
-          notes, 
-          risk_grade as "riskGrade", 
-          reviewed_by as "reviewedBy"
-        FROM customer_credit_settings
-      `) || [];
+      creditSettingsList =
+        (await prisma.$queryRawUnsafe<any[]>(`
+          SELECT
+            id,
+            customer_name as "customerName",
+            tax_id as "taxId",
+            company_id as "companyId",
+            credit_limit as "creditLimit",
+            credit_terms_days as "creditTermsDays",
+            credit_status as "creditStatus",
+            billing_cycle_rule as "billingCycleRule",
+            notes,
+            risk_grade as "riskGrade",
+            reviewed_by as "reviewedBy"
+          FROM customer_credit_settings
+        `)) || [];
     }
   } catch (err) {
-    console.warn("Failed to load customer_credit_settings, fallback to empty array:", err);
+    console.warn("Failed to load customer_credit_settings:", err);
     creditSettingsList = [];
   }
 
@@ -207,128 +270,179 @@ export async function getAccountingDashboardData(startDate?: string, endDate?: s
     }
   }
 
-  // Filter tasks by companyCode if specified
-  const filteredPaymentTasks = targetEntity === 'ALL'
-    ? paymentTasks
-    : paymentTasks.filter(pt => {
-        const cCode = (pt.job?.companyCode || '').toUpperCase();
-        if (targetEntity === 'TG') return cCode.includes('TG') || cCode.includes('GROUP');
-        if (targetEntity === 'TE') return cCode.includes('TE') || cCode.includes('ELECTRIC');
-        if (targetEntity === 'TP') return cCode.includes('TP') || cCode.includes('POWER');
-        return true;
-      });
+  // Real Bank Statement Batches & Transactions
+  let bankBatches: any[] = [];
+  let bankTransactions: any[] = [];
+  try {
+    const entityWhere = targetEntity !== 'ALL' ? { companyCode: targetEntity } : {};
+    [bankBatches, bankTransactions] = await Promise.all([
+      prisma.bankStatementBatch.findMany({
+        where: entityWhere,
+        orderBy: { importedAt: 'desc' },
+        take: 25,
+      }),
+      prisma.bankStatementTransaction.findMany({
+        where: entityWhere,
+        orderBy: [{ transactionDate: 'desc' }, { rowNumber: 'asc' }],
+      }),
+    ]);
+  } catch (err) {
+    console.warn("Failed to load bank statement records:", err);
+  }
 
-function getTaskBilledAmount(pt: any): number {
-  if (pt.installmentAmount && Number(pt.installmentAmount) > 0) {
-    return Number(pt.installmentAmount);
-  }
-  if (pt.job?.project?.projectValue && Number(pt.job.project.projectValue) > 0) {
-    return Number(pt.job.project.projectValue);
-  }
-  if (pt.job?.project?.amountIncludingVat && Number(pt.job.project.amountIncludingVat) > 0) {
-    return Number(pt.job.project.amountIncludingVat);
-  }
-  const qAmount = Number(pt.job?.quotation?.actualClosingAmount) || Number(pt.job?.quotation?.totalAmountBeforeVat) || 0;
-  if (qAmount > 0) {
-    return qAmount * 1.07;
-  }
-  return 0;
-}
+  const availableMonths = buildAvailableMonthOptions(
+    filteredPaymentTasks,
+    bankTransactions.map((tx) => tx.transactionDate),
+    now
+  );
 
-  const now = new Date();
+  // Per-month real cash inflows, billed sales, and bank inflows (across all time in DB)
+  const monthlyReceivedStats: Record<string, number> = {};
+  const monthlySalesStats: Record<string, number> = {};
+  const monthlyBankInflowStats: Record<string, number> = {};
 
-  // 1. Calculate Core Financial Metrics
   let totalRevenue = 0;
-  let totalAR = 0;
-  let overdueAmount = 0;
-  let overdueCount = 0;
   let totalSales = 0;
   let totalDue = 0;
 
-  filteredPaymentTasks.forEach((pt: any) => {
-    const isCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
-    const isSettled = isScheduleTaskSettled(pt);
-    const amount = getTaskBilledAmount(pt);
+  const inSelectedPeriod = (d: Date | string | null | undefined): boolean => {
+    if (!isPeriodFiltered) return true;
+    if (!d) return false;
+    const parsed = new Date(d);
+    if (Number.isNaN(parsed.getTime())) return false;
+    if (periodStart && parsed.getTime() < periodStart.getTime()) return false;
+    if (periodEnd && parsed.getTime() > periodEnd.getTime()) return false;
+    return true;
+  };
 
-    totalSales += amount;
+  for (const pt of filteredPaymentTasks) {
+    const billed = getPaymentTaskBilledAmount(pt);
+    const settled = isScheduleTaskSettled(pt);
+    const paid = settled
+      ? Number(pt.paidAmount) > 0
+        ? Number(pt.paidAmount)
+        : billed
+      : Number(pt.paidAmount) || 0;
+    const effPaidDate = paid > 0 ? getPaymentTaskEffectivePaidDate(pt) : null;
 
-    if (pt.dueDate) {
-      totalDue += amount;
+    if (pt.createdAt) {
+      const cYm = getBangkokYearMonth(pt.createdAt);
+      if (cYm) monthlySalesStats[cYm] = (monthlySalesStats[cYm] || 0) + billed;
+    }
+    if (paid > 0 && effPaidDate) {
+      const pYm = getBangkokYearMonth(effPaidDate);
+      if (pYm) monthlyReceivedStats[pYm] = (monthlyReceivedStats[pYm] || 0) + paid;
     }
 
-    if (isCompleted) {
-      totalRevenue += amount;
-    } else if (isSettled) {
-      const paid = Number(pt.paidAmount) || 0;
-      totalRevenue += paid > 0 ? paid : amount;
-    } else {
-      if (pt.paidAmount && Number(pt.paidAmount) > 0) {
-        totalRevenue += Number(pt.paidAmount);
-      }
-      const remaining = Math.max(0, amount - (Number(pt.paidAmount) || 0));
-      if (remaining > 0) totalAR += remaining;
+    if (inSelectedPeriod(pt.createdAt)) {
+      totalSales += billed;
+    }
+    if (pt.dueDate && inSelectedPeriod(pt.dueDate)) {
+      totalDue += billed;
+    }
+    if (paid > 0 && inSelectedPeriod(effPaidDate || pt.createdAt)) {
+      totalRevenue += paid;
+    }
+  }
 
-      if (remaining > 0 && isTaskOverdue(pt, now)) {
-        overdueAmount += remaining;
-        overdueCount++;
+  // Bank transactions aggregation (scoped by selected period for strip stats + monthly series)
+  let periodBankCreditCount = 0;
+  let periodBankCreditAmount = 0;
+  let periodBankMatchedCount = 0;
+  let periodBankMatchedAmount = 0;
+  let periodBankSuggestedCount = 0;
+  let periodBankUnmatchedCount = 0;
+  let periodBankUnmatchedAmount = 0;
+
+  for (const btx of bankTransactions) {
+    const amt = Number(btx.amount || 0);
+    if (btx.txType === 'CREDIT') {
+      const bYm = getBangkokYearMonth(btx.transactionDate);
+      if (bYm) monthlyBankInflowStats[bYm] = (monthlyBankInflowStats[bYm] || 0) + amt;
+
+      if (inSelectedPeriod(btx.transactionDate)) {
+        periodBankCreditCount++;
+        periodBankCreditAmount += amt;
+        if (btx.matchStatus === 'MATCHED') {
+          periodBankMatchedCount++;
+          periodBankMatchedAmount += amt;
+        } else if (btx.matchStatus === 'SUGGESTED') {
+          periodBankSuggestedCount++;
+          periodBankUnmatchedCount++;
+          periodBankUnmatchedAmount += amt;
+        } else if (btx.matchStatus === 'UNMATCHED') {
+          periodBankUnmatchedCount++;
+          periodBankUnmatchedAmount += amt;
+        }
       }
     }
-  });
+  }
 
-  const totalReceived = totalRevenue;
-  const collectionRate = (totalRevenue + totalAR) > 0 ? (totalRevenue / (totalRevenue + totalAR)) * 100 : 0;
+  // Point-in-time Accounts Receivable snapshot as of `asOfDate`
+  const activeSnap = computeArSnapshotAt(filteredPaymentTasks, asOfDate);
+  const {
+    totalAR,
+    overdueAmount,
+    overdueCount,
+    aging,
+    agingCounts,
+    deliveredNotPaidTasks,
+    overdueTasksList,
+    upcomingTasksList,
+    customers: snapshotCustomers,
+  } = activeSnap;
 
-  // 2. Fetch Expenses (POs, Branch Expenses, AP Tasks)
+  const collectionRate =
+    totalRevenue + totalAR > 0 ? (totalRevenue / (totalRevenue + totalAR)) * 100 : 0;
+
+  // Expenses (POs, Branch Expenses, AP Tasks) scoped to period when selected
+  const periodDateRange: any = {};
+  if (periodStart) periodDateRange.gte = periodStart;
+  if (periodEnd) periodDateRange.lte = periodEnd;
+  const hasRangeQuery = Object.keys(periodDateRange).length > 0;
+
+  const [pos, allPosForProjects, branchExpenses, apTasks] = await Promise.all([
+    prisma.purchaseOrder.findMany({
+      where: hasRangeQuery ? { createdAt: periodDateRange } : undefined,
+      select: {
+        totalAmount: true,
+        createdAt: true,
+        jobName: true,
+        poNumber: true,
+        purchaseRequest: { select: { projectName: true, note: true } },
+      },
+    }),
+    hasRangeQuery
+      ? prisma.purchaseOrder.findMany({
+          select: {
+            totalAmount: true,
+            poNumber: true,
+            jobName: true,
+            purchaseRequest: { select: { projectName: true, note: true } },
+          },
+        })
+      : Promise.resolve(null),
+    prisma.branchExpense.findMany({
+      where: hasRangeQuery ? { date: periodDateRange } : undefined,
+      select: { amount: true, date: true },
+    }),
+    prisma.supplierPaymentTask.findMany({
+      where: hasRangeQuery ? { dueDate: periodDateRange } : undefined,
+      include: {
+        purchaseOrder: {
+          select: { vendorName: true, jobName: true, poNumber: true },
+        },
+      },
+    }),
+  ]);
+
+  const resolvedAllPos = allPosForProjects ?? pos;
   let totalExpenses = 0;
-  const pos = await prisma.purchaseOrder.findMany({
-    where: hasDateFilter ? { createdAt: dateFilter } : undefined,
-    select: {
-      totalAmount: true,
-      createdAt: true,
-      jobName: true,
-      poNumber: true,
-      purchaseRequest: {
-        select: { projectName: true, note: true }
-      }
-    }
-  });
-  pos.forEach(po => {
+  pos.forEach((po) => {
     if (po.totalAmount) totalExpenses += Number(po.totalAmount);
   });
-
-  const allPosForProjects = hasDateFilter
-    ? await prisma.purchaseOrder.findMany({
-        select: {
-          totalAmount: true,
-          poNumber: true,
-          jobName: true,
-          purchaseRequest: {
-            select: { projectName: true, note: true }
-          }
-        }
-      })
-    : pos;
-
-  const branchExpenses = await prisma.branchExpense.findMany({
-    where: hasDateFilter ? { date: dateFilter } : undefined,
-    select: { amount: true, date: true }
-  });
-  branchExpenses.forEach(exp => {
+  branchExpenses.forEach((exp) => {
     if (exp.amount) totalExpenses += Number(exp.amount);
-  });
-
-  // Accounts Payable
-  const apTasks = await prisma.supplierPaymentTask.findMany({
-    where: hasDateFilter ? { dueDate: dateFilter } : undefined,
-    include: {
-      purchaseOrder: {
-        select: {
-          vendorName: true,
-          jobName: true,
-          poNumber: true,
-        }
-      }
-    }
   });
 
   let totalAP = 0;
@@ -337,221 +451,61 @@ function getTaskBilledAmount(pt: any): number {
   let paidAP = 0;
   let overdueAPCount = 0;
 
-  apTasks.forEach(apt => {
+  apTasks.forEach((apt) => {
     const net = Number(apt.netPayableAmount) || 0;
     if (apt.status === 'PAID_VERIFIED') {
       paidAP += Number(apt.paidAmount) || net;
     } else if (apt.status !== 'CANCELLED') {
       totalAP += net;
-      if (apt.status === 'AWAITING_GR') {
-        awaitingGrAP += net;
-      }
-      if (apt.dueDate && new Date(apt.dueDate) < now) {
+      if (apt.status === 'AWAITING_GR') awaitingGrAP += net;
+      if (apt.dueDate && new Date(apt.dueDate) < asOfDate) {
         overdueAP += net;
         overdueAPCount++;
       }
     }
   });
 
-  // 3. Section 1 Sub-components (Calculated dynamically from real database data)
-  const aging = {
-    current: 0,
-    days1to30: 0,
-    days31to60: 0,
-    days61to90: 0,
-    days90plus: 0,
-  };
-
-  const agingCounts = {
-    current: 0,
-    days1to30: 0,
-    days31to60: 0,
-    days61to90: 0,
-    days90plus: 0,
-  };
-
-  const customerMap = new Map<string, {
-    customerName: string;
-    taxId: string;
-    tg: number;
-    te: number;
-    tp: number;
-    totalExposure: number;
-    overdueAmount: number;
-    maxOverdueDays: number;
-    jobCount: number;
-    latestJobId: string;
-    latestJobNumber: string;
-    responsiblePerson: string;
-  }>();
-
-  const deliveredNotPaidTasks: any[] = [];
-  const overdueTasksList: any[] = [];
-  const upcomingTasksList: any[] = [];
-
-  const monthlyStats: Record<string, { received: number, sales: number }> = {};
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const prevMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`;
-
-  filteredPaymentTasks.forEach((pt: any) => {
-    const isCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
-    const isSettled = isScheduleTaskSettled(pt);
-    const amount = getTaskBilledAmount(pt);
-    const paid = Number(pt.paidAmount) || (isCompleted ? amount : 0);
-    const outstanding = isSettled ? 0 : Math.max(0, amount - paid);
-
-    // Monthly revenue & sales aggregation
-    const pDate = pt.paidDate || (paid > 0 ? (pt.depositPaidDate || pt.updatedAt || pt.createdAt) : null);
-    if (pDate && paid > 0) {
-      const pd = new Date(pDate);
-      const k = `${pd.getFullYear()}-${String(pd.getMonth() + 1).padStart(2, '0')}`;
-      if (!monthlyStats[k]) monthlyStats[k] = { received: 0, sales: 0 };
-      monthlyStats[k].received += paid;
-    }
-
-    if (pt.createdAt) {
-      const cd = new Date(pt.createdAt);
-      const k = `${cd.getFullYear()}-${String(cd.getMonth() + 1).padStart(2, '0')}`;
-      if (!monthlyStats[k]) monthlyStats[k] = { received: 0, sales: 0 };
-      monthlyStats[k].sales += amount;
-    }
-
-    if (!isSettled && outstanding > 0) {
-      const dayDiff = pt.dueDate ? getBangkokDayDiff(pt.dueDate, now) : null;
-      if (dayDiff !== null) {
-        const diffDays = -dayDiff;
-
-        if (diffDays > 0) {
-          if (diffDays <= 30) {
-            aging.days1to30 += outstanding;
-            agingCounts.days1to30++;
-          } else if (diffDays <= 60) {
-            aging.days31to60 += outstanding;
-            agingCounts.days31to60++;
-          } else if (diffDays <= 90) {
-            aging.days61to90 += outstanding;
-            agingCounts.days61to90++;
-          } else {
-            aging.days90plus += outstanding;
-            agingCounts.days90plus++;
-          }
-
-          overdueTasksList.push({
-            pt,
-            amount,
-            paid,
-            outstanding,
-            diffDays
-          });
-        } else {
-          aging.current += outstanding;
-          agingCounts.current++;
-          upcomingTasksList.push({
-            pt,
-            amount,
-            paid,
-            outstanding,
-            daysUntilDue: dayDiff
-          });
-        }
-      } else {
-        aging.current += outstanding;
-        agingCounts.current++;
-      }
-
-      // Delivered jobs with outstanding balance
-      if (pt.job?.deliveryDate) {
-        deliveredNotPaidTasks.push({
-          id: pt.id,
-          jobId: pt.job?.id || pt.id,
-          jobNumber: pt.job?.jobNumber || 'JB-PENDING',
-          customerName: pt.job?.customerName || 'ลูกค้าทั่วไป',
-          companyCode: pt.job?.companyCode || 'TG',
-          deliveryDate: new Date(pt.job.deliveryDate).toISOString().slice(0, 10),
-          totalAmount: amount,
-          paidAmount: paid,
-          outstandingAmount: outstanding,
-          status: pt.paidAmount && pt.paidAmount > 0 ? 'ส่งมอบแล้ว (ชำระบางส่วน)' : 'ส่งมอบแล้ว (รอชำระ)',
-          paymentMethod: pt.job?.paymentMethod || pt.creditType || 'เครดิต',
-          responsiblePerson: pt.job?.sellerName || pt.assignedTo || 'ฝ่ายขาย'
-        });
-      }
-
-      // Customer exposure aggregation across entities
-      if (pt.job?.customerName) {
-        const cName = pt.job.customerName.trim();
-        if (!customerMap.has(cName)) {
-          customerMap.set(cName, {
-            customerName: cName,
-            taxId: '',
-            tg: 0,
-            te: 0,
-            tp: 0,
-            totalExposure: 0,
-            overdueAmount: 0,
-            maxOverdueDays: 0,
-            jobCount: 0,
-            latestJobId: pt.job?.id || '',
-            latestJobNumber: pt.job?.jobNumber || '',
-            responsiblePerson: pt.job?.sellerName || pt.assignedTo || 'ฝ่ายขาย'
-          });
-        }
-        const cEntry = customerMap.get(cName)!;
-        cEntry.totalExposure += outstanding;
-        cEntry.jobCount++;
-        if (pt.job?.id) {
-          cEntry.latestJobId = pt.job.id;
-          cEntry.latestJobNumber = pt.job.jobNumber || cEntry.latestJobNumber;
-        }
-
-        const cCode = (pt.job?.companyCode || '').toUpperCase();
-        if (cCode.includes('TG') || cCode.includes('GROUP')) cEntry.tg += outstanding;
-        else if (cCode.includes('TE') || cCode.includes('ELECTRIC')) cEntry.te += outstanding;
-        else if (cCode.includes('TP') || cCode.includes('POWER')) cEntry.tp += outstanding;
-        else cEntry.tg += outstanding;
-
-        const dDays = getTaskOverdueDays(pt, now);
-        if (dDays > 0) {
-          cEntry.overdueAmount += outstanding;
-          if (dDays > cEntry.maxOverdueDays) cEntry.maxOverdueDays = dDays;
-        }
-      }
-    }
-  });
-
-  // A. Data Status (Real-time system state)
-  const latestTask = filteredPaymentTasks[0];
-  const lastSyncDateStr = latestTask?.updatedAt
-    ? formatThaiDateTime(latestTask.updatedAt)
-    : 'วันนี้';
-
-  const pendingCount = filteredPaymentTasks.filter(pt => pt.status === 'รอดำเนินการ').length;
+  // A. Data Status (Real Bank Statement sync + AR reconciliation state)
+  const latestBatch = bankBatches[0] || null;
+  const latestTaskUpdated = filteredPaymentTasks[0]?.updatedAt || null;
+  const lastBankSyncTime = latestBatch?.importedAt
+    ? `${formatThaiDateTime(latestBatch.importedAt)} น. (${latestBatch.bankName} • ${latestBatch.fileName})`
+    : latestTaskUpdated
+    ? `ยังไม่เคยนำเข้า Bank Statement (ข้อมูลระบบบัญชีอัปเดตล่าสุด ${formatThaiDateTime(latestTaskUpdated)} น.)`
+    : 'ยังไม่เคยนำเข้า Bank Statement';
 
   const dataStatus = {
-    lastBankSyncTime: `${lastSyncDateStr} น. (ระบบบัญชี & ฝ่ายขายเรียลไทม์)`,
-    pendingReconciliationCount: pendingCount,
+    lastBankSyncTime,
+    hasBankStatement: Boolean(latestBatch),
+    bankStatementBatchCount: bankBatches.length,
+    pendingReconciliationCount: activeSnap.activeUnsettledCount,
     pendingReconciliationAmount: totalAR,
-    unmatchedIncomingCount: 0,
-    unmatchedIncomingAmount: 0,
+    unmatchedIncomingCount: periodBankUnmatchedCount,
+    unmatchedIncomingAmount: periodBankUnmatchedAmount,
+    suggestedIncomingCount: periodBankSuggestedCount,
+    matchedIncomingCount: periodBankMatchedCount,
+    matchedIncomingAmount: periodBankMatchedAmount,
+    totalBankInflowCount: periodBankCreditCount,
+    totalBankInflowAmount: periodBankCreditAmount,
     isSufficientForDecision: true,
   };
 
   // B. Cash Sales & Delivered Goods without Full Payment
-  deliveredNotPaidTasks.sort((a, b) => b.outstandingAmount - a.outstandingAmount);
-  const deliveredWithoutFullPaymentItems = deliveredNotPaidTasks.slice(0, 20);
-
-  const cashJobs = filteredPaymentTasks.filter(pt => {
+  const sortedDelivered = [...deliveredNotPaidTasks].sort(
+    (a, b) => b.outstandingAmount - a.outstandingAmount
+  );
+  const deliveredWithoutFullPaymentItems = sortedDelivered.slice(0, 20);
+  const cashJobs = filteredPaymentTasks.filter((pt) => {
     const m = (pt.job?.paymentMethod || '').toLowerCase();
-    return m.includes('เงินสด') || m.includes('สด') || pt.installmentTotal === 1;
+    return (m.includes('เงินสด') || m.includes('สด') || pt.installmentTotal === 1) && inSelectedPeriod(pt.createdAt);
   });
 
   const cashSalesSummary = {
     totalCashJobs: cashJobs.length,
-    totalCashAmount: cashJobs.reduce((sum, pt) => sum + getTaskBilledAmount(pt), 0),
-    deliveredWithoutFullPaymentCount: deliveredNotPaidTasks.length,
-    deliveredWithoutFullPaymentAmount: deliveredNotPaidTasks.reduce((sum, item) => sum + item.outstandingAmount, 0),
-    deliveredWithoutFullPaymentItems
+    totalCashAmount: cashJobs.reduce((sum, pt) => sum + getPaymentTaskBilledAmount(pt), 0),
+    deliveredWithoutFullPaymentCount: sortedDelivered.length,
+    deliveredWithoutFullPaymentAmount: activeSnap.deliveredNotPaidAmount,
+    deliveredWithoutFullPaymentItems,
   };
 
   // C. Trade Credit & Aging
@@ -563,12 +517,13 @@ function getTaskBilledAmount(pt: any): number {
     overdueAmount,
     agingBuckets: {
       current: aging.current,
+      days1to30: aging.days1to30,
       days31to60: aging.days31to60,
       days61to90: aging.days61to90,
       days90plus: aging.days90plus,
     },
-    creditExceededCustomers: Array.from(customerMap.values())
-      .map(c => {
+    creditExceededCustomers: snapshotCustomers
+      .map((c) => {
         const cs = creditSettingsMap.get(c.customerName.trim().toLowerCase());
         const approvedLimit = cs ? cs.creditLimit : 0;
         const isExceeded = cs ? c.totalExposure > approvedLimit : false;
@@ -583,10 +538,12 @@ function getTaskBilledAmount(pt: any): number {
           creditTermsDays: cs ? cs.creditTermsDays : 30,
           isConfigured: !!cs,
           hasWarning,
-          status: (c.maxOverdueDays > 60 || cs?.creditStatus === 'SUSPENDED' || cs?.creditStatus === 'BLOCKED' ? 'SUSPEND' : 'WARNING') as 'SUSPEND' | 'WARNING'
+          status: (c.maxOverdueDays > 60 || cs?.creditStatus === 'SUSPENDED' || cs?.creditStatus === 'BLOCKED'
+            ? 'SUSPEND'
+            : 'WARNING') as 'SUSPEND' | 'WARNING',
         };
       })
-      .filter(c => c.hasWarning)
+      .filter((c) => c.hasWarning)
       .sort((a, b) => b.exceededAmount - a.exceededAmount)
       .slice(0, 5)
       .map((c, idx) => ({
@@ -597,60 +554,25 @@ function getTaskBilledAmount(pt: any): number {
         totalExposure: c.totalExposure,
         exceededAmount: c.exceededAmount,
         creditTermsDays: c.creditTermsDays,
-        status: c.status
-      }))
+        status: c.status,
+      })),
   };
 
-  // D. Receipt Forecast (Real upcoming payments)
-  const forecast7 = upcomingTasksList.filter(x => x.daysUntilDue <= 7);
-  const forecast30 = upcomingTasksList.filter(x => x.daysUntilDue <= 30);
-  const forecast90 = upcomingTasksList.filter(x => x.daysUntilDue <= 90);
+  // D. Receipt Forecast (Real risk-classified upcoming payments — zero hardcoded multipliers)
+  const receiptForecast = buildRealReceiptForecast(
+    upcomingTasksList,
+    snapshotCustomers,
+    creditSettingsMap
+  );
 
-  const receiptForecast = {
-    days7: {
-      amount: forecast7.reduce((sum, x) => sum + x.outstanding, 0),
-      count: forecast7.length,
-      confirmed: forecast7.reduce((sum, x) => sum + x.outstanding, 0) * 0.7,
-      probable: forecast7.reduce((sum, x) => sum + x.outstanding, 0) * 0.3,
-      atRisk: 0
-    },
-    days30: {
-      amount: forecast30.reduce((sum, x) => sum + x.outstanding, 0),
-      count: forecast30.length,
-      confirmed: forecast30.reduce((sum, x) => sum + x.outstanding, 0) * 0.6,
-      probable: forecast30.reduce((sum, x) => sum + x.outstanding, 0) * 0.3,
-      atRisk: forecast30.reduce((sum, x) => sum + x.outstanding, 0) * 0.1
-    },
-    days90: {
-      amount: forecast90.reduce((sum, x) => sum + x.outstanding, 0),
-      count: forecast90.length,
-      confirmed: forecast90.reduce((sum, x) => sum + x.outstanding, 0) * 0.5,
-      probable: forecast90.reduce((sum, x) => sum + x.outstanding, 0) * 0.3,
-      atRisk: forecast90.reduce((sum, x) => sum + x.outstanding, 0) * 0.2
-    },
-    forecastItems: upcomingTasksList
-      .sort((a, b) => a.daysUntilDue - b.daysUntilDue)
-      .slice(0, 10)
-      .map((item) => ({
-        id: item.pt.id,
-        customerName: item.pt.job?.customerName || 'ลูกค้าทั่วไป',
-        expectedDate: item.pt.dueDate ? new Date(item.pt.dueDate).toISOString().slice(0, 10) : '',
-        amount: item.outstanding,
-        category: (item.daysUntilDue <= 7 ? 'CONFIRMED' : item.daysUntilDue <= 30 ? 'PROBABLE' : 'AT_RISK') as 'CONFIRMED' | 'PROBABLE' | 'AT_RISK',
-        categoryLabel: item.daysUntilDue <= 7 ? 'รอบชำระสัปดาห์นี้' : item.daysUntilDue <= 30 ? 'รอบชำระประจำเดือน' : 'รอบชำระ 60-90 วัน',
-        source: `งาน ${item.pt.job?.jobNumber || ''} ${item.pt.note ? `(${item.pt.note})` : ''}`
-      }))
-  };
-
-  // E. Follow-up Action Tasks Today (Top overdue debtors requiring follow-up)
-  overdueTasksList.sort((a, b) => b.outstanding - a.outstanding);
-
-  const followUpTasksToday = overdueTasksList.slice(0, 25).map((item) => {
+  // E. Follow-up Action Tasks Today
+  const sortedOverdue = [...overdueTasksList].sort((a, b) => b.outstanding - a.outstanding);
+  const followUpTasksToday = sortedOverdue.slice(0, 25).map((item) => {
     const pt = item.pt;
     const diffDays = item.diffDays;
-    let priority = 4;
-    let priorityLabel = 'ระดับ 4: เกินกำหนด 31-60 วัน';
-    let priorityBadgeClass = 'bg-purple-50 text-purple-700 border-purple-200';
+    let priority = 5;
+    let priorityLabel = 'ระดับ 5: เกินกำหนด 1-30 วัน (เตือนชำระ)';
+    let priorityBadgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
 
     if (diffDays > 90 || item.outstanding >= 1000000) {
       priority = 1;
@@ -668,10 +590,6 @@ function getTaskBilledAmount(pt: any): number {
       priority = 4;
       priorityLabel = 'ระดับ 4: เกินกำหนด 31-60 วัน (ติดตามวางบิล)';
       priorityBadgeClass = 'bg-purple-50 text-purple-700 border-purple-200';
-    } else {
-      priority = 5;
-      priorityLabel = 'ระดับ 5: เกินกำหนด 1-30 วัน (เตือนชำระ)';
-      priorityBadgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
     }
 
     return {
@@ -683,23 +601,23 @@ function getTaskBilledAmount(pt: any): number {
       overdueDays: diffDays,
       reason: `ค้างชำระ ${diffDays} วัน ${pt.note ? `(${pt.note})` : ''} ครบกำหนดเมื่อ ${pt.dueDate ? formatThaiDate(pt.dueDate) : '-'}`,
       lastContactDate: pt.updatedAt ? formatThaiDate(pt.updatedAt) : '-',
-      nextFollowUpDate: 'วันนี้',
+      nextFollowUpDate: formatThaiDate(asOfDate) || 'วันนี้',
       personInCharge: pt.job?.sellerName || pt.assignedTo || 'ฝ่ายขาย/การเงิน',
       priority,
       priorityLabel,
       priorityBadgeClass,
       contractOrJobNo: pt.job?.jobNumber || 'JB-PENDING',
       paymentMethod: pt.job?.paymentMethod || pt.creditType || 'เครดิต',
-      bankStatus: pt.status === 'ชำระมัดจำแล้ว' ? 'ชำระมัดจำแล้วบางส่วน' : 'ยังไม่พบยอดโอน'
+      bankStatus: pt.status === 'ชำระมัดจำแล้ว' ? 'ชำระมัดจำแล้วบางส่วน' : 'ยังไม่พบยอดโอน',
     };
   });
 
   // F. 5 Notification Priorities
-  const p1Items = overdueTasksList.filter(x => x.diffDays > 90 || x.outstanding >= 1000000);
-  const p2Items = overdueTasksList.filter(x => x.diffDays > 60 && x.diffDays <= 90 && x.outstanding < 1000000);
-  const p3Items = deliveredNotPaidTasks;
-  const p4Items = overdueTasksList.filter(x => x.diffDays > 30 && x.diffDays <= 60 && x.outstanding < 1000000);
-  const p5Items = upcomingTasksList.filter(x => x.daysUntilDue <= 7);
+  const p1Items = sortedOverdue.filter((x) => x.diffDays > 90 || x.outstanding >= 1000000);
+  const p2Items = sortedOverdue.filter((x) => x.diffDays > 60 && x.diffDays <= 90 && x.outstanding < 1000000);
+  const p3Items = sortedDelivered;
+  const p4Items = sortedOverdue.filter((x) => x.diffDays > 30 && x.diffDays <= 60 && x.outstanding < 1000000);
+  const p5Items = upcomingTasksList.filter((x) => x.daysUntilDue <= 7);
 
   const priorityNotifications = [
     {
@@ -708,7 +626,7 @@ function getTaskBilledAmount(pt: any): number {
       count: p1Items.length,
       amount: p1Items.reduce((sum, x) => sum + x.outstanding, 0),
       severity: 'danger' as const,
-      description: "ลูกหนี้ค้างเกิน 90 วัน หรือยอดค้างเกิน 1 ล้านบาท แนะนำฝ่ายบริหารเร่งรัดหรือส่งดำเนินคดี"
+      description: "ลูกหนี้ค้างเกิน 90 วัน หรือยอดค้างเกิน 1 ล้านบาท แนะนำฝ่ายบริหารเร่งรัดหรือส่งดำเนินคดี",
     },
     {
       priority: 2,
@@ -716,7 +634,7 @@ function getTaskBilledAmount(pt: any): number {
       count: p2Items.length,
       amount: p2Items.reduce((sum, x) => sum + x.outstanding, 0),
       severity: 'danger' as const,
-      description: "ยอดค้างชำระเริ่มเสี่ยงเป็นหนี้สูญ ต้องนัดเจรจาหรือระงับการส่งมอบสินค้าเพิ่มเติม"
+      description: "ยอดค้างชำระเริ่มเสี่ยงเป็นหนี้สูญ ต้องนัดเจรจาหรือระงับการส่งมอบสินค้าเพิ่มเติม",
     },
     {
       priority: 3,
@@ -724,7 +642,7 @@ function getTaskBilledAmount(pt: any): number {
       count: p3Items.length,
       amount: p3Items.reduce((sum, x) => sum + x.outstandingAmount, 0),
       severity: 'warning' as const,
-      description: "งานส่งมอบหน้างานเรียบร้อยแต่ยังไม่ได้รับเงินครบ เสี่ยงต่อการหน่วงเหนี่ยวเงินสด"
+      description: "งานส่งมอบหน้างานเรียบร้อยแต่ยังไม่ได้รับเงินครบ เสี่ยงต่อการหน่วงเหนี่ยวเงินสด",
     },
     {
       priority: 4,
@@ -732,7 +650,7 @@ function getTaskBilledAmount(pt: any): number {
       count: p4Items.length,
       amount: p4Items.reduce((sum, x) => sum + x.outstanding, 0),
       severity: 'warning' as const,
-      description: "ลูกหนี้เกินกำหนดรอบบิลปกติ ต้องติดตามทวงถามเซลล์และลูกค้าประจำสัปดาห์"
+      description: "ลูกหนี้เกินกำหนดรอบบิลปกติ ต้องติดตามทวงถามเซลล์และลูกค้าประจำสัปดาห์",
     },
     {
       priority: 5,
@@ -740,27 +658,27 @@ function getTaskBilledAmount(pt: any): number {
       count: p5Items.length,
       amount: p5Items.reduce((sum, x) => sum + x.outstanding, 0),
       severity: 'info' as const,
-      description: "รายการลูกหนี้ที่จะถึงกำหนดรอบชำระประจำสัปดาห์ ต้องยืนยันยอดและติดตามรับโอน"
-    }
+      description: "รายการลูกหนี้ที่จะถึงกำหนดรอบชำระประจำสัปดาห์ ต้องยืนยันยอดและติดตามรับโอน",
+    },
   ];
 
   // 4. Section 2: Real Debtor Risk & Credit Management
-  const topRiskDebtors = Array.from(customerMap.values())
+  const topRiskDebtors = [...snapshotCustomers]
     .sort((a, b) => b.totalExposure - a.totalExposure)
     .slice(0, 20);
 
-  const overdueGte60Debtors = Array.from(customerMap.values()).filter(c => c.maxOverdueDays > 60);
-  const overdueGte90Debtors = Array.from(customerMap.values()).filter(c => c.maxOverdueDays > 90);
+  const overdueGte60Debtors = snapshotCustomers.filter((c) => c.maxOverdueDays > 60);
+  const overdueGte90Debtors = snapshotCustomers.filter((c) => c.maxOverdueDays > 90);
 
   const corporateLoans = {
-    activeContracts: filteredPaymentTasks.filter(pt => pt.status !== 'ตรวจสอบและบันทึกแล้ว').length,
+    activeContracts: activeSnap.activeUnsettledCount,
     normalContracts: agingCounts.current + agingCounts.days1to30,
     watchlistContracts: agingCounts.days31to60 + agingCounts.days61to90 + agingCounts.days90plus,
     totalPrincipalOutstanding: totalAR,
     principalDueThisMonth: totalDue,
-    principalDueCollectedRate: totalDue > 0 ? (totalReceived / totalDue) * 100 : collectionRate,
-    principalCollectedActual: totalReceived,
-    principalCollectedVariance: totalReceived - totalDue,
+    principalDueCollectedRate: totalDue > 0 ? (totalRevenue / totalDue) * 100 : collectionRate,
+    principalCollectedActual: totalRevenue,
+    principalCollectedVariance: totalRevenue - totalDue,
     interestExpected: 0,
     interestActual: 0,
     interestActualRate: 0,
@@ -771,8 +689,8 @@ function getTaskBilledAmount(pt: any): number {
     defaultOver3InstallmentsPrincipal: overdueGte60Debtors.reduce((sum, c) => sum + c.overdueAmount, 0),
     overdueGte3InstallmentsContracts: overdueGte90Debtors.length,
     overdueGte3InstallmentsPrincipal: overdueGte90Debtors.reduce((sum, c) => sum + c.overdueAmount, 0),
-    debtRestructuringContracts: deliveredNotPaidTasks.length,
-    debtRestructuringAmount: deliveredNotPaidTasks.reduce((sum, c) => sum + c.outstandingAmount, 0),
+    debtRestructuringContracts: sortedDelivered.length,
+    debtRestructuringAmount: activeSnap.deliveredNotPaidAmount,
     collateralForfeitureAmount: 0,
     collateralForfeiturePercent: 0,
     riskContracts: topRiskDebtors.map((c, idx) => {
@@ -800,26 +718,30 @@ function getTaskBilledAmount(pt: any): number {
         customerName: c.customerName,
         contractNumber: `${c.latestJobNumber} (${c.jobCount} งาน)`,
         principalOutstanding: c.totalExposure,
-        overdueInstallments: c.maxOverdueDays > 90 ? 4 : c.maxOverdueDays > 60 ? 3 : c.maxOverdueDays > 30 ? 2 : 1,
+        overdueInstallments:
+          c.maxOverdueDays > 90 ? 4 : c.maxOverdueDays > 60 ? 3 : c.maxOverdueDays > 30 ? 2 : 1,
         overdueDays: c.maxOverdueDays,
-        collateral: c.jobCount > 1 ? `ค้าง ${c.jobCount} งาน (TG: ฿${(c.tg / 1000).toFixed(0)}k, TE: ฿${(c.te / 1000).toFixed(0)}k, TP: ฿${(c.tp / 1000).toFixed(0)}k)` : 'เครดิตการค้า',
-        lastClosedDate: '2026-08',
+        collateral:
+          c.jobCount > 1
+            ? `ค้าง ${c.jobCount} งาน (TG: ฿${(c.tg / 1000).toFixed(0)}k, TE: ฿${(c.te / 1000).toFixed(0)}k, TP: ฿${(c.tp / 1000).toFixed(0)}k)`
+            : 'เครดิตการค้า',
+        lastClosedDate: c.latestSettledYm ? formatThaiMonthLabel(c.latestSettledYm, true) : '-',
         status,
         statusLabel,
-        statusBadgeClass
+        statusBadgeClass,
       };
     }),
     riskStructure: {
       normal: aging.current,
       overdue1: aging.days1to30,
       overdue2: aging.days31to60,
-      overdue3Plus: aging.days61to90 + aging.days90plus
+      overdue3Plus: aging.days61to90 + aging.days90plus,
     },
-    executiveInsights: `ลูกหนี้ที่มียอดค้างชำระรวมมี ${topRiskDebtors.length} รายหลัก รวมมูลค่าหนี้คงค้าง ฿${(totalAR / 1000000).toFixed(2)} ล้านบาท โดยมีลูกหนี้เกิน 60 วันจำนวน ${overdueGte60Debtors.length} ราย ควรควบคุมวงเงินและเร่งรัดการจัดเก็บ`
+    executiveInsights: `ลูกหนี้ที่มียอดค้างชำระรวมมี ${topRiskDebtors.length} รายหลัก รวมมูลค่าหนี้คงค้าง ฿${(totalAR / 1000000).toFixed(2)} ล้านบาท โดยมีลูกหนี้เกิน 60 วันจำนวน ${overdueGte60Debtors.length} ราย ควรควบคุมวงเงินและเร่งรัดการจัดเก็บ`,
   };
 
-  // 5. Cross-Entity Group Customer Exposure (Real customer overlap across TG, TE, TP)
-  const crossEntityCustomers = Array.from(customerMap.values())
+  // 5. Cross-Entity Group Customer Exposure
+  const crossEntityCustomers = [...snapshotCustomers]
     .sort((a, b) => b.totalExposure - a.totalExposure)
     .slice(0, 15)
     .map((c, idx) => {
@@ -871,298 +793,342 @@ function getTaskBilledAmount(pt: any): number {
         notes: cs?.notes || '',
         status,
         statusLabel,
-        statusBadgeClass
+        statusBadgeClass,
       };
     });
 
-  // 6. Section 2: Month-over-Month Comparison (Real monthly data)
-  const thisMonthReceived = monthlyStats[currentMonthKey]?.received || 0;
-  const lastMonthReceived = monthlyStats[prevMonthKey]?.received || 0;
-  const diffReceived = thisMonthReceived - lastMonthReceived;
-  const diffPercent = lastMonthReceived > 0 ? (diffReceived / lastMonthReceived) * 100 : 0;
+  // 6. Section 2: 100% Real Month-over-Month & 6-Month Historical Snapshot Trend
+  const sixMonthTrend: Array<{
+    month: string;
+    monthKey: string;
+    outstandingDebt: number;
+    overdueDebt: number;
+    cashReceived: number;
+    bankInflow: number;
+  }> = [];
 
-  const monthNamesThai = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-  const sixMonthTrend = [];
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const y = d.getFullYear();
-    const m = d.getMonth();
-    const k = `${y}-${String(m + 1).padStart(2, '0')}`;
-    const shortYear = (y + 543) % 100;
-    const label = `${monthNamesThai[m]} ${shortYear}`;
-    const rec = Number(((monthlyStats[k]?.received || 0) / 1000000).toFixed(2));
-
-    const factor = (5 - i * 0.3) / 5;
-    const outDebt = i === 0
-      ? Number((totalAR / 1000000).toFixed(2))
-      : Number(((totalAR * factor) / 1000000).toFixed(2));
-    const ovDebt = i === 0
-      ? Number((overdueAmount / 1000000).toFixed(2))
-      : Number(((overdueAmount * factor) / 1000000).toFixed(2));
-
+    const ym = shiftYearMonth(referenceMonthKey, -i);
+    const bounds = getBangkokMonthBounds(ym);
+    const snapEnd = bounds.end.getTime() > now.getTime() ? now : bounds.end;
+    const snap = computeArSnapshotAt(filteredPaymentTasks, snapEnd);
     sixMonthTrend.push({
-      month: label,
-      outstandingDebt: outDebt,
-      overdueDebt: ovDebt,
-      cashReceived: rec
+      month: formatThaiMonthLabel(ym, true),
+      monthKey: ym,
+      outstandingDebt: Number((snap.totalAR / 1_000_000).toFixed(2)),
+      overdueDebt: Number((snap.overdueAmount / 1_000_000).toFixed(2)),
+      cashReceived: Number(((monthlyReceivedStats[ym] || 0) / 1_000_000).toFixed(2)),
+      bankInflow: Number(((monthlyBankInflowStats[ym] || 0) / 1_000_000).toFixed(2)),
     });
   }
 
-  const top3OverdueDebtors = topRiskDebtors.filter(c => c.overdueAmount > 0).slice(0, 3);
+  const refBounds = getBangkokMonthBounds(referenceMonthKey);
+  const prevBounds = getBangkokMonthBounds(prevMonthKey);
+  const refSnapEnd = refBounds.end.getTime() > now.getTime() ? now : refBounds.end;
+  const prevSnapEnd = prevBounds.end.getTime() > now.getTime() ? now : prevBounds.end;
+
+  const curMoMSnap = computeArSnapshotAt(filteredPaymentTasks, refSnapEnd);
+  const prevMoMSnap = computeArSnapshotAt(filteredPaymentTasks, prevSnapEnd);
+
+  const thisMonthReceived = monthlyReceivedStats[referenceMonthKey] || 0;
+  const lastMonthReceived = monthlyReceivedStats[prevMonthKey] || 0;
+  const diffReceived = thisMonthReceived - lastMonthReceived;
+  const diffReceivedPercent =
+    lastMonthReceived > 0 ? Number(((diffReceived / lastMonthReceived) * 100).toFixed(1)) : 0;
+
+  const curMonthRate =
+    thisMonthReceived + curMoMSnap.totalAR > 0
+      ? (thisMonthReceived / (thisMonthReceived + curMoMSnap.totalAR)) * 100
+      : 0;
+  const prevMonthRate =
+    lastMonthReceived + prevMoMSnap.totalAR > 0
+      ? (lastMonthReceived / (lastMonthReceived + prevMoMSnap.totalAR)) * 100
+      : 0;
+  const diffCollectionRate = Number((curMonthRate - prevMonthRate).toFixed(1));
+
+  const diffOutstandingDebt = curMoMSnap.totalAR - prevMoMSnap.totalAR;
+  const diffOutstandingPercent =
+    prevMoMSnap.totalAR > 0
+      ? Number(((diffOutstandingDebt / prevMoMSnap.totalAR) * 100).toFixed(1))
+      : 0;
+
+  const diffOverdueDebt = curMoMSnap.overdueAmount - prevMoMSnap.overdueAmount;
+  const diffOverduePercent =
+    prevMoMSnap.overdueAmount > 0
+      ? Number(((diffOverdueDebt / prevMoMSnap.overdueAmount) * 100).toFixed(1))
+      : 0;
+
+  const diffDays90Plus = curMoMSnap.aging.days90plus - prevMoMSnap.aging.days90plus;
+  const diffDeliveredNotPaid =
+    curMoMSnap.deliveredNotPaidCount - prevMoMSnap.deliveredNotPaidCount;
+  const diffOverdueCount = curMoMSnap.overdueCount - prevMoMSnap.overdueCount;
+  const diffAvgOverdueDays = curMoMSnap.avgOverdueDays - prevMoMSnap.avgOverdueDays;
+
+  const top3OverdueDebtors = topRiskDebtors.filter((c) => c.overdueAmount > 0).slice(0, 3);
   const keyCauses = [
-    `หนี้เกินกำหนดรวม ฿${(overdueAmount / 1000000).toFixed(2)} ล้านบาท โดยมีลูกหนี้รายใหญ่ ${top3OverdueDebtors.map(c => c.customerName).join(', ')} คิดเป็นยอดค้างหลัก`,
-    `ยอดลูกหนี้คงเหลือรวม ฿${(totalAR / 1000000).toFixed(2)} ล้านบาท สะท้อนยอดงานเครดิตและงานโครงการในระบบ`,
-    `มีงานที่ส่งมอบสินค้าแล้วแต่ยังค้างชำระ ${deliveredNotPaidTasks.length} รายการ มูลค่ารวม ฿${(deliveredWithoutFullPaymentItems.reduce((sum, i) => sum + i.outstandingAmount, 0) / 1000000).toFixed(2)} ล้านบาท`
+    `หนี้เกินกำหนดรวม ฿${(curMoMSnap.overdueAmount / 1_000_000).toFixed(2)} ล้านบาท (${curMoMSnap.overdueCount} รายการ)${
+      top3OverdueDebtors.length > 0
+        ? ` โดยมีลูกหนี้รายใหญ่ ${top3OverdueDebtors.map((c) => c.customerName).join(', ')} คิดเป็นยอดค้างหลัก`
+        : ''
+    }`,
+    `ยอดลูกหนี้คงเหลือรวม ณ สิ้นรอบ ฿${(curMoMSnap.totalAR / 1_000_000).toFixed(2)} ล้านบาท (${diffOutstandingDebt >= 0 ? 'เพิ่มขึ้น' : 'ลดลง'} ${formatSignedMillionDiff(diffOutstandingDebt)} เทียบเดือนก่อน)`,
+    `งานส่งมอบแล้วรอรับชำระมี ${curMoMSnap.deliveredNotPaidCount} งาน มูลค่ารวม ฿${(curMoMSnap.deliveredNotPaidAmount / 1_000_000).toFixed(2)} ล้านบาท`,
   ];
 
+  const referenceMonthLabel = formatThaiMonthLabel(referenceMonthKey, false);
+  const prevMonthLabel = formatThaiMonthLabel(prevMonthKey, false);
+
   const monthOverMonth = {
+    referenceMonthKey,
+    referenceMonthLabel,
+    prevMonthKey,
+    prevMonthLabel,
     cashReceived: {
       current: thisMonthReceived,
       previous: lastMonthReceived,
       diff: diffReceived,
-      diffPercent: Number(diffPercent.toFixed(1))
+      diffPercent: diffReceivedPercent,
     },
     collectionRate: {
-      current: Number(collectionRate.toFixed(1)),
-      previous: Number(Math.max(0, collectionRate - 1.5).toFixed(1)),
-      diff: 1.5
+      current: Number(curMonthRate.toFixed(1)),
+      previous: Number(prevMonthRate.toFixed(1)),
+      diff: diffCollectionRate,
     },
     outstandingDebt: {
-      current: totalAR,
-      previous: totalAR * 0.96,
-      diff: totalAR * 0.04,
-      note: totalAR > 160000000 ? "สูงกว่าเป้า" : "ตามเกณฑ์"
+      current: curMoMSnap.totalAR,
+      previous: prevMoMSnap.totalAR,
+      diff: diffOutstandingDebt,
+      diffPercent: diffOutstandingPercent,
+      note: curMoMSnap.totalAR > 160000000 ? "สูงกว่าเป้า" : diffOutstandingDebt <= 0 ? "ลดลงจากเดือนก่อน" : "ตามเกณฑ์",
     },
     overdueDebt: {
-      current: overdueAmount,
-      previous: overdueAmount * 0.95,
-      diff: overdueAmount * 0.05,
-      diffPercent: 5.0
+      current: curMoMSnap.overdueAmount,
+      previous: prevMoMSnap.overdueAmount,
+      diff: diffOverdueDebt,
+      diffPercent: diffOverduePercent,
     },
     sixMonthTrend,
     keyCauses,
     kpiComparisonTable: [
       {
-        kpi: "เงินรับจริงเดือนนี้",
-        thisMonth: `฿${(thisMonthReceived / 1000000).toFixed(2)} ลบ.`,
-        lastMonth: `฿${(lastMonthReceived / 1000000).toFixed(2)} ลบ.`,
-        variance: `${diffReceived >= 0 ? '+' : ''}฿${(diffReceived / 1000000).toFixed(2)} ลบ.`,
+        kpi: "เงินรับจริงประจำเดือน",
+        thisMonth: `฿${(thisMonthReceived / 1_000_000).toFixed(2)} ลบ.`,
+        lastMonth: `฿${(lastMonthReceived / 1_000_000).toFixed(2)} ลบ.`,
+        variance: formatSignedMillionDiff(diffReceived),
+        isFavorable: diffReceived >= 0,
         target: "≥ ฿5.00 ลบ.",
-        signal: thisMonthReceived >= 5000000 ? "ตามเป้า" : "เฝ้าระวัง",
-        signalColor: thisMonthReceived >= 5000000 ? "green" as const : "amber" as const
+        signal: thisMonthReceived >= 5000000 ? "ตามเป้า" : diffReceived >= 0 ? "ดีขึ้น" : "ต่ำกว่าเป้า",
+        signalColor: thisMonthReceived >= 5000000 ? ("green" as const) : ("amber" as const),
       },
       {
-        kpi: "อัตราจัดเก็บรวม (Collection Rate)",
-        thisMonth: `${collectionRate.toFixed(1)}%`,
-        lastMonth: `${Math.max(0, collectionRate - 1.5).toFixed(1)}%`,
-        variance: `+1.5 จุด`,
-        target: "≥ 15%",
-        signal: collectionRate >= 15 ? "ตามเป้า" : "เฝ้าระวัง",
-        signalColor: collectionRate >= 15 ? "green" as const : "amber" as const
+        kpi: "อัตราจัดเก็บประจำเดือน (Collection Rate)",
+        thisMonth: `${curMonthRate.toFixed(1)}%`,
+        lastMonth: `${prevMonthRate.toFixed(1)}%`,
+        variance: `${diffCollectionRate >= 0 ? '+' : ''}${diffCollectionRate.toFixed(1)} จุด`,
+        isFavorable: diffCollectionRate >= 0,
+        target: "≥ 15.0%",
+        signal: curMonthRate >= 15 ? "ตามเป้า" : diffCollectionRate >= 0 ? "ปรับตัวดีขึ้น" : "เฝ้าระวัง",
+        signalColor: curMonthRate >= 15 ? ("green" as const) : ("amber" as const),
       },
       {
-        kpi: "ลูกหนี้คงเหลือรวม",
-        thisMonth: `฿${(totalAR / 1000000).toFixed(2)} ลบ.`,
-        lastMonth: `฿${((totalAR * 0.96) / 1000000).toFixed(2)} ลบ.`,
-        variance: `+฿${((totalAR * 0.04) / 1000000).toFixed(2)} ลบ.`,
+        kpi: "ลูกหนี้คงเหลือรวม ณ สิ้นงวด",
+        thisMonth: `฿${(curMoMSnap.totalAR / 1_000_000).toFixed(2)} ลบ.`,
+        lastMonth: `฿${(prevMoMSnap.totalAR / 1_000_000).toFixed(2)} ลบ.`,
+        variance: formatSignedMillionDiff(diffOutstandingDebt),
+        isFavorable: diffOutstandingDebt <= 0,
         target: "≤ ฿160 ลบ.",
-        signal: totalAR <= 160000000 ? "ตามเกณฑ์" : "สูงกว่าเป้า",
-        signalColor: totalAR <= 160000000 ? "green" as const : "red" as const
+        signal: curMoMSnap.totalAR <= 160000000 ? "ตามเกณฑ์" : "สูงกว่าเป้า",
+        signalColor: curMoMSnap.totalAR <= 160000000 ? ("green" as const) : ("red" as const),
       },
       {
-        kpi: "หนี้เกินกำหนดชำระ",
-        thisMonth: `฿${(overdueAmount / 1000000).toFixed(2)} ลบ.`,
-        lastMonth: `฿${((overdueAmount * 0.95) / 1000000).toFixed(2)} ลบ.`,
-        variance: `+฿${((overdueAmount * 0.05) / 1000000).toFixed(2)} ลบ.`,
+        kpi: "หนี้เกินกำหนดชำระ ณ สิ้นงวด",
+        thisMonth: `฿${(curMoMSnap.overdueAmount / 1_000_000).toFixed(2)} ลบ.`,
+        lastMonth: `฿${(prevMoMSnap.overdueAmount / 1_000_000).toFixed(2)} ลบ.`,
+        variance: formatSignedMillionDiff(diffOverdueDebt),
+        isFavorable: diffOverdueDebt <= 0,
         target: "≤ ฿45 ลบ.",
-        signal: overdueAmount <= 45000000 ? "ตามเกณฑ์" : "เฝ้าระวัง",
-        signalColor: overdueAmount <= 45000000 ? "green" as const : "red" as const
+        signal: curMoMSnap.overdueAmount <= 45000000 ? "ตามเกณฑ์" : diffOverdueDebt <= 0 ? "ลดลง" : "เฝ้าระวัง",
+        signalColor: curMoMSnap.overdueAmount <= 45000000 ? ("green" as const) : ("red" as const),
       },
       {
-        kpi: "หนี้เกิน 90 วัน",
-        thisMonth: `฿${(aging.days90plus / 1000000).toFixed(2)} ลบ.`,
-        lastMonth: `฿${((aging.days90plus * 0.92) / 1000000).toFixed(2)} ลบ.`,
-        variance: `+฿${((aging.days90plus * 0.08) / 1000000).toFixed(2)} ลบ.`,
+        kpi: "หนี้เกิน 90 วัน ณ สิ้นงวด",
+        thisMonth: `฿${(curMoMSnap.aging.days90plus / 1_000_000).toFixed(2)} ลบ.`,
+        lastMonth: `฿${(prevMoMSnap.aging.days90plus / 1_000_000).toFixed(2)} ลบ.`,
+        variance: formatSignedMillionDiff(diffDays90Plus),
+        isFavorable: diffDays90Plus <= 0,
         target: "≤ ฿10 ลบ.",
-        signal: aging.days90plus <= 10000000 ? "ตามเกณฑ์" : "เร่งดำเนินการ",
-        signalColor: aging.days90plus <= 10000000 ? "green" as const : "red" as const
+        signal: curMoMSnap.aging.days90plus <= 10000000 ? "ตามเกณฑ์" : "เร่งดำเนินการ",
+        signalColor: curMoMSnap.aging.days90plus <= 10000000 ? ("green" as const) : ("red" as const),
       },
       {
         kpi: "งานส่งมอบแล้วรอรับชำระ",
-        thisMonth: `${deliveredNotPaidTasks.length} งาน`,
-        lastMonth: `${Math.max(1, deliveredNotPaidTasks.length - 8)} งาน`,
-        variance: "+8",
+        thisMonth: `${curMoMSnap.deliveredNotPaidCount} งาน`,
+        lastMonth: `${prevMoMSnap.deliveredNotPaidCount} งาน`,
+        variance: `${formatSignedCountDiff(diffDeliveredNotPaid)} งาน`,
+        isFavorable: diffDeliveredNotPaid <= 0,
         target: "ลดลง",
-        signal: "เร่งติดตามเงินหน้างาน",
-        signalColor: "amber" as const
+        signal: curMoMSnap.deliveredNotPaidCount === 0 ? "ปกติ" : diffDeliveredNotPaid <= 0 ? "ลดลง" : "เร่งติดตามเงินหน้างาน",
+        signalColor: curMoMSnap.deliveredNotPaidCount === 0 || diffDeliveredNotPaid < 0 ? ("green" as const) : ("amber" as const),
       },
       {
         kpi: "จำนวนรายการเกินกำหนด",
-        thisMonth: `${overdueCount} รายการ`,
-        lastMonth: `${Math.max(1, overdueCount - 6)} รายการ`,
-        variance: "+6",
+        thisMonth: `${curMoMSnap.overdueCount} รายการ`,
+        lastMonth: `${prevMoMSnap.overdueCount} รายการ`,
+        variance: `${formatSignedCountDiff(diffOverdueCount)} รายการ`,
+        isFavorable: diffOverdueCount <= 0,
         target: "ลดลง",
-        signal: "เฝ้าระวัง",
-        signalColor: "amber" as const
+        signal: diffOverdueCount <= 0 ? "ดีขึ้น" : "เฝ้าระวัง",
+        signalColor: diffOverdueCount <= 0 ? ("green" as const) : ("amber" as const),
       },
       {
         kpi: "วันเกินหนี้เฉลี่ย",
-        thisMonth: `${overdueTasksList.length > 0 ? Math.round(overdueTasksList.reduce((sum, x) => sum + x.diffDays, 0) / overdueTasksList.length) : 0} วัน`,
-        lastMonth: "45 วัน",
-        variance: "+5 วัน",
+        thisMonth: `${curMoMSnap.avgOverdueDays} วัน`,
+        lastMonth: `${prevMoMSnap.avgOverdueDays} วัน`,
+        variance: `${formatSignedCountDiff(diffAvgOverdueDays)} วัน`,
+        isFavorable: diffAvgOverdueDays <= 0,
         target: "≤ 45 วัน",
-        signal: "ชะลอตัว",
-        signalColor: "amber" as const
-      }
+        signal: curMoMSnap.avgOverdueDays <= 45 ? "ตามเกณฑ์" : diffAvgOverdueDays <= 0 ? "ดีขึ้น" : "ชะลอตัว",
+        signalColor: curMoMSnap.avgOverdueDays <= 45 ? ("green" as const) : ("amber" as const),
+      },
     ],
-    executiveCommentary: `ยอดลูกหนี้คงเหลือรวมอยู่ที่ ฿${(totalAR / 1000000).toFixed(2)} ล้านบาท โดยมีหนี้เกินกำหนด ฿${(overdueAmount / 1000000).toFixed(2)} ล้านบาท คิดเป็น ${totalAR > 0 ? ((overdueAmount / totalAR) * 100).toFixed(1) : '0'}% ของลูกหนี้ทั้งหมด และมีงานส่งมอบสินค้าแล้วแต่ยังไม่ได้รับชำระ ฿${(deliveredWithoutFullPaymentItems.reduce((sum, i) => sum + i.outstandingAmount, 0) / 1000000).toFixed(2)} ล้านบาท (${deliveredNotPaidTasks.length} งาน) ควรเร่งรัดการจัดเก็บเงินหน้างานและควบคุมเครดิตลูกหนี้รายใหญ่`
+    executiveCommentary: `สำหรับรอบเปรียบเทียบ ${referenceMonthLabel} vs ${prevMonthLabel}: มียอดเงินรับจริง ฿${(thisMonthReceived / 1_000_000).toFixed(2)} ล้านบาท (${diffReceived >= 0 ? 'เพิ่มขึ้น' : 'ลดลง'} ${formatSignedMillionDiff(diffReceived)} จากเดือนก่อน) ยอดลูกหนี้คงเหลือ ณ สิ้นงวด ฿${(curMoMSnap.totalAR / 1_000_000).toFixed(2)} ล้านบาท และหนี้เกินกำหนด ฿${(curMoMSnap.overdueAmount / 1_000_000).toFixed(2)} ล้านบาท (${curMoMSnap.totalAR > 0 ? ((curMoMSnap.overdueAmount / curMoMSnap.totalAR) * 100).toFixed(1) : '0'}% ของลูกหนี้คงเหลือ)`,
   };
 
-  // 7. Backward-compatible properties:
-  // Monthly Collection Trend
-  const monthlyDataMap = new Map<string, { revenue: number, expenses: number }>();
-  const getMonthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-
-  filteredPaymentTasks.forEach(pt => {
-    const isCompleted = pt.status === 'ตรวจสอบและบันทึกแล้ว';
-    const dateToUse = pt.paidDate || (isCompleted ? pt.updatedAt : null);
-    if (dateToUse) {
-      const d = new Date(dateToUse);
-      const key = getMonthKey(d);
-      const amount = isCompleted
-        ? getTaskBilledAmount(pt)
-        : (Number(pt.paidAmount) || 0);
-
-      if (amount > 0) {
-        if (!monthlyDataMap.has(key)) monthlyDataMap.set(key, { revenue: 0, expenses: 0 });
-        monthlyDataMap.get(key)!.revenue += amount;
+  // 7. Real Monthly Trend (Revenue vs Expenses)
+  const monthlyDataMap = new Map<string, { revenue: number; expenses: number }>();
+  for (const [mKey, rev] of Object.entries(monthlyReceivedStats)) {
+    if (!monthlyDataMap.has(mKey)) monthlyDataMap.set(mKey, { revenue: 0, expenses: 0 });
+    monthlyDataMap.get(mKey)!.revenue += rev;
+  }
+  pos.forEach((po) => {
+    if (po.totalAmount && po.createdAt) {
+      const k = getBangkokYearMonth(po.createdAt);
+      if (k) {
+        if (!monthlyDataMap.has(k)) monthlyDataMap.set(k, { revenue: 0, expenses: 0 });
+        monthlyDataMap.get(k)!.expenses += Number(po.totalAmount);
       }
     }
   });
-
-  pos.forEach(po => {
-    if (po.totalAmount && po.createdAt) {
-      const key = getMonthKey(new Date(po.createdAt));
-      if (!monthlyDataMap.has(key)) monthlyDataMap.set(key, { revenue: 0, expenses: 0 });
-      monthlyDataMap.get(key)!.expenses += Number(po.totalAmount);
-    }
-  });
-
-  branchExpenses.forEach(exp => {
+  branchExpenses.forEach((exp) => {
     if (exp.amount && exp.date) {
-      const key = getMonthKey(new Date(exp.date));
-      if (!monthlyDataMap.has(key)) monthlyDataMap.set(key, { revenue: 0, expenses: 0 });
-      monthlyDataMap.get(key)!.expenses += Number(exp.amount);
+      const k = getBangkokYearMonth(exp.date);
+      if (k) {
+        if (!monthlyDataMap.has(k)) monthlyDataMap.set(k, { revenue: 0, expenses: 0 });
+        monthlyDataMap.get(k)!.expenses += Number(exp.amount);
+      }
     }
   });
 
   const monthlyTrend = Array.from(monthlyDataMap.entries())
-    .map(([month, data]) => ({ month, revenue: data.revenue, expenses: data.expenses }))
+    .map(([month, d]) => ({ month, revenue: d.revenue, expenses: d.expenses }))
     .sort((a, b) => a.month.localeCompare(b.month))
     .slice(-12);
 
-  // Cash vs Credit breakdown
+  // Real Cash vs Credit breakdown (zero hardcoded fallbacks)
   let cashJobCount = 0;
   let creditJobCount = 0;
-  filteredPaymentTasks.forEach(pt => {
-    if (pt.installmentTotal === 1) {
-      cashJobCount++;
-    } else if (pt.installmentTotal && pt.installmentTotal > 1) {
+  filteredPaymentTasks.forEach((pt) => {
+    if (!inSelectedPeriod(pt.createdAt)) return;
+    const method = (pt.job?.paymentMethod || '').toLowerCase();
+    if (method.includes('เครดิต') || method.includes('ผ่อน') || (pt.installmentTotal && pt.installmentTotal > 1)) {
       creditJobCount++;
+    } else {
+      cashJobCount++;
     }
   });
 
   const paymentMethods = [
-    { name: 'เงินสด/โอนเต็มจำนวน', value: cashJobCount || 313 },
-    { name: 'เครดิต/ผ่อนชำระ', value: creditJobCount || 126 }
+    { name: 'เงินสด/โอนเต็มจำนวน', value: cashJobCount },
+    { name: 'เครดิต/ผ่อนชำระ', value: creditJobCount },
   ];
 
   // Ongoing Projects
   const activeProjectsData = await prisma.project.findMany({
     orderBy: { createdAt: 'desc' },
-    take: 30,
+    take: 50,
     include: {
       job: {
-        include: {
-          paymentTasks: true
-        }
-      }
-    }
+        include: { paymentTasks: true },
+      },
+    },
   });
 
-  const ongoingProjects = activeProjectsData.map(project => {
-    let income = 0;
-    if (project.job && project.job.paymentTasks) {
-      project.job.paymentTasks.forEach(pt => {
-        if (pt.status === 'ตรวจสอบและบันทึกแล้ว') {
-          const ptAmount = Number(pt.paidAmount) || Number(pt.installmentAmount) || Number(project.projectValue) || 0;
-          income += ptAmount;
+  const ongoingProjects = activeProjectsData
+    .filter((p) => targetEntity === 'ALL' || matchesCompanyEntity(p.job?.companyCode, targetEntity))
+    .map((project) => {
+      let income = 0;
+      if (project.job?.paymentTasks) {
+        project.job.paymentTasks.forEach((pt) => {
+          if (pt.status === 'ตรวจสอบและบันทึกแล้ว') {
+            const ptAmount = Number(pt.paidAmount) || Number(pt.installmentAmount) || Number(project.projectValue) || 0;
+            income += ptAmount;
+          }
+        });
+      }
+
+      const { keywords, primaryKeyword } = extractSearchKeywords(project);
+      let expense = 0;
+      let poCount = 0;
+
+      resolvedAllPos.forEach((po) => {
+        if (po.totalAmount) {
+          const hasValidPoNumber = Boolean(project.job?.poNumber && project.job.poNumber.length > 0);
+          const matchesPO = hasValidPoNumber && po.poNumber === project.job?.poNumber;
+          let matchesKeywords = false;
+          const jn = (po.jobName || "").toLowerCase();
+          const prProj = (po.purchaseRequest?.projectName || "").toLowerCase();
+
+          if (keywords.length > 0) {
+            const prNote = (po.purchaseRequest?.note || "").toLowerCase();
+            matchesKeywords = keywords.some((kw) => {
+              const lower = kw.toLowerCase();
+              return jn.includes(lower) || prProj.includes(lower) || prNote.includes(lower);
+            });
+          }
+
+          if (matchesPO || matchesKeywords) {
+            expense += Number(po.totalAmount);
+            poCount++;
+          }
         }
       });
-    }
 
-    const { keywords, primaryKeyword } = extractSearchKeywords(project);
-    let expense = 0;
-    let poCount = 0;
-
-    allPosForProjects.forEach(po => {
-      if (po.totalAmount) {
-        const hasValidPoNumber = project.job && project.job.poNumber && project.job.poNumber.length > 0;
-        const matchesPO = hasValidPoNumber && po.poNumber === project.job?.poNumber;
-
-        let matchesKeywords = false;
-        const jn = (po.jobName || "").toLowerCase();
-        const prProj = (po.purchaseRequest?.projectName || "").toLowerCase();
-
-        if (keywords.length > 0) {
-          const prNote = (po.purchaseRequest?.note || "").toLowerCase();
-          matchesKeywords = keywords.some(kw => {
-            const lower = kw.toLowerCase();
-            return jn.includes(lower) || prProj.includes(lower) || prNote.includes(lower);
-          });
-        }
-
-        if (matchesPO || matchesKeywords) {
-          expense += Number(po.totalAmount);
-          poCount++;
-        }
-      }
+      return {
+        id: project.id,
+        projectName: project.name,
+        projectNumber: project.projectNumber,
+        clientName: project.clientName || project.job?.customerName || '-',
+        budget: Number(project.projectValue) || Number(project.amountIncludingVat) || 0,
+        income,
+        expense,
+        poCount,
+        primaryKeyword,
+        status: project.status,
+      };
     });
 
-    return {
-      id: project.id,
-      projectName: project.name,
-      projectNumber: project.projectNumber,
-      clientName: project.clientName || project.job?.customerName || '-',
-      budget: Number(project.projectValue) || Number(project.amountIncludingVat) || 0,
-      income,
-      expense,
-      poCount,
-      primaryKeyword,
-      status: project.status
-    };
-  });
-
   // Top Overdue
-  const overdueTasks = filteredPaymentTasks
-    .filter(pt => isTaskOverdue(pt, now));
-
-  const topOverdue = overdueTasks
-    .sort((a: any, b: any) => {
-      const remainA = getTaskBilledAmount(a) - (Number(a.paidAmount) || 0);
-      const remainB = getTaskBilledAmount(b) - (Number(b.paidAmount) || 0);
-      return remainB - remainA;
-    })
-    .slice(0, 50);
+  const topOverdue = [...sortedOverdue]
+    .sort((a, b) => b.outstanding - a.outstanding)
+    .slice(0, 50)
+    .map((x) => x.pt);
 
   const netProfit = totalRevenue - totalExpenses;
   const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
   return {
+    selectedMonth,
+    periodLabel:
+      selectedMonth === 'ALL'
+        ? 'ภาพรวมทั้งหมด (ถึงปัจจุบัน)'
+        : selectedMonth === 'CUSTOM'
+        ? `${formatThaiDate(periodStart) || startDate} - ${formatThaiDate(periodEnd) || endDate}`
+        : formatThaiMonthLabel(selectedMonth, false),
+    availableMonths,
     totalRevenue,
     totalAR,
     overdueAmount,
-    overdueCount: overdueTasks.length,
+    overdueCount: sortedOverdue.length,
     totalExpenses,
     netProfit,
     profitMargin,
@@ -1175,14 +1141,12 @@ function getTaskBilledAmount(pt: any): number {
     paymentMethods,
     topOverdue,
     ongoingProjects,
-
-    // Enhanced Sections:
     dataStatus,
     dailyCashReceipts: {
       totalSales,
       totalDue,
       totalReceived: totalRevenue,
-      collectionRate
+      collectionRate,
     },
     cashSalesSummary,
     tradeCreditSummary,
@@ -1191,7 +1155,7 @@ function getTaskBilledAmount(pt: any): number {
     priorityNotifications,
     corporateLoans,
     monthOverMonth,
-    crossEntityCustomers
+    crossEntityCustomers,
   };
 }
 
@@ -1208,52 +1172,30 @@ export async function getFinancialDrilldownDetails(query: {
       job = await prisma.job.findUnique({
         where: { id: query.jobId },
         include: {
-          quotation: {
-            include: {
-              company: true,
-              salesperson: true
-            }
-          },
+          quotation: { include: { company: true, salesperson: true } },
           project: true,
-          paymentTasks: {
-            orderBy: { installmentNo: 'asc' }
-          },
-          stepLogs: {
-            orderBy: { completedAt: 'desc' }
-          },
-          documents: {
-            orderBy: { createdAt: 'desc' }
-          }
-        }
+          paymentTasks: { orderBy: { installmentNo: 'asc' } },
+          stepLogs: { orderBy: { completedAt: 'desc' } },
+          documents: { orderBy: { createdAt: 'desc' } },
+        },
       });
     }
 
     if (!job && query.paymentTaskId) {
       const pt = await prisma.paymentTask.findUnique({
         where: { id: query.paymentTaskId },
-        select: { jobId: true }
+        select: { jobId: true },
       });
       if (pt?.jobId) {
         job = await prisma.job.findUnique({
           where: { id: pt.jobId },
           include: {
-            quotation: {
-              include: {
-                company: true,
-                salesperson: true
-              }
-            },
+            quotation: { include: { company: true, salesperson: true } },
             project: true,
-            paymentTasks: {
-              orderBy: { installmentNo: 'asc' }
-            },
-            stepLogs: {
-              orderBy: { completedAt: 'desc' }
-            },
-            documents: {
-              orderBy: { createdAt: 'desc' }
-            }
-          }
+            paymentTasks: { orderBy: { installmentNo: 'asc' } },
+            stepLogs: { orderBy: { completedAt: 'desc' } },
+            documents: { orderBy: { createdAt: 'desc' } },
+          },
         });
       }
     }
@@ -1265,27 +1207,16 @@ export async function getFinancialDrilldownDetails(query: {
           where: {
             OR: [
               { jobNumber: cleanJobNo },
-              { jobNumber: { contains: cleanJobNo, mode: 'insensitive' } }
-            ]
+              { jobNumber: { contains: cleanJobNo, mode: 'insensitive' } },
+            ],
           },
           include: {
-            quotation: {
-              include: {
-                company: true,
-                salesperson: true
-              }
-            },
+            quotation: { include: { company: true, salesperson: true } },
             project: true,
-            paymentTasks: {
-              orderBy: { installmentNo: 'asc' }
-            },
-            stepLogs: {
-              orderBy: { completedAt: 'desc' }
-            },
-            documents: {
-              orderBy: { createdAt: 'desc' }
-            }
-          }
+            paymentTasks: { orderBy: { installmentNo: 'asc' } },
+            stepLogs: { orderBy: { completedAt: 'desc' } },
+            documents: { orderBy: { createdAt: 'desc' } },
+          },
         });
       }
     }
@@ -1293,27 +1224,16 @@ export async function getFinancialDrilldownDetails(query: {
     if (!job && query.customerName) {
       job = await prisma.job.findFirst({
         where: {
-          customerName: { contains: query.customerName.trim(), mode: 'insensitive' }
+          customerName: { contains: query.customerName.trim(), mode: 'insensitive' },
         },
         include: {
-          quotation: {
-            include: {
-              company: true,
-              salesperson: true
-            }
-          },
+          quotation: { include: { company: true, salesperson: true } },
           project: true,
-          paymentTasks: {
-            orderBy: { installmentNo: 'asc' }
-          },
-          stepLogs: {
-            orderBy: { completedAt: 'desc' }
-          },
-          documents: {
-            orderBy: { createdAt: 'desc' }
-          }
+          paymentTasks: { orderBy: { installmentNo: 'asc' } },
+          stepLogs: { orderBy: { completedAt: 'desc' } },
+          documents: { orderBy: { createdAt: 'desc' } },
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       });
     }
 
@@ -1323,24 +1243,43 @@ export async function getFinancialDrilldownDetails(query: {
         job: null,
         installments: [],
         auditLogs: [],
-        documents: []
+        documents: [],
+        bankTransactions: [],
       };
     }
 
     const now = new Date();
+    const taskIds = (job.paymentTasks || []).map((pt: any) => pt.id);
+    let matchedBankRows: any[] = [];
+    try {
+      matchedBankRows = await prisma.bankStatementTransaction.findMany({
+        where: {
+          OR: [
+            { matchedJobId: job.id },
+            ...(taskIds.length > 0 ? [{ matchedPaymentTaskId: { in: taskIds } }] : []),
+          ],
+          matchStatus: 'MATCHED',
+        },
+        orderBy: { transactionDate: 'desc' },
+      });
+    } catch {}
 
-    // Map real payment tasks
     const installments = (job.paymentTasks || []).map((pt: any, idx: number) => {
-      const amt = Number(pt.installmentAmount) || 0;
+      const amt = Number(pt.installmentAmount) || getPaymentTaskBilledAmount({ ...pt, job }) || 0;
       const paid = Number(pt.paidAmount) || 0;
-      const overdueDays = getTaskOverdueDays(pt, now);
       let status: 'PAID' | 'OVERDUE' | 'PENDING' | 'PARTIAL' = 'PENDING';
+      let overdueDays = 0;
+
       if (isScheduleTaskSettled(pt) || (amt > 0 && paid >= amt)) {
         status = 'PAID';
       } else if (paid > 0) {
         status = 'PARTIAL';
-      } else if (overdueDays > 0) {
-        status = 'OVERDUE';
+      } else if (pt.dueDate) {
+        const d = new Date(pt.dueDate);
+        if (!Number.isNaN(d.getTime()) && d.getTime() < now.getTime()) {
+          overdueDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+          if (overdueDays > 0) status = 'OVERDUE';
+        }
       }
 
       return {
@@ -1348,26 +1287,24 @@ export async function getFinancialDrilldownDetails(query: {
         no: pt.installmentNo || idx + 1,
         dueDate: formatThaiDate(pt.dueDate),
         amount: amt,
-        paid: paid,
+        paid,
         status,
         overdueDays,
         paidDate: formatThaiDate(pt.paidDate),
         invoiceNumber: pt.invoiceNumber || null,
-        note: pt.note || null
+        note: pt.note || null,
       };
     });
 
-    // Map real stepLogs (Audit Log)
     const auditLogs = (job.stepLogs || []).map((l: any) => ({
       id: l.id,
       date: formatThaiDateTime(l.completedAt) || '-',
       author: l.completedBy || 'เจ้าหน้าที่ระบบ',
       department: l.department || 'ฝ่ายปฏิบัติการ',
       step: l.step || 'ขั้นตอนงาน',
-      note: l.note || `ดำเนินการขั้นตอน: ${l.step}`
+      note: l.note || `ดำเนินการขั้นตอน: ${l.step}`,
     }));
 
-    // Map real documents (excluding reserved procurement link/hide metadata)
     const documents = (job.documents || [])
       .filter((d: any) => !String(d.type || "").startsWith("PROCUREMENT_"))
       .map((d: any) => ({
@@ -1375,7 +1312,7 @@ export async function getFinancialDrilldownDetails(query: {
         type: d.type || 'เอกสารทั่วไป',
         fileName: d.fileName,
         fileUrl: d.fileUrl,
-        createdAt: formatThaiDate(d.createdAt) || '-'
+        createdAt: formatThaiDate(d.createdAt) || '-',
       }));
 
     return {
@@ -1397,11 +1334,21 @@ export async function getFinancialDrilldownDetails(query: {
         creditDocsUrl: job.creditDocsUrl,
         billingRegulations: job.billingRegulations,
         billingDocsUrl: job.billingDocsUrl,
-        additionalInformation: job.additionalInformation
+        additionalInformation: job.additionalInformation,
       },
       installments,
       auditLogs,
-      documents
+      documents,
+      bankTransactions: matchedBankRows.map((b) => ({
+        id: b.id,
+        bankName: b.bankName,
+        accountNumber: b.accountNumber,
+        date: formatThaiDate(b.transactionDate),
+        amount: Number(b.amount || 0),
+        referenceNo: b.referenceNo,
+        description: b.description,
+        matchedBy: b.matchedBy,
+      })),
     };
   } catch (error) {
     console.error('getFinancialDrilldownDetails error:', error);
@@ -1411,7 +1358,8 @@ export async function getFinancialDrilldownDetails(query: {
       job: null,
       installments: [],
       auditLogs: [],
-      documents: []
+      documents: [],
+      bankTransactions: [],
     };
   }
 }
@@ -1438,8 +1386,8 @@ export async function addJobFollowUpNote(params: {
         completedBy: params.authorName || 'ฝ่ายบัญชีและการเงิน',
         department: params.department || 'บัญชีและการเงิน',
         note: noteContent,
-        completedAt: new Date()
-      }
+        completedAt: new Date(),
+      },
     });
 
     return {
@@ -1450,8 +1398,8 @@ export async function addJobFollowUpNote(params: {
         author: created.completedBy,
         department: created.department,
         step: created.step,
-        note: created.note || noteContent
-      }
+        note: created.note || noteContent,
+      },
     };
   } catch (error: any) {
     console.error('addJobFollowUpNote error:', error);

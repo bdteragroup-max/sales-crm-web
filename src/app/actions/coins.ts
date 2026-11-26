@@ -1015,7 +1015,7 @@ export async function evaluateTransportStaffMonthlyGold(staffUserId: string, mon
       const allMonthDeliveryLogs = await tx.jobStepLog.findMany({
         where: {
           completedAt: { gte: monthStart, lt: monthEnd },
-          step: { in: ['store_send', 'service_return', 'complete'] }
+          step: { in: ['delivery', 'store_send', 'service_return', 'complete'] }
         },
         include: { job: true }
       });
@@ -1034,7 +1034,8 @@ export async function evaluateTransportStaffMonthlyGold(staffUserId: string, mon
         const hasProof = (job.trackingPhotoUrl && job.trackingPhotoUrl.trim() !== '') ||
           (job.trackingNumber && job.trackingNumber.trim() !== '');
         const actualDate = job.deliveryDate || job.updatedAt;
-        const isOnTime = !job.targetDeliveryDate || (actualDate <= job.targetDeliveryDate);
+        const deadlineDate = job.requiredDeliveryDate ?? job.targetDeliveryDate;
+        const isOnTime = !deadlineDate || (actualDate <= deadlineDate);
 
         if (hasProof && isOnTime) {
           validJobDeliveries++;
@@ -1094,7 +1095,7 @@ export async function evaluateLogisticsManagerMonthlyGold(managerUserId: string,
       const allDeliveryLogs = await tx.jobStepLog.findMany({
         where: {
           completedAt: { gte: monthStart, lt: monthEnd },
-          step: { in: ['store_send', 'service_return', 'complete'] }
+          step: { in: ['delivery', 'store_send', 'service_return', 'complete'] }
         },
         include: { job: true }
       });
@@ -1112,7 +1113,8 @@ export async function evaluateLogisticsManagerMonthlyGold(managerUserId: string,
       uniqueJobs.forEach((job) => {
         totalDeliveries++;
         const actualDate = job.deliveryDate || job.updatedAt;
-        const isDelayed = job.targetDeliveryDate && actualDate > job.targetDeliveryDate;
+        const deadlineDate = job.requiredDeliveryDate ?? job.targetDeliveryDate;
+        const isDelayed = deadlineDate && actualDate > deadlineDate;
         if (isDelayed) {
           delayedDeliveries++;
         }
@@ -1511,6 +1513,7 @@ export async function runAllMonthlyGoldEvaluations(
       employeeId: { not: '' },
       OR: [
         { role: { contains: 'logistics', mode: 'insensitive' } },
+        { role: { contains: 'โลจิสติกส์', mode: 'insensitive' } },
         { role: { contains: 'shipping', mode: 'insensitive' } },
         { role: { contains: 'transport', mode: 'insensitive' } },
         { role: { contains: 'จัดส่ง', mode: 'insensitive' } },

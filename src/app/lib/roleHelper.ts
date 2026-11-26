@@ -502,5 +502,39 @@ export function canViewAllMarketingLeads(role: string | null | undefined): boole
   );
 }
 
+const TRANSPORT_STAFF_KEYWORDS = [
+  'ขนส่ง',
+  'จัดส่ง',
+  'transport',
+  'shipping',
+  'logistics',
+  'โลจิสติกส์',
+  'driver',
+];
+
+/**
+ * Checks whether a user belongs to the Transport / Logistics / Delivery operations role.
+ * Matches both dedicated drivers (`ขนส่ง`, `จัดส่ง`) and combined titles (`ผู้จัดการคลังสินค้าและจัดซื้อและขนส่ง`).
+ */
+export function isTransportStaff(role: string | null | undefined): boolean {
+  if (!role) return false;
+  const r = role.toLowerCase().trim();
+  return TRANSPORT_STAFF_KEYWORDS.some((kw) => r.includes(kw));
+}
+
+/**
+ * Checks whether a user has manager/supervisor authority over Logistics & Delivery trips.
+ */
+export function isLogisticsManager(role: string | null | undefined): boolean {
+  if (!role) return false;
+  if (isSuperUser(role) || isHeadOfSalesAndMarketing(role)) return true;
+  const r = role.toLowerCase().trim();
+  if (r === 'admin' || r === 'แอดมิน') return true;
+  if (!isTransportStaff(role)) return false;
+  return ['manager', 'mgr', 'ผู้จัดการ', 'หัวหน้า', 'lead', 'supervisor'].some((kw) =>
+    r.includes(kw)
+  );
+}
+
 
 

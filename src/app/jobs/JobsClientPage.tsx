@@ -33,6 +33,7 @@ import {
   ExternalLink,
   Link2,
   Lock,
+  Truck,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
@@ -50,6 +51,14 @@ import {
   evaluatePaymentTasksLinkState,
   parseAccountingTaxDocuments,
 } from "@/app/lib/accounting-reconciliation";
+import {
+  formatJobDeliveryDateTime,
+  LOGISTICS_STOP_STATUS_META,
+  LOGISTICS_TRIP_STATUS_META,
+  resolveJobLogisticsDisplayState,
+  toBangkokDateKey,
+  type JobLogisticsLinkInfo,
+} from "@/app/lib/logisticsTypes";
 import { formatDateForInput, formatThaiDate } from "@/utils/thai-date";
 import {
   deduplicatePersonNames,
@@ -95,6 +104,7 @@ type Job = {
   repairOrder?: any;
   project?: any;
   repairDeliveries?: any[];
+  logisticsLink?: JobLogisticsLinkInfo | null;
   quotationId?: string | null;
   accountingVerifiedBeforeVat?: number | null;
   accountingTaxDocuments?: unknown;
@@ -1182,45 +1192,121 @@ function ExpandedRow({
           repairDeliveries={job.repairDeliveries}
           quotationId={job.quotationId || job.quotation?.id || null}
           accountingMismatchMessage={getJobReconciliation(job).mismatchMessage}
+          logisticsLink={job.logisticsLink}
         />
 
-        {job.deliveryMethod && (
-          <div className="mt-5 pt-5 border-t border-slate-200/70">
-            <p className="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">ข้อมูลการจัดส่ง</p>
-            <div className="flex flex-wrap gap-6 pt-1">
-              <div>
-                <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
-                <p className="text-xs font-bold text-gray-700">{job.deliveryMethod === 'in-house' ? 'จัดส่งเอง (In-house)' : 'บริษัทขนส่ง (Courier)'}</p>
-              </div>
-              {job.deliveryMethod === 'in-house' && job.deliveryDate && (
-                <div>
-                  <p className="text-[10px] text-gray-400 font-medium">วันที่จัดส่ง</p>
-                  <p className="text-xs font-bold text-gray-700">{formatDate(job.deliveryDate)}</p>
-                </div>
-              )}
-              {job.deliveryMethod === 'courier' && (
-                <>
-                  <div>
-                    <p className="text-[10px] text-gray-400 font-medium">บริษัทขนส่ง</p>
-                    <p className="text-xs font-bold text-brand-red">{job.courierCompany}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-gray-400 font-medium">เลขพัสดุ</p>
-                    <p className="text-xs font-bold text-gray-700">{job.trackingNumber}</p>
-                  </div>
-                </>
-              )}
-              {job.trackingPhotoUrl && (
-                <div className="w-full mt-2">
-                  <p className="text-[10px] text-gray-400 font-medium mb-2">สลิป/ใบเสร็จ</p>
-                  <a href={job.trackingPhotoUrl} target="_blank" rel="noreferrer" className="inline-block border border-gray-200 rounded-lg overflow-hidden hover:border-brand-red transition-colors shadow-sm">
-                    <img src={job.trackingPhotoUrl} alt="Tracking slip" className="h-32 object-contain bg-gray-50" />
+        {(job.deliveryMethod || job.logisticsLink) && (() => {
+          const dtInfo = formatJobDeliveryDateTime(job.deliveryDate, job.logisticsLink);
+          const tripLink = job.logisticsLink;
+          const tripMeta = tripLink ? LOGISTICS_TRIP_STATUS_META[tripLink.tripStatus] : null;
+          const stopMeta = tripLink ? LOGISTICS_STOP_STATUS_META[tripLink.stopStatus] : null;
+          return (
+            <div className="mt-5 pt-5 border-t border-slate-200/70">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <Truck size={12} className="text-sky-600" />
+                  ข้อมูลการจัดส่ง
+                </p>
+                {tripLink && (
+                  <a
+                    href={`/logistics/trips/${tripLink.tripId}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-700 text-[11px] font-bold transition-colors"
+                  >
+                    <span>ทริป {tripLink.tripNumber}</span>
+                    <ExternalLink size={11} />
                   </a>
-                </div>
-              )}
+                )}
+              </div>
+              <div className="flex flex-wrap gap-6 pt-1">
+                {job.deliveryMethod && (
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">รูปแบบ</p>
+                    <p className="text-xs font-bold text-gray-700">
+                      {job.deliveryMethod === "in-house" ? "จัดส่งเอง (In-house)" : "บริษัทขนส่ง (Courier)"}
+                    </p>
+                  </div>
+                )}
+                {(job.deliveryDate || tripLink) && dtInfo.dateText !== "-" && (
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">
+                      {dtInfo.isActualDelivered ? "วันที่ส่งมอบจริง" : "วัน-เวลาจัดส่ง"}
+                    </p>
+                    <p className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
+                      <span>{dtInfo.dateText}</span>
+                      {dtInfo.timeText && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200 text-sky-700 text-[11px] font-bold">
+                          <Clock size={10} />
+                          {dtInfo.timeText}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                )}
+                {tripLink && (
+                  <>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-medium">สถานะในระบบขนส่ง</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span
+                          className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold border ${
+                            (tripLink.stopStatus === "PENDING" ? tripMeta?.badge : stopMeta?.badge) ||
+                            "bg-slate-50 border-slate-200 text-slate-700"
+                          }`}
+                        >
+                          {tripLink.stopStatus === "PENDING" ? tripMeta?.label : stopMeta?.label}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-medium">
+                        {tripLink.transportType === "EXTERNAL" && !tripLink.driverName
+                          ? "บริษัทขนส่งนอก / ทะเบียน"
+                          : "พนักงานขับรถ / ทะเบียนรถ"}
+                      </p>
+                      <p className="text-xs font-bold text-gray-700">
+                        {tripLink.driverName || tripLink.courierName || "-"}
+                        {tripLink.vehiclePlate ? ` · ${tripLink.vehiclePlate}` : ""}
+                      </p>
+                    </div>
+                    {tripLink.receiverName && (
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-medium">ผู้รับสินค้าหน้างาน</p>
+                        <p className="text-xs font-bold text-emerald-700">{tripLink.receiverName}</p>
+                      </div>
+                    )}
+                    {tripLink.failReason && (
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-medium">หมายเหตุจัดส่งไม่สำเร็จ/เลื่อนนัด</p>
+                        <p className="text-xs font-bold text-rose-600">{tripLink.failReason}</p>
+                      </div>
+                    )}
+                  </>
+                )}
+                {job.deliveryMethod === "courier" && (
+                  <>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-medium">บริษัทขนส่ง</p>
+                      <p className="text-xs font-bold text-brand-red">{job.courierCompany || tripLink?.courierName || "-"}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-medium">เลขพัสดุ</p>
+                      <p className="text-xs font-bold text-gray-700">{job.trackingNumber || tripLink?.trackingNumber || "-"}</p>
+                    </div>
+                  </>
+                )}
+                {job.trackingPhotoUrl && (
+                  <div className="w-full mt-2">
+                    <p className="text-[10px] text-gray-400 font-medium mb-2">สลิป/ใบเสร็จ/หลักฐานส่งมอบ</p>
+                    <a href={job.trackingPhotoUrl} target="_blank" rel="noreferrer" className="inline-block border border-gray-200 rounded-lg overflow-hidden hover:border-brand-red transition-colors shadow-sm">
+                      <img src={job.trackingPhotoUrl} alt="Tracking slip" className="h-32 object-contain bg-gray-50" />
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <JobProcurementStatus
           jobId={job.id}
@@ -1292,13 +1378,17 @@ function ExpandedRow({
           <EditableField label="วันที่ปิดการขาย" value={formatDateForInput(job.dateClosed)} type="date" onSave={save("dateClosed")} />
           <EditableField
             label="วันที่ต้องการจัดส่ง"
-            value={formatDateForInput(
-              job.deliveryDate ||
-              job.repairOrder?.sentDate ||
-              job.repairOrder?.receivedDate ||
-              job.project?.endDate ||
-              job.project?.deliveryDate
-            )}
+            value={
+              job.logisticsLink
+                ? toBangkokDateKey(job.logisticsLink.deliveredAt || job.deliveryDate || job.logisticsLink.tripDate)
+                : formatDateForInput(
+                    job.deliveryDate ||
+                    job.repairOrder?.sentDate ||
+                    job.repairOrder?.receivedDate ||
+                    job.project?.endDate ||
+                    job.project?.deliveryDate
+                  )
+            }
             type="date"
             onSave={save("deliveryDate")}
           />
@@ -1693,7 +1783,30 @@ export default function JobsClientPage({
         j.flowVariant,
         j.stepLogs
       );
+      const recon = getJobReconciliation(j);
+      const paymentLink = getJobPaymentLink(j);
+      const isWorkflowStepsDone = isCompleted(
+        j.jobType,
+        j.currentStep,
+        j.flowVariant,
+        j.stepLogs
+      );
       const isDone = isJobClosedCompleted(j);
+      const isWaitingCreditPaymentClose =
+        !isDone && isWorkflowStepsDone && paymentLink.hasUnsettledCreditOrInstallment;
+      const displayState = resolveJobLogisticsDisplayState({
+        currentStep: j.currentStep,
+        defaultLabel: stepDef?.label || j.currentStep,
+        logistics: j.logisticsLink,
+        isDone,
+        hasMismatch: recon.hasMismatch,
+        mismatchMessage: recon.mismatchMessage,
+        isWaitingPayment: isWaitingCreditPaymentClose,
+        settledTasks: paymentLink.settledTasks,
+        totalTasks: paymentLink.totalTasks,
+        closeBlockReason: paymentLink.closeBlockReason,
+      });
+      const dtInfo = formatJobDeliveryDateTime(j.deliveryDate, j.logisticsLink);
 
       return {
         "เลขที่งาน (Job No.)": j.jobNumber,
@@ -1701,9 +1814,10 @@ export default function JobsClientPage({
         "ชื่อลูกค้า": j.customerName,
         "รายการ/สินค้า": j.item || "-",
         "ประเภทงาน": j.jobType,
-        "ขั้นตอนปัจจุบัน": isDone
-          ? "เสร็จสมบูรณ์"
-          : stepDef?.label || j.currentStep,
+        "ขั้นตอนปัจจุบัน": displayState.badgeLabel,
+        "ทริปจัดส่ง (/logistics)": j.logisticsLink
+          ? `${j.logisticsLink.tripNumber} (${displayState.subLabel || LOGISTICS_TRIP_STATUS_META[j.logisticsLink.tripStatus]?.label})`
+          : "-",
         "ยอดเงินประเมิน": val,
         "วันที่ปิดการขาย": formatDate(j.dateClosed),
         "ใบเสนอราคา": j.quotationNumber || "-",
@@ -1717,7 +1831,8 @@ export default function JobsClientPage({
             : j.deliveryMethod === "courier"
               ? "ขนส่งเอกชน"
               : "-",
-        "วันที่ต้องการจัดส่ง": j.deliveryDate ? formatDate(j.deliveryDate) : "-",
+        "วันที่ต้องการจัดส่ง": dtInfo.dateText,
+        "เวลาจัดส่ง": dtInfo.timeText || "-",
       };
     });
 
@@ -2060,6 +2175,9 @@ export default function JobsClientPage({
         const qn = (j.quotationNumber || "").toLowerCase();
         const po = (j.poNumber || "").toLowerCase();
         const inv = getJobInvoiceNumber(j).toLowerCase();
+        const tripNum = (j.logisticsLink?.tripNumber || "").toLowerCase();
+        const driverN = (j.logisticsLink?.driverName || "").toLowerCase();
+        const courierN = (j.logisticsLink?.courierName || "").toLowerCase();
         const sn = (j.sellerName || "").trim().replace(/\s+/g, " ").toLowerCase();
         const snKey = getPersonIdentityKey(j.sellerName);
         const sellerMatches =
@@ -2071,6 +2189,9 @@ export default function JobsClientPage({
           !qn.includes(q) &&
           !po.includes(q) &&
           !inv.includes(q) &&
+          !tripNum.includes(q) &&
+          !driverN.includes(q) &&
+          !courierN.includes(q) &&
           !sellerMatches
         ) {
           return false;
@@ -2743,6 +2864,25 @@ export default function JobsClientPage({
               job.flowVariant,
               job.stepLogs
             );
+            const displayState = resolveJobLogisticsDisplayState({
+              currentStep: job.currentStep,
+              defaultLabel: stepDef?.label || job.currentStep,
+              logistics: job.logisticsLink,
+              isDone,
+              hasMismatch: recon.hasMismatch,
+              mismatchMessage: recon.mismatchMessage,
+              isWaitingPayment: isWaitingCreditPaymentClose,
+              settledTasks: paymentLink.settledTasks,
+              totalTasks: paymentLink.totalTasks,
+              closeBlockReason: paymentLink.closeBlockReason,
+            });
+            const derivedMobDeliveryDate =
+              job.deliveryDate ||
+              job.repairOrder?.sentDate ||
+              job.repairOrder?.receivedDate ||
+              job.project?.endDate ||
+              job.project?.deliveryDate;
+            const mobDtInfo = formatJobDeliveryDateTime(derivedMobDeliveryDate, job.logisticsLink);
 
             return (
               <div
@@ -2818,33 +2958,31 @@ export default function JobsClientPage({
                     <div className="flex items-center gap-2 flex-wrap">
                       <JobTypeBadge type={job.jobType} />
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold ${isDone
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : recon.hasMismatch
-                            ? "bg-rose-50 text-rose-700 border border-rose-200"
-                            : isWaitingCreditPaymentClose
-                            ? "bg-amber-50 text-amber-800 border border-amber-200"
-                            : "bg-blue-50 text-blue-700 border border-blue-200"
-                          }`}
+                        title={displayState.tooltip}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${displayState.badgeClass}`}
                       >
-                        {isDone ? (
-                          <>
-                            <CheckCircle2 size={10} />
-                            <span>เสร็จแล้ว</span>
-                          </>
-                        ) : recon.hasMismatch ? (
-                          <span>ยอดไม่ตรงบัญชี</span>
-                        ) : isWaitingCreditPaymentClose ? (
-                          <span>รอรับชำระครบ ({paymentLink.settledTasks}/{paymentLink.totalTasks})</span>
-                        ) : (
-                          <span>{stepDef?.label || job.currentStep}</span>
-                        )}
+                        {displayState.kind === "done" && <CheckCircle2 size={10} />}
+                        <span>{displayState.mobileBadgeLabel}</span>
                       </span>
                     </div>
-                    <span className="text-[11px]">
-                      {formatDate(job.dateClosed)}
-                    </span>
+                    <div className="text-right shrink-0">
+                      <span className="text-[11px] block">
+                        {formatDate(job.dateClosed)}
+                      </span>
+                      {(derivedMobDeliveryDate || job.logisticsLink) && mobDtInfo.dateText !== "-" && (
+                        <span className="text-[10px] text-sky-700 font-medium block">
+                          {mobDtInfo.isActualDelivered ? "ส่งแล้ว: " : "ส่ง: "}
+                          {mobDtInfo.dateText}
+                          {mobDtInfo.timeText ? ` ${mobDtInfo.timeText}` : ""}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  {displayState.subLabel && (
+                    <div className={`text-[10px] font-medium truncate ${displayState.subClass || "text-slate-500"}`}>
+                      {displayState.subLabel}
+                    </div>
+                  )}
                 </div>
 
                 {isOpen && (
@@ -2974,6 +3112,19 @@ export default function JobsClientPage({
                     job.flowVariant,
                     job.stepLogs
                   );
+                  const displayState = resolveJobLogisticsDisplayState({
+                    currentStep: job.currentStep,
+                    defaultLabel: stepDef?.label || job.currentStep,
+                    logistics: job.logisticsLink,
+                    isDone,
+                    hasMismatch: recon.hasMismatch,
+                    mismatchMessage: recon.mismatchMessage,
+                    isWaitingPayment: isWaitingCreditPaymentClose,
+                    settledTasks: paymentLink.settledTasks,
+                    totalTasks: paymentLink.totalTasks,
+                    closeBlockReason: paymentLink.closeBlockReason,
+                  });
+                  const dtInfo = formatJobDeliveryDateTime(derivedDeliveryDate, job.logisticsLink);
 
                   return (
                     <React.Fragment key={job.id}>
@@ -2999,41 +3150,29 @@ export default function JobsClientPage({
                         </td>
 
                         <td className="py-3.5 px-4 whitespace-nowrap">
-                          <span
-                            title={
-                              recon.mismatchMessage ||
-                              (isWaitingCreditPaymentClose ? paymentLink.closeBlockReason || undefined : undefined)
-                            }
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shadow-2xs ${isDone
-                                ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-                                : recon.hasMismatch
-                                ? "bg-rose-50 border-rose-200 text-rose-700"
-                                : isWaitingCreditPaymentClose
-                                ? "bg-amber-50 border-amber-200 text-amber-800"
-                                : "bg-blue-50 border-blue-200 text-blue-700"
-                              }`}
-                          >
-                            {isDone ? (
-                              <>
+                          <div className="flex flex-col gap-1">
+                            <span
+                              title={displayState.tooltip}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shadow-2xs w-fit ${displayState.badgeClass}`}
+                            >
+                              {displayState.kind === "done" ? (
                                 <CheckCircle2 size={12} />
-                                <span>เสร็จสมบูรณ์</span>
-                              </>
-                            ) : recon.hasMismatch ? (
-                              <>
+                              ) : displayState.kind === "mismatch" || displayState.kind === "waiting_payment" ? (
                                 <AlertCircle size={12} />
-                                <span>ปิดไม่ได้ (ยอดไม่ตรงบัญชี)</span>
-                              </>
-                            ) : isWaitingCreditPaymentClose ? (
-                              <>
-                                <AlertCircle size={12} />
-                                <span>
-                                  ปิดไม่ได้ (รอรับชำระครบ {paymentLink.settledTasks}/{paymentLink.totalTasks})
-                                </span>
-                              </>
-                            ) : (
-                              <span>{stepDef?.label || job.currentStep}</span>
+                              ) : displayState.kind === "logistics" ? (
+                                <Truck size={12} />
+                              ) : null}
+                              <span>{displayState.badgeLabel}</span>
+                            </span>
+                            {displayState.subLabel && (
+                              <span
+                                title={displayState.subLabel}
+                                className={`text-[10px] font-semibold truncate max-w-[190px] ${displayState.subClass || "text-slate-500"}`}
+                              >
+                                {displayState.subLabel}
+                              </span>
                             )}
-                          </span>
+                          </div>
                         </td>
 
                         <td className="py-3.5 px-4 whitespace-nowrap">
@@ -3141,11 +3280,22 @@ export default function JobsClientPage({
                             ) : (
                               <span className="text-slate-300">—</span>
                             )}
-                            {derivedDeliveryDate && (
-                              <span className="text-[10px] font-medium text-slate-500">
-                                {job.repairOrder && !job.deliveryDate && !job.repairOrder.sentDate && job.repairOrder.receivedDate ? "รับเข้า: " : "ส่ง: "}
-                                {formatDate(derivedDeliveryDate)}
-                              </span>
+                            {(derivedDeliveryDate || job.logisticsLink) && dtInfo.dateText !== "-" && (
+                              <div className="flex items-center gap-1 flex-wrap text-[10px] font-medium text-slate-500">
+                                <span>
+                                  {job.repairOrder && !job.deliveryDate && !job.repairOrder.sentDate && job.repairOrder.receivedDate
+                                    ? "รับเข้า: "
+                                    : dtInfo.isActualDelivered
+                                      ? "ส่งแล้ว: "
+                                      : "ส่ง: "}
+                                  {dtInfo.dateText}
+                                </span>
+                                {dtInfo.timeText && (
+                                  <span className="px-1.5 py-0.2 rounded bg-sky-50 border border-sky-200 text-sky-700 font-bold">
+                                    {dtInfo.timeText}
+                                  </span>
+                                )}
+                              </div>
                             )}
                           </div>
                         </td>

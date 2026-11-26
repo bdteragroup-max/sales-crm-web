@@ -63,6 +63,7 @@ export default function FinancialDrilldownModal({ isOpen, onClose, item }: Finan
   const [installments, setInstallments] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
+  const [bankTransactions, setBankTransactions] = useState<any[]>([]);
 
   // Fetch real details from database when item changes
   useEffect(() => {
@@ -71,6 +72,7 @@ export default function FinancialDrilldownModal({ isOpen, onClose, item }: Finan
       setInstallments([]);
       setAuditLogs([]);
       setDocuments([]);
+      setBankTransactions([]);
       return;
     }
 
@@ -90,12 +92,14 @@ export default function FinancialDrilldownModal({ isOpen, onClose, item }: Finan
           setInstallments(res.installments || []);
           setAuditLogs(res.auditLogs || []);
           setDocuments(res.documents || []);
+          setBankTransactions(res.bankTransactions || []);
         } else {
           // Fallback to basic item info if not linked to a specific job in DB
           setRealJob(null);
           setInstallments([]);
           setAuditLogs([]);
           setDocuments([]);
+          setBankTransactions([]);
         }
       })
       .catch((err) => {
@@ -418,6 +422,33 @@ export default function FinancialDrilldownModal({ isOpen, onClose, item }: Finan
                         การชำระเงินของลูกค้ารายนี้ผูกกับ {item.companyCode === 'TP' ? 'บริษัท เทอรา พาวเวอร์ จำกัด' : item.companyCode === 'TE' ? 'บริษัท เทอรา อิเล็คทริค จำกัด' : 'บริษัท เทอรา กรุ้ป จำกัด'} — ช่องทาง: {realJob?.paymentMethod || item.paymentMethod || 'โอนผ่านบัญชีธนาคาร'}
                       </p>
                     </div>
+                  </div>
+
+                  {/* Matched Bank Statement Records */}
+                  <div className="p-3.5 border border-slate-200 rounded-xl bg-white space-y-2 text-xs">
+                    <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                      รายการเงินเข้าที่กระทบยอดจาก Bank Statement ({bankTransactions.length} รายการ)
+                    </span>
+                    {bankTransactions.length === 0 ? (
+                      <p className="text-slate-400 text-xs py-2">ยังไม่พบรายการ Bank Statement ที่จับคู่กับงานนี้</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {bankTransactions.map((bt) => (
+                          <div key={bt.id} className="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 border border-emerald-200">
+                            <div>
+                              <div className="font-bold text-slate-900">
+                                {bt.bankName} {bt.accountNumber ? `(${bt.accountNumber})` : ''} • {bt.date || '-'}
+                              </div>
+                              <div className="text-[11px] text-slate-600">{bt.description}</div>
+                            </div>
+                            <span className="font-black text-emerald-700 shrink-0">
+                              ฿{Number(bt.amount || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
