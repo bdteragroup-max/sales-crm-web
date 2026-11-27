@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { getUser } from '@/app/lib/dal';
 import { getMarketingBoardData, getSalesMaterials, getArchiveAnnouncements } from '@/app/actions/marketingBoard';
 import { getBranchContentBoardData } from '@/app/actions/branchContent';
+import { resolveContentPlanningPermissions } from '@/app/actions/contentPlanning';
 import MarketingBoardClient from './components/MarketingBoardClient';
 
 export default async function MarketingBoardPage({
@@ -27,11 +28,12 @@ export default async function MarketingBoardPage({
       ? 'archive'
       : 'kanban';
 
-  const [boardData, salesMaterials, archiveData, branchContentData] = await Promise.all([
+  const [boardData, salesMaterials, archiveData, branchContentData, contentPlanningAuth] = await Promise.all([
     getMarketingBoardData(),
     getSalesMaterials(),
     getArchiveAnnouncements(),
     getBranchContentBoardData(),
+    resolveContentPlanningPermissions(),
   ]);
 
   return (
@@ -41,6 +43,7 @@ export default async function MarketingBoardPage({
       initialArchiveData={archiveData}
       initialBranchContentData={branchContentData}
       initialTab={initialTabParam}
+      canAccessContentPlanning={Boolean(contentPlanningAuth.permissions?.canAccess)}
       currentUser={sessionUser}
     />
   );

@@ -24,7 +24,7 @@ import NotificationBell from './NotificationBell'; // HMR flush
 
 const ENABLE_SIDEBAR_PREFETCH = process.env.NODE_ENV === 'production';
 const SIDEBAR_BADGE_CACHE_TTL_MS = 20_000;
-const SIDEBAR_BADGE_CACHE_PREFIX = 'crm_sidebar_badges_v2:';
+const SIDEBAR_BADGE_CACHE_PREFIX = 'crm_sidebar_badges_v3:';
 
 type SidebarProps = {
   activeRoute?: string;
@@ -58,6 +58,7 @@ const executiveNav = [
   // ── 3. Marketing & Commercial ──
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Sparkles, label: 'บอร์ดคอนเทนต์สาขา (Branch Content Board)', href: '/marketing-board/branch-content' },
+  { icon: CalendarDays, label: 'วางแผนคอนเทนต์ (Content Planning)', href: '/marketing-board/content-planning' },
   { icon: Tv, label: 'แดชบอร์ดการตลาดและโฆษณา (Marketing & Ads)', href: '/marketing/dashboard' },
   { icon: Boxes, label: 'สต็อก & เบิกของพรีเมี่ยม', href: '/stock' },
   { icon: Users, label: 'ทะเบียนลูกค้า (Client 360)', href: '/clients' },
@@ -212,6 +213,7 @@ const marketingNav = [
   { icon: LayoutDashboard, label: 'Marketing Dashboard', href: '/marketing/dashboard' },
   { icon: Megaphone, label: 'กระดานการตลาด (Marketing Board)', href: '/marketing-board' },
   { icon: Sparkles, label: 'บอร์ดคอนเทนต์สาขา (Branch Content Board)', href: '/marketing-board/branch-content' },
+  { icon: CalendarDays, label: 'วางแผนคอนเทนต์ (Content Planning)', href: '/marketing-board/content-planning' },
   { icon: Boxes, label: 'สต็อก & เบิกของพรีเมี่ยม', href: '/stock' },
   { icon: Megaphone, label: 'คำขอการตลาด (Marketing Request)', href: '/marketing/requests' },
   { icon: Tv, label: 'แดชบอร์ดโฆษณา (Ads Dashboard)', href: '/marketing/ads/dashboard' },
@@ -533,6 +535,7 @@ function ResponsiveSidebar({
   const [unreadMarketingBoardCount, setUnreadMarketingBoardCount] = useState(0);
   const [pendingBranchContentCount, setPendingBranchContentCount] = useState(0);
   const [canAccessBranchContent, setCanAccessBranchContent] = useState<boolean>(false);
+  const [canAccessContentPlanning, setCanAccessContentPlanning] = useState<boolean>(false);
   const [pendingClaimCount, setPendingClaimCount] = useState(0);
   const [openServiceCallCount, setOpenServiceCallCount] = useState(0);
   const [pendingServiceHandoverCount, setPendingServiceHandoverCount] = useState(0);
@@ -588,6 +591,10 @@ function ResponsiveSidebar({
       const cached = sessionStorage.getItem(`branchContentAccess_${userId}`);
       if (cached === 'true') setCanAccessBranchContent(true);
       else if (cached === 'false') setCanAccessBranchContent(false);
+
+      const cachedPlan = sessionStorage.getItem(`contentPlanningAccess_${userId}`);
+      if (cachedPlan === 'true') setCanAccessContentPlanning(true);
+      else if (cachedPlan === 'false') setCanAccessContentPlanning(false);
     }
   }, [userId]);
 
@@ -605,11 +612,11 @@ function ResponsiveSidebar({
 
   const baseNav = isSuperAdmin && superAdminContexts && superAdminContexts[selectedContext] ? superAdminContexts[selectedContext] : defaultNav;
   const nav = React.useMemo(() => {
-    if (canAccessBranchContent) {
-      if (baseNav.some(item => item.href === '/marketing-board/branch-content')) {
-        return baseNav;
-      }
-      const next = [...baseNav];
+    const next = canAccessBranchContent
+      ? [...baseNav]
+      : baseNav.filter(item => item.href !== '/marketing-board/branch-content');
+
+    if (canAccessBranchContent && !next.some(item => item.href === '/marketing-board/branch-content')) {
       const mktIdx = next.findIndex(item => item.href === '/marketing-board');
       const branchContentItem: NavItem = {
         icon: Sparkles,
@@ -621,10 +628,26 @@ function ResponsiveSidebar({
       } else {
         next.push(branchContentItem);
       }
-      return next;
     }
-    return baseNav.filter(item => item.href !== '/marketing-board/branch-content');
-  }, [baseNav, canAccessBranchContent]);
+
+    if (!isSuperAdmin && canAccessContentPlanning && !next.some(item => item.href === '/marketing-board/content-planning')) {
+      const bcIdx = next.findIndex(item => item.href === '/marketing-board/branch-content');
+      const mktIdx = next.findIndex(item => item.href === '/marketing-board');
+      const insertIdx = bcIdx !== -1 ? bcIdx + 1 : mktIdx !== -1 ? mktIdx + 1 : -1;
+      const contentPlanningItem: NavItem = {
+        icon: CalendarDays,
+        label: 'วางแผนคอนเทนต์ (Content Planning)',
+        href: '/marketing-board/content-planning',
+      };
+      if (insertIdx !== -1) {
+        next.splice(insertIdx, 0, contentPlanningItem);
+      } else {
+        next.push(contentPlanningItem);
+      }
+    }
+
+    return next;
+  }, [baseNav, canAccessBranchContent, canAccessContentPlanning, isSuperAdmin]);
 
   const [tooltip, setTooltip] = useState<{ label: string; y: number } | null>(null);
   const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -650,6 +673,7 @@ function ResponsiveSidebar({
       setPendingMarketingRequestCount(summary.pendingMarketingRequestCount);
       setUnreadMarketingBoardCount(summary.unreadMarketingBoardCount);
       setCanAccessBranchContent(summary.canAccessBranchContent);
+      setCanAccessContentPlanning(Boolean(summary.canAccessContentPlanning));
       setPendingBranchContentCount(summary.pendingBranchContentCount);
       setPendingClaimCount(summary.pendingClaimCount);
       setOpenServiceCallCount(summary.openServiceCallCount);
@@ -690,6 +714,7 @@ function ResponsiveSidebar({
               sessionStorage.setItem(cacheKey, JSON.stringify({ data: summary, ts: Date.now() }));
               if (userId) {
                 sessionStorage.setItem(`branchContentAccess_${userId}`, String(summary.canAccessBranchContent));
+                sessionStorage.setItem(`contentPlanningAccess_${userId}`, String(Boolean(summary.canAccessContentPlanning)));
               }
             } catch {
               // Ignore storage errors

@@ -6,7 +6,10 @@ import {
   resolveCostAndProfitInputs,
 } from '@/app/lib/salesCommission';
 import {
+  acquireCommissionJobLock,
+  assertNoActiveCommissionConflictForJob,
   getCommissionActor,
+  resolveCommissionMutationError,
   syncRequestSplitAllocations,
 } from '@/app/lib/salesCommissionServer';
 
@@ -52,30 +55,53 @@ export async function PATCH(
     if ('error' in resolved) {
       return NextResponse.json({ error: resolved.error }, { status: 400 });
     }
-    const { costAmount: nextCostAmount, profitPct: nextProfitPct } = resolved;
-
-    const isAlreadyApproved = existing.status === 'APPROVED';
-    const isRevision = existing.confirmedProfitPct !== null;
-    if (isRevision && !reason && !inlineQuickSave) {
-      return NextResponse.json(
-        { error: 'กรุณาระบุเหตุผลในการแก้ไขตัวเลขกำไร' },
-        { status: 400 }
-      );
-    }
-    const effectiveReason =
-      reason ||
-      (isAlreadyApproved
-        ? 'แก้ไขตัวเลขกำไรหลังอนุมัติจากตารางตรวจสอบ'
-        : isRevision
-        ? 'แก้ไขตัวเลขกำไรจากตารางตรวจสอบ'
-        : 'ยืนยันกำไรโดย SUPER_ADMIN');
-
-    const calc = calculateCommissionFromProfit(existing.salesAmountExVat, nextProfitPct);
-    const nextStatus = isAlreadyApproved ? 'APPROVED' : 'PENDING_APPROVAL';
-    const nextSourceProfit =
-      existing.sourceProfitPct !== null ? existing.sourceProfitPct : nextProfitPct;
-
     const updated = await prisma.$transaction(async (tx) => {
+      await acquireCommissionJobLock(tx, existing.jobId);
+
+      const current = await tx.salesCommissionRequest.findUnique({ where: { id } });
+      if (!current) {
+        throw new Error('ไม่พบคำขอค่าคอมมิชชั่น');
+      }
+      if (current.status === 'PAID') {
+        throw new Error('ไม่สามารถแก้ไขกำไรของคำขอที่บันทึกจ่ายเงินแล้วได้');
+      }
+
+      const txResolved = resolveCostAndProfitInputs(
+        current.salesAmountExVat,
+        rawCostAmount,
+        rawProfitPct
+      );
+      if ('error' in txResolved) {
+        throw new Error(txResolved.error);
+      }
+      const { costAmount: nextCostAmount, profitPct: nextProfitPct } = txResolved;
+
+      const isAlreadyApproved = current.status === 'APPROVED';
+      const isRevision = current.confirmedProfitPct !== null;
+      if (isRevision && !reason && !inlineQuickSave) {
+        throw new Error('กรุณาระบุเหตุผลในการแก้ไขตัวเลขกำไร');
+      }
+      const effectiveReason =
+        reason ||
+        (isAlreadyApproved
+          ? 'แก้ไขตัวเลขกำไรหลังอนุมัติจากตารางตรวจสอบ'
+          : isRevision
+          ? 'แก้ไขตัวเลขกำไรจากตารางตรวจสอบ'
+          : 'ยืนยันกำไรโดย SUPER_ADMIN');
+
+      const calc = calculateCommissionFromProfit(current.salesAmountExVat, nextProfitPct);
+      const nextStatus = isAlreadyApproved ? 'APPROVED' : 'PENDING_APPROVAL';
+      const nextSourceProfit =
+        current.sourceProfitPct !== null ? current.sourceProfitPct : nextProfitPct;
+
+      await assertNoActiveCommissionConflictForJob(tx, {
+        requestId: id,
+        jobId: current.jobId,
+        jobNumber: current.jobNumber,
+        nextStatus,
+        actionLabel: 'บันทึก',
+      });
+
       await tx.salesCommissionRequest.update({
         where: { id },
         data: {
@@ -102,17 +128,17 @@ export async function PATCH(
             : isRevision
             ? 'PROFIT_UPDATED'
             : 'PROFIT_CONFIRMED',
-          fromStatus: existing.status,
+          fromStatus: current.status,
           toStatus: nextStatus,
           actorId: actor.id,
           actorName: actor.fullName,
-          previousProfitPct: existing.confirmedProfitPct,
+          previousProfitPct: current.confirmedProfitPct,
           newProfitPct: nextProfitPct,
-          previousCost: existing.costAmount,
+          previousCost: current.costAmount,
           newCost: nextCostAmount,
-          previousCommissionRate: existing.commissionRatePct,
+          previousCommissionRate: current.commissionRatePct,
           newCommissionRate: calc.ratePct,
-          previousCommissionAmount: existing.commissionAmount,
+          previousCommissionAmount: current.commissionAmount,
           newCommissionAmount: calc.amount,
           reason:
             reason ||
@@ -142,7 +168,10 @@ export async function PATCH(
     return NextResponse.json({ success: true, request: updated });
   } catch (error: unknown) {
     console.error('Error in PATCH /api/sales/commissions/[id]/profit:', error);
-    const message = error instanceof Error ? error.message : 'บันทึกการยืนยันกำไรไม่สำเร็จ';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const { status, message } = resolveCommissionMutationError(
+      error,
+      'บันทึกการยืนยันกำไรไม่สำเร็จ'
+    );
+    return NextResponse.json({ error: message }, { status });
   }
 }

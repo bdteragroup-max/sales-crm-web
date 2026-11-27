@@ -714,7 +714,7 @@ export async function resolveUserBranchPermissions(): Promise<{
 
   // Marketing team sees all branches by default per BRD; non-Marketing assignees rely strictly on existing branch permissions (no automatic expansion).
   const canViewAllBranches =
-    sysAdmin || mktManager || readOnlyExec || isMarketingStaff(role);
+    sysAdmin || mktManager || readOnlyExec || isMarketingStaff(role) || isMarketingUserRecord(user);
   const allowedBranchMap = new Map<string, BranchMasterItem>();
 
   if (canViewAllBranches) {

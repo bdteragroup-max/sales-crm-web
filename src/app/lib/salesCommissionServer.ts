@@ -453,6 +453,85 @@ export async function acquireCommissionJobLock(tx: DbTransactionClient, jobId: s
   await acquireCommissionJobLocks(tx, [jobId]);
 }
 
+export class CommissionConflictError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CommissionConflictError';
+  }
+}
+
+/**
+ * Ensures activating or updating a commission request will not collide with
+ * `uniq_active_commission_per_job` (one non-REJECTED request per job_id).
+ */
+export async function assertNoActiveCommissionConflictForJob(
+  tx: DbTransactionClient,
+  params: {
+    requestId: string;
+    jobId: string;
+    jobNumber: string;
+    nextStatus: string;
+    actionLabel?: string;
+  }
+): Promise<void> {
+  if (params.nextStatus === 'REJECTED') return;
+
+  const activeSibling = await tx.salesCommissionRequest.findFirst({
+    where: {
+      jobId: params.jobId,
+      id: { not: params.requestId },
+      status: { not: 'REJECTED' },
+    },
+    orderBy: { requestedAt: 'desc' },
+    select: { requestNo: true },
+  });
+
+  if (activeSibling) {
+    const verb = params.actionLabel || 'บันทึก';
+    throw new CommissionConflictError(
+      `ไม่สามารถ${verb}ได้ เนื่องจาก Job ${params.jobNumber} มีคำขอค่าคอมมิชชั่นที่ใช้งานอยู่แล้ว (${activeSibling.requestNo})`
+    );
+  }
+}
+
+export function resolveCommissionMutationError(
+  error: unknown,
+  fallbackMessage: string
+): { status: number; message: string } {
+  if (error instanceof CommissionConflictError) {
+    return { status: 400, message: error.message };
+  }
+
+  const rawMessage = error instanceof Error ? error.message : fallbackMessage;
+  const prismaCode =
+    typeof error === 'object' && error !== null && 'code' in error
+      ? String((error as { code?: unknown }).code || '')
+      : '';
+
+  if (
+    prismaCode === 'P2002' ||
+    rawMessage.includes('uniq_active_commission_per_job') ||
+    (rawMessage.includes('Unique constraint failed') && rawMessage.includes('job_id'))
+  ) {
+    return {
+      status: 400,
+      message: 'ไม่สามารถบันทึกได้ เนื่องจาก Job นี้มีคำขอค่าคอมมิชชั่นที่ใช้งานอยู่แล้ว',
+    };
+  }
+
+  const isBusinessValidation =
+    rawMessage.includes('กรุณา') ||
+    rawMessage.includes('ตัวเลข') ||
+    rawMessage.includes('จ่ายเงิน') ||
+    rawMessage.includes('ไม่สามารถ') ||
+    rawMessage.includes('ไม่พบ');
+
+  return {
+    status: isBusinessValidation ? 400 : 500,
+    message: rawMessage || fallbackMessage,
+  };
+}
+
 const ACCOUNTING_JOB_INVOICE_SELECT = {
   id: true,
   jobNumber: true,

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import prisma from '@/app/lib/db';
-import { getCommissionActor } from '@/app/lib/salesCommissionServer';
+import {
+  acquireCommissionJobLock,
+  assertNoActiveCommissionConflictForJob,
+  getCommissionActor,
+  resolveCommissionMutationError,
+} from '@/app/lib/salesCommissionServer';
 
 export async function PATCH(
   request: NextRequest,
@@ -55,6 +60,31 @@ export async function PATCH(
       }
 
       const updated = await prisma.$transaction(async (tx) => {
+        await acquireCommissionJobLock(tx, existing.jobId);
+
+        const current = await tx.salesCommissionRequest.findUnique({ where: { id } });
+        if (!current) {
+          throw new Error('ไม่พบคำขอค่าคอมมิชชั่น');
+        }
+        if (current.status === 'PAID') {
+          throw new Error('คำขอนี้บันทึกจ่ายเงินแล้ว ไม่สามารถเปลี่ยนสถานะได้');
+        }
+        if (
+          current.confirmedProfitPct === null ||
+          current.commissionAmount === null ||
+          current.commissionRatePct === null
+        ) {
+          throw new Error('กรุณายืนยันตัวเลขกำไรใน Step 4 ก่อนอนุมัติคำขอ');
+        }
+
+        await assertNoActiveCommissionConflictForJob(tx, {
+          requestId: id,
+          jobId: current.jobId,
+          jobNumber: current.jobNumber,
+          nextStatus: 'APPROVED',
+          actionLabel: 'อนุมัติ',
+        });
+
         const saved = await tx.salesCommissionRequest.update({
           where: { id },
           data: {
@@ -70,13 +100,13 @@ export async function PATCH(
           data: {
             requestId: id,
             action: 'APPROVED',
-            fromStatus: existing.status,
+            fromStatus: current.status,
             toStatus: 'APPROVED',
             actorId: actor.id,
             actorName: actor.fullName,
-            newProfitPct: existing.confirmedProfitPct,
-            newCommissionRate: existing.commissionRatePct,
-            newCommissionAmount: existing.commissionAmount,
+            newProfitPct: current.confirmedProfitPct,
+            newCommissionRate: current.commissionRatePct,
+            newCommissionAmount: current.commissionAmount,
             reason: reason || 'อนุมัติจ่ายค่าคอมมิชชั่น',
           },
         });
@@ -103,6 +133,16 @@ export async function PATCH(
     }
 
     const updated = await prisma.$transaction(async (tx) => {
+      await acquireCommissionJobLock(tx, existing.jobId);
+
+      const current = await tx.salesCommissionRequest.findUnique({ where: { id } });
+      if (!current) {
+        throw new Error('ไม่พบคำขอค่าคอมมิชชั่น');
+      }
+      if (current.status === 'PAID') {
+        throw new Error('คำขอนี้บันทึกจ่ายเงินแล้ว ไม่สามารถเปลี่ยนสถานะได้');
+      }
+
       const saved = await tx.salesCommissionRequest.update({
         where: { id },
         data: {
@@ -118,7 +158,7 @@ export async function PATCH(
         data: {
           requestId: id,
           action: 'REJECTED',
-          fromStatus: existing.status,
+          fromStatus: current.status,
           toStatus: 'REJECTED',
           actorId: actor.id,
           actorName: actor.fullName,
@@ -139,7 +179,10 @@ export async function PATCH(
     return NextResponse.json({ success: true, request: updated });
   } catch (error: unknown) {
     console.error('Error in PATCH /api/sales/commissions/[id]/decision:', error);
-    const message = error instanceof Error ? error.message : 'บันทึกผลการอนุมัติไม่สำเร็จ';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const { status, message } = resolveCommissionMutationError(
+      error,
+      'บันทึกผลการอนุมัติไม่สำเร็จ'
+    );
+    return NextResponse.json({ error: message }, { status });
   }
 }

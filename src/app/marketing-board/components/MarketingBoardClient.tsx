@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useTransition, useCallback } from 'react';
+import Link from 'next/link';
 import { 
   Bell, Plus, Search, Filter, Sparkles, Layers, Archive, 
-  FileText, CheckCircle2, ChevronDown, Clock, ShieldCheck, RefreshCw, Building2 
+  FileText, CheckCircle2, ChevronDown, Clock, ShieldCheck, RefreshCw, Building2, CalendarDays 
 } from 'lucide-react';
 import PromotionsKanbanView from './PromotionsKanbanView';
 import SalesMaterialsTab from './SalesMaterialsTab';
@@ -22,6 +23,7 @@ interface MarketingBoardClientProps {
   initialArchiveData: any[];
   initialBranchContentData?: any;
   initialTab?: 'kanban' | 'branch_content' | 'materials' | 'archive';
+  canAccessContentPlanning?: boolean;
   currentUser: any;
 }
 
@@ -31,6 +33,7 @@ export default function MarketingBoardClient({
   initialArchiveData,
   initialBranchContentData,
   initialTab = 'kanban',
+  canAccessContentPlanning = false,
   currentUser
 }: MarketingBoardClientProps) {
   // Navigation Tabs
@@ -168,6 +171,17 @@ export default function MarketingBoardClient({
                   </span>
                 )}
               </button>
+
+              {/* Content Planning Workspace Link */}
+              {canAccessContentPlanning && (
+                <Link
+                  href="/marketing-board/content-planning"
+                  className="py-2.5 px-4 rounded-xl bg-white hover:bg-red-50 text-slate-800 hover:text-red-700 border border-slate-200/90 hover:border-red-200 text-xs md:text-sm font-bold flex items-center gap-2 shadow-2xs transition-all shrink-0"
+                >
+                  <CalendarDays size={16} className="text-red-600" />
+                  <span>วางแผนคอนเทนต์</span>
+                </Link>
+              )}
 
               {/* Create Announcement Button (for Marketing & Admin) */}
               {canManage && (

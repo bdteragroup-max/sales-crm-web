@@ -7,7 +7,10 @@ import {
   resolveCostAndProfitInputs,
 } from '@/app/lib/salesCommission';
 import {
+  acquireCommissionJobLocks,
+  assertNoActiveCommissionConflictForJob,
   getCommissionActor,
+  resolveCommissionMutationError,
   syncRequestSplitAllocations,
 } from '@/app/lib/salesCommissionServer';
 
@@ -64,6 +67,7 @@ export async function POST(request: NextRequest) {
     });
     const existingById = new Map(existingRows.map((r) => [r.id, r]));
 
+    const rowsByJobId = new Map<string, typeof existingRows>();
     for (const item of items) {
       const existing = existingById.get(item.id);
       if (!existing) {
@@ -75,16 +79,56 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+      const list = rowsByJobId.get(existing.jobId) || [];
+      list.push(existing);
+      rowsByJobId.set(existing.jobId, list);
+    }
+
+    for (const [, dupRows] of rowsByJobId) {
+      if (dupRows.length > 1) {
+        const reqNos = dupRows.map((r) => r.requestNo).join(', ');
+        return NextResponse.json(
+          {
+            error: `ไม่สามารถอนุมัติได้ เนื่องจากเลือกคำขอซ้ำสำหรับ Job ${dupRows[0].jobNumber} (${reqNos})`,
+          },
+          { status: 400 }
+        );
+      }
     }
 
     const updatedRequests = await prisma.$transaction(
       async (tx) => {
+        await acquireCommissionJobLocks(tx, Array.from(rowsByJobId.keys()));
+
+        const freshRows = await tx.salesCommissionRequest.findMany({
+          where: { id: { in: items.map((i) => i.id) } },
+          include: { splits: { orderBy: { sortOrder: 'asc' } } },
+        });
+        const freshById = new Map(freshRows.map((r) => [r.id, r]));
+
         const results = [];
         const logsToCreate: Prisma.SalesCommissionLogCreateManyInput[] = [];
         const now = new Date();
 
         for (const item of items) {
-          const existing = existingById.get(item.id)!;
+          const existing = freshById.get(item.id);
+          if (!existing) {
+            throw new Error('ไม่พบบางคำขอค่าคอมมิชชั่นในระบบ');
+          }
+          if (existing.status === 'PAID') {
+            throw new Error(
+              `คำขอ ${existing.requestNo} บันทึกจ่ายเงินแล้ว ไม่สามารถอนุมัติซ้ำได้`
+            );
+          }
+
+          await assertNoActiveCommissionConflictForJob(tx, {
+            requestId: existing.id,
+            jobId: existing.jobId,
+            jobNumber: existing.jobNumber,
+            nextStatus: 'APPROVED',
+            actionLabel: `อนุมัติ ${existing.requestNo}`,
+          });
+
           let nextCostAmount = existing.costAmount;
           let nextSourceProfit = existing.sourceProfitPct;
           let nextProfitPct = existing.confirmedProfitPct;
@@ -220,9 +264,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: unknown) {
     console.error('Error in POST /api/sales/commissions/bulk-approve:', error);
-    const message = error instanceof Error ? error.message : 'อนุมัติหลายรายการไม่สำเร็จ';
-    const isClientErr =
-      message.includes('กรุณา') || message.includes('ตัวเลข') || message.includes('จ่ายเงิน');
-    return NextResponse.json({ error: message }, { status: isClientErr ? 400 : 500 });
+    const { status, message } = resolveCommissionMutationError(
+      error,
+      'อนุมัติหลายรายการไม่สำเร็จ'
+    );
+    return NextResponse.json({ error: message }, { status });
   }
 }

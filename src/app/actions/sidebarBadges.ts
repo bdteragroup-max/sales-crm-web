@@ -4,8 +4,10 @@ import { getUser } from '@/app/lib/dal';
 import {
   canViewAllServiceCalls,
   isLogisticsManager,
+  isMarketingStaff,
   isSalesOrMarketingManager,
   isSuperUser,
+  isReadOnlyExecutive,
   isTransportStaff,
 } from '@/app/lib/roleHelper';
 import { canEstimateSurveyRole } from '@/app/lib/surveyMetadata';
@@ -26,6 +28,7 @@ import { getPendingEstimationCount } from '@/app/actions/estimations';
 import { getPendingMarketingRequestCount } from '@/app/actions/marketingRequests';
 import { getUnreadMarketingBoardCount } from '@/app/actions/marketingBoard';
 import { getBranchContentSidebarAccess } from '@/app/actions/branchContent';
+import { resolveContentPlanningPermissions } from '@/app/actions/contentPlanning';
 import { getPendingServiceClaimCount } from '@/app/actions/serviceClaims';
 import {
   getOpenServiceCallCount,
@@ -45,6 +48,7 @@ export interface SidebarBadgeSummary {
   pendingMarketingRequestCount: number;
   unreadMarketingBoardCount: number;
   canAccessBranchContent: boolean;
+  canAccessContentPlanning: boolean;
   pendingBranchContentCount: number;
   pendingClaimCount: number;
   openServiceCallCount: number;
@@ -66,6 +70,7 @@ const EMPTY_BADGE_SUMMARY: SidebarBadgeSummary = {
   pendingMarketingRequestCount: 0,
   unreadMarketingBoardCount: 0,
   canAccessBranchContent: false,
+  canAccessContentPlanning: false,
   pendingBranchContentCount: 0,
   pendingClaimCount: 0,
   openServiceCallCount: 0,
@@ -162,6 +167,18 @@ export async function getSidebarBadgeSummary(
         const res = await getBranchContentSidebarAccess();
         result.canAccessBranchContent = res.canAccess;
         result.pendingBranchContentCount = res.pendingCount;
+      },
+      async () => {
+        if (
+          isSuperUser(user.role) ||
+          isReadOnlyExecutive(user.role) ||
+          isMarketingStaff(user.role)
+        ) {
+          result.canAccessContentPlanning = true;
+          return;
+        }
+        const { permissions } = await resolveContentPlanningPermissions();
+        result.canAccessContentPlanning = Boolean(permissions?.canAccess);
       },
       async () => {
         result.pendingClaimCount = await getPendingServiceClaimCount();
